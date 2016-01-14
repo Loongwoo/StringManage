@@ -9,6 +9,8 @@
 #import "StringWindowController.h"
 #import "StringModel.h"
 #import "StringManage.h"
+#import "PreferencesWindowController.h"
+#import "ProjectSetting.h"
 
 #define KEY @"key"
 #define REMOVE @"remove"
@@ -16,13 +18,17 @@
 @interface StringWindowController()<NSTableViewDelegate,NSTableViewDataSource,NSTextFieldDelegate>
 
 @property (nonatomic, strong)IBOutlet NSTableView *tableview;
+@property (weak) IBOutlet NSButton *refreshBtn;
 @property (weak) IBOutlet NSButton *saveBtn;
+
 @property (nonatomic, strong) NSMutableArray *stringArray;
 @property (nonatomic, strong) NSMutableArray *keyArray;
 @property (nonatomic, strong) NSMutableArray *actionArray;
+@property () PreferencesWindowController* prefsController;
 
 - (IBAction)addAction:(id)sender;
 - (IBAction)saveAction:(id)sender;
+- (IBAction)refresh:(id)sender;
 
 @end
 
@@ -33,23 +39,58 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+- (void)awakeFromNib
+{
+    self.prefsController = [[PreferencesWindowController alloc] init];
+}
+
 - (void)windowDidLoad
 {
     [super windowDidLoad];
     
+    self.actionArray=[[NSMutableArray alloc]init];
+    self.stringArray = [[NSMutableArray alloc]init];
+    self.keyArray = [[NSMutableArray alloc]init];
+    
     self.window.level = NSFloatingWindowLevel;
     self.window.hidesOnDeactivate = YES;
     
+    self.tableview.delegate=self;
+    self.tableview.dataSource = self;
+    self.tableview.doubleAction = @selector(doubleClicked:);
+    [self.window makeFirstResponder:self.tableview];
+    
+    [self.saveBtn setTitle:LocalizedString(@"Save")];
+    [self.refreshBtn setTitle:LocalizedString(@"Refresh")];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(_onNotifyProjectSettingChanged:)
+                                                 name:kNotifyProjectSettingChanged
+                                               object:nil];
+    
+    [self refresh:nil];
+}
+
+-(void)refreshTableView
+{
+    NSArray *columns = [[NSArray alloc]initWithArray:self.tableview.tableColumns];
+    [columns enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSTableColumn *column = (NSTableColumn*)obj;
+        [self.tableview removeTableColumn:column];
+    }];
+    
+    NSLog(@"self.tableview.tableColumns %ld",self.tableview.tableColumns.count);
+    
     float width = self.tableview.bounds.size.width;
     float columnWidth = (width - 80.0)/(_stringArray.count+1);
+    NSLog(@"columnWidth %f",columnWidth);
     
-    NSTableColumn *column0 = [self.tableview tableColumnWithIdentifier:@"defaultCell"];
-    [self.tableview removeTableColumn:column0];
-    
-    NSTableColumn * column1 = [[NSTableColumn alloc] initWithIdentifier:KEY];
-    [column1 setTitle:KEY];
-    [column1 setWidth:columnWidth];
-    [self.tableview addTableColumn:column1];
+    NSTableColumn * column = [[NSTableColumn alloc] initWithIdentifier:KEY];
+    [column setTitle:KEY];
+    [column setWidth:columnWidth];
+    [self.tableview addTableColumn:column];
     
     for (StringModel *model in _stringArray) {
         NSTableColumn * column = [[NSTableColumn alloc] initWithIdentifier:model.identifier];
@@ -63,18 +104,12 @@
     [lastcolumn setWidth:80];
     [self.tableview addTableColumn:lastcolumn];
     
-    self.tableview.delegate=self;
-    self.tableview.dataSource = self;
-    self.tableview.doubleAction = @selector(doubleClicked:);
-    [self.window makeFirstResponder:self.tableview];
-    
-    [self.saveBtn setTitle:LocalizedString(@"Save")];
-    
     [self.tableview reloadData];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
-    
-    self.actionArray=[[NSMutableArray alloc]init];
+}
+
+- (void)_onNotifyProjectSettingChanged:(NSNotification*)notification
+{
+    [self refresh:nil];
 }
 
 - (IBAction)openAbout:(id)sender
@@ -84,35 +119,77 @@
 
 - (IBAction)showPreferencesPanel:(id)sender
 {
-//    [self.prefsController loadWindow];
-//    
-//    NSRect windowFrame = [[self window] frame], prefsFrame = [[self.prefsController window] frame];
-//    prefsFrame.origin = NSMakePoint(windowFrame.origin.x + (windowFrame.size.width - prefsFrame.size.width) / 2.0,
-//                                    NSMaxY(windowFrame) - NSHeight(prefsFrame) - 20.0);
-//    
-//    [[self.prefsController window] setFrame:prefsFrame
-//                                    display:NO];
-//    
-//    [self.prefsController showWindow:sender];
+    [self.prefsController loadWindow];
+    
+    NSRect windowFrame = [[self window] frame], prefsFrame = [[self.prefsController window] frame];
+    prefsFrame.origin = NSMakePoint(windowFrame.origin.x + (windowFrame.size.width - prefsFrame.size.width) / 2.0,
+                                    NSMaxY(windowFrame) - NSHeight(prefsFrame) - 20.0);
+    
+    [[self.prefsController window] setFrame:prefsFrame display:NO];
+    [self.prefsController showWindow:sender];
+}
+
+- (NSArray *)lprojDirectoryInPath:(NSString *)path
+{
+    NSMutableArray *bundles = [NSMutableArray array];
+    
+    NSArray* array = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:nil];
+    for(int i = 0; i<[array count]; i++){
+        NSString *fullPath = [path stringByAppendingPathComponent:array[i]];
+        NSError *error = nil;
+        NSDictionary *attr = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:&error];
+        if ([attr[NSFileType] isEqualTo:NSFileTypeDirectory]) {
+            if ([@"lproj" isEqualToString:fullPath.pathExtension]) {
+                [bundles addObject:fullPath];
+            }
+        }
+    }
+    return [NSArray arrayWithArray:bundles];
 }
 
 - (IBAction)refresh:(id)sender
 {
-    [_stringArray removeAllObjects];
-    [_keyArray removeAllObjects];
-    
-    NSMutableSet *keySet = [[NSMutableSet alloc]init];
-    for (NSString *path in _pathArray) {
-        StringModel *model = [[StringModel alloc]initWithPath:path];
-        [_stringArray addObject:model];
-        NSArray *keys = model.stringDictionary.allKeys;
-        NSSet *set = [NSSet setWithArray:keys];
-        [keySet unionSet:set];
-    }
-    
-    [_keyArray addObjectsFromArray:keySet.allObjects];
-    
-    [self.tableview reloadData];
+    NSString *searchDirectory = [ProjectSetting shareInstance].searchDirectory;
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        
+        NSArray *lprojDirectorys = [self lprojDirectoryInPath:searchDirectory];
+            if (lprojDirectorys.count == 0) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSAlert *alert = [[NSAlert alloc]init];
+                    [alert setMessageText: LocalizedString(@"NoLocalizedFiles")];
+                    [alert addButtonWithTitle: LocalizedString(@"OK")];
+                    [alert setAlertStyle:NSWarningAlertStyle];
+                    [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
+                        ;
+                    }];
+                });
+            }
+            else
+            {
+                [_stringArray removeAllObjects];
+                [_keyArray removeAllObjects];
+                
+                NSMutableSet *keySet = [[NSMutableSet alloc]init];
+                for (NSString *path in lprojDirectorys) {
+                    StringModel *model = [[StringModel alloc]initWithPath:path];
+                    [_stringArray addObject:model];
+                    NSArray *keys = model.stringDictionary.allKeys;
+                    NSSet *set = [NSSet setWithArray:keys];
+                    [keySet unionSet:set];
+                }
+                
+                [_keyArray addObjectsFromArray:keySet.allObjects];
+                NSLog(@"_keyArray %@",_keyArray);
+                [_keyArray sortedArrayUsingComparator:^NSComparisonResult(NSString * obj1, NSString * obj2) {
+                    return [obj1 compare:obj2];
+                }];
+                NSLog(@"_keyArray %@",_keyArray);
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self refreshTableView];
+                });
+            }
+    });
 }
 
 - (IBAction)addAction:(id)sender
@@ -171,23 +248,6 @@
     return ![tableColumn.identifier isEqualToString:REMOVE];
 }
 
--(void)setPathArray:(NSArray *)pathArray
-{
-    NSLog(@"%s",__func__);
-    _pathArray = pathArray;
-    if(!_stringArray)
-    {
-        _stringArray = [[NSMutableArray alloc]init];
-    }
-    
-    if(!_keyArray)
-    {
-        _keyArray = [[NSMutableArray alloc]init];
-    }
-    
-    [self refresh:nil];
-}
-
 -(NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
 {
     return _keyArray.count;
@@ -217,7 +277,7 @@
         return aView;
     } else {
         NSString *title = [self titleWithKey:key identifier:identifier];
-        NSTextField *aView = [tableView makeViewWithIdentifier:identifier owner:self];
+        NSTextField *aView = [tableView makeViewWithIdentifier:@"MYCell" owner:self];
         if(!aView)
         {
             aView = [[NSTextField alloc]initWithFrame:NSZeroRect];

@@ -1,9 +1,11 @@
 "StringManage"="String manage";
 "Remove"="Remove";
-"Save"="Save78";
+"Save"="Save";
 "NoLocalizedFiles"="No localized string file";
 "Cancel"="Cancel";
 "RemoveConfirm"="Are you sure to remove '%@'?";
 "InputKeyMsg"="Please input the key:";
-"OK2"="OK";
 "fuck"="fuck";
+"OK"="OK";
+"Refresh"="Refresh";
+"FileExtensionInvalid"="File extension is invalid.";

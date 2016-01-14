@@ -10,8 +10,6 @@
 
 @interface StringWindowController : NSWindowController
 
-@property (nonatomic, strong) NSArray *pathArray;
-
 - (IBAction)refresh:(id)sender;
 
 @end

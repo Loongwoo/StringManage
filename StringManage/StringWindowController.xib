@@ -7,6 +7,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="StringWindowController">
             <connections>
+                <outlet property="refreshBtn" destination="51u-NQ-dAe" id="zJE-9L-OZM"/>
                 <outlet property="saveBtn" destination="I4O-1U-Rjs" id="77R-hv-hZK"/>
                 <outlet property="tableview" destination="8Bz-xn-9ZO" id="xDf-bO-Rpn"/>
                 <outlet property="window" destination="1" id="3"/>
@@ -32,7 +33,7 @@
                             <rect key="frame" x="1" y="0.0" width="899" height="549"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
-                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" autosaveColumns="NO" rowSizeStyle="automatic" headerView="Upo-t4-dkx" viewBased="YES" id="8Bz-xn-9ZO">
+                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" autosaveColumns="NO" headerView="Upo-t4-dkx" id="8Bz-xn-9ZO">
                                     <rect key="frame" x="0.0" y="0.0" width="899" height="526"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
@@ -40,35 +41,18 @@
                                     <tableViewGridLines key="gridStyleMask" vertical="YES" horizontal="YES"/>
                                     <color key="gridColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                     <tableColumns>
-                                        <tableColumn identifier="defaultCell" width="896" minWidth="40" maxWidth="1000" id="9wt-Mv-HhU">
+                                        <tableColumn identifier="key" width="896" minWidth="40" maxWidth="1000" id="9wt-Mv-HhU">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                                 <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                             </tableHeaderCell>
-                                            <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" title="Text Cell" id="VSM-3A-ZdE">
+                                            <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" title="Text" id="UtW-6r-qok">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
-                                            <prototypeCellViews>
-                                                <tableCellView id="KPS-EF-s7O">
-                                                    <rect key="frame" x="1" y="1" width="896" height="17"/>
-                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                    <subviews>
-                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" id="CfG-Ph-JMZ">
-                                                            <rect key="frame" x="0.0" y="0.0" width="896" height="17"/>
-                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="odq-55-du8">
-                                                                <font key="font" metaFont="system"/>
-                                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                            </textFieldCell>
-                                                        </textField>
-                                                    </subviews>
-                                                </tableCellView>
-                                            </prototypeCellViews>
                                         </tableColumn>
                                     </tableColumns>
                                     <connections>
@@ -114,17 +98,23 @@
                             <action selector="saveAction:" target="-2" id="GXa-48-ByN"/>
                         </connections>
                     </button>
+                    <button verticalHuggingPriority="750" id="51u-NQ-dAe">
+                        <rect key="frame" x="14" y="3" width="81" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="push" title="Button" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="r9o-wg-iNy">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="refresh:" target="-2" id="SDI-iu-DzO"/>
+                        </connections>
+                    </button>
                 </subviews>
             </view>
             <toolbar key="toolbar" implicitIdentifier="FE022600-8BEC-4CD9-9E13-4B6746454E02" autosavesConfiguration="NO" displayMode="labelOnly" sizeMode="regular" id="rEi-SS-K4T">
                 <allowedToolbarItems>
                     <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="u08-bj-rSv"/>
                     <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="Hlr-zW-dBx"/>
-                    <toolbarItem implicitItemIdentifier="BD73F720-2433-4393-A371-E8E6A2C60DBE" label="Refresh" paletteLabel="Refresh" tag="-1" image="NSMenuOnStateTemplate" id="bpk-vh-Cwi">
-                        <connections>
-                            <action selector="refresh:" target="-2" id="OgX-l5-TrC"/>
-                        </connections>
-                    </toolbarItem>
                     <toolbarItem implicitItemIdentifier="73390101-EBFD-41A6-ADE0-55CB103D508D" label="Select Folder" paletteLabel="Select" tag="-1" image="NSFolder" id="nDu-Su-piC"/>
                     <toolbarItem implicitItemIdentifier="NSToolbarSeparatorItem" id="ZhF-7h-yzz"/>
                     <toolbarItem implicitItemIdentifier="5983ABF0-89C6-4A80-A1A3-E9955AD64C0D" label="About" paletteLabel="About" tag="-1" image="NSFollowLinkFreestandingTemplate" id="Zmk-AM-sMt">
@@ -139,7 +129,6 @@
                     </toolbarItem>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
-                    <toolbarItem reference="bpk-vh-Cwi"/>
                     <toolbarItem reference="Hlr-zW-dBx"/>
                     <toolbarItem reference="s7c-lS-Xl6"/>
                     <toolbarItem reference="Zmk-AM-sMt"/>
@@ -156,6 +145,5 @@
         <image name="NSAddTemplate" width="11" height="11"/>
         <image name="NSFolder" width="32" height="32"/>
         <image name="NSFollowLinkFreestandingTemplate" width="14" height="14"/>
-        <image name="NSMenuOnStateTemplate" width="12" height="12"/>
     </resources>
 </document>

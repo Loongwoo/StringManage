@@ -7,6 +7,7 @@
 //
 
 #import "StringModel.h"
+#import "ProjectSetting.h"
 
 static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\\S+))\\s*=\\s*\"(.*)\";$";
 
@@ -17,7 +18,8 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
     self = [super init];
     if (self) {
         self.path = path;
-        self.filePath = [path stringByAppendingPathComponent:@"Localizable.strings"];
+        NSString *searchTableName = [ProjectSetting shareInstance].searchTableName;
+        self.filePath = [path stringByAppendingPathComponent:searchTableName];
         self.identifier = [[path lastPathComponent] stringByDeletingPathExtension];
         
         self.stringDictionary = [NSMutableDictionary dictionary];

@@ -13,6 +13,9 @@
 		111BA6931C46554C00AA9E80 /* StringManage.xcscheme in Resources */ = {isa = PBXBuildFile; fileRef = 111BA6921C46554C00AA9E80 /* StringManage.xcscheme */; };
 		111BA6961C46554C00AA9E80 /* StringManage.m in Sources */ = {isa = PBXBuildFile; fileRef = 111BA6951C46554C00AA9E80 /* StringManage.m */; };
 		111BA6E11C465CE800AA9E80 /* IAWorkspace.m in Sources */ = {isa = PBXBuildFile; fileRef = 111BA6E01C465CE800AA9E80 /* IAWorkspace.m */; };
+		1166BD781C47C4A100AC94F7 /* ProjectSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 1166BD771C47C4A100AC94F7 /* ProjectSetting.m */; };
+		1166BD821C47C86600AC94F7 /* PreferencesWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1166BD801C47C86600AC94F7 /* PreferencesWindowController.m */; };
+		1166BD831C47C86600AC94F7 /* PreferencesWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1166BD811C47C86600AC94F7 /* PreferencesWindowController.xib */; };
 		11C3646F1C467D550090E172 /* StringModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 11C3646E1C467D550090E172 /* StringModel.m */; };
 		11CE6C7D1C4660AC00A05A3D /* StringWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 11CE6C7C1C4660AC00A05A3D /* StringWindowController.xib */; };
 		11CE6C801C46620F00A05A3D /* StringWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 11CE6C7F1C46620F00A05A3D /* StringWindowController.m */; };
@@ -33,6 +36,11 @@
 		111BA6DF1C465CE800AA9E80 /* IAWorkspace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IAWorkspace.h; sourceTree = "<group>"; };
 		111BA6E01C465CE800AA9E80 /* IAWorkspace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IAWorkspace.m; sourceTree = "<group>"; };
 		111BA6E21C465D0000AA9E80 /* XcodeIDE.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XcodeIDE.h; sourceTree = "<group>"; };
+		1166BD761C47C4A100AC94F7 /* ProjectSetting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectSetting.h; sourceTree = "<group>"; };
+		1166BD771C47C4A100AC94F7 /* ProjectSetting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProjectSetting.m; sourceTree = "<group>"; };
+		1166BD7F1C47C86600AC94F7 /* PreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesWindowController.h; sourceTree = "<group>"; };
+		1166BD801C47C86600AC94F7 /* PreferencesWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesWindowController.m; sourceTree = "<group>"; };
+		1166BD811C47C86600AC94F7 /* PreferencesWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesWindowController.xib; sourceTree = "<group>"; };
 		11C3646D1C467D550090E172 /* StringModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringModel.h; sourceTree = "<group>"; };
 		11C3646E1C467D550090E172 /* StringModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringModel.m; sourceTree = "<group>"; };
 		11CE6C7C1C4660AC00A05A3D /* StringWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = StringWindowController.xib; sourceTree = "<group>"; };
@@ -93,6 +101,11 @@
 				11CE6C7C1C4660AC00A05A3D /* StringWindowController.xib */,
 				11C3646D1C467D550090E172 /* StringModel.h */,
 				11C3646E1C467D550090E172 /* StringModel.m */,
+				1166BD761C47C4A100AC94F7 /* ProjectSetting.h */,
+				1166BD771C47C4A100AC94F7 /* ProjectSetting.m */,
+				1166BD7F1C47C86600AC94F7 /* PreferencesWindowController.h */,
+				1166BD801C47C86600AC94F7 /* PreferencesWindowController.m */,
+				1166BD811C47C86600AC94F7 /* PreferencesWindowController.xib */,
 			);
 			path = StringManage;
 			sourceTree = "<group>";
@@ -167,6 +180,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				11CE6C7D1C4660AC00A05A3D /* StringWindowController.xib in Resources */,
+				1166BD831C47C86600AC94F7 /* PreferencesWindowController.xib in Resources */,
 				11012F061C47404200FB4391 /* Localizable.strings in Resources */,
 				111BA6931C46554C00AA9E80 /* StringManage.xcscheme in Resources */,
 			);
@@ -179,7 +193,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1166BD821C47C86600AC94F7 /* PreferencesWindowController.m in Sources */,
 				111BA6E11C465CE800AA9E80 /* IAWorkspace.m in Sources */,
+				1166BD781C47C4A100AC94F7 /* ProjectSetting.m in Sources */,
 				111BA6961C46554C00AA9E80 /* StringManage.m in Sources */,
 				11CE6C801C46620F00A05A3D /* StringWindowController.m in Sources */,
 				11C3646F1C467D550090E172 /* StringModel.m in Sources */,

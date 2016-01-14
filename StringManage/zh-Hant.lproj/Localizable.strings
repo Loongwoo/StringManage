@@ -4,6 +4,8 @@
 "NoLocalizedFiles"="沒有找到本地化文件";
 "Cancel"="取消";
 "RemoveConfirm"="你確定要刪除'%@'嗎？";
-"OK2"="確定";
 "fuck"="掉";
 "InputKeyMsg"="請輸入key：";
+"OK"="確定";
+"Refresh"="刷新";
+"FileExtensionInvalid"="文件格式不對";

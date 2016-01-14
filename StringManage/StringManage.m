@@ -9,6 +9,7 @@
 #import "StringManage.h"
 #import "IAWorkspace.h"
 #import "StringWindowController.h"
+#import "ProjectSetting.h"
 
 @interface StringManage()
 
@@ -70,73 +71,30 @@
 {
     NSString *currentWorkspace = [IAWorkspace currentWorkspacePath];
     if (currentWorkspace) {
-//        NSString *currentWorkingDir = [currentWorkspace stringByDeletingLastPathComponent];
-//        NSString *path = [currentWorkingDir stringByAppendingPathComponent:@"KiwikTest"];
-        NSString *path = [currentWorkspace stringByDeletingPathExtension];
-        NSArray *lprojDirectorys = [self lprojDirectoryInPath:path];
-        if (lprojDirectorys.count == 0) {
-            NSAlert *alert = [[NSAlert alloc]init];
-            [alert setMessageText: LocalizedString(@"NoLocalizedFiles")];
-            [alert addButtonWithTitle: LocalizedString(@"OK")];
-            [alert setAlertStyle:NSWarningAlertStyle];
-            [alert runModal];
-        }
-        else {
-            [self toggleManage:lprojDirectorys];
-        }
-    }
-}
-
--(void)toggleManage:(NSArray*)pathArray
-{
-    NSLog(@"%s %@",__func__, pathArray);
-    if (self.windowController.window.isVisible) {
-        [self.windowController.window close];
-    } else {
-        if (self.windowController == nil) {
-            StringWindowController* wc = [[StringWindowController alloc] initWithWindowNibName:@"StringWindowController"];
-            self.windowController = wc;
-        }
-        [self.windowController setPathArray:pathArray];
-        [self.windowController.window makeKeyAndOrderFront:nil];
-    }
-}
-
-- (NSArray *)lprojDirectoryInPath:(NSString *)path
-{
-    NSMutableArray *bundles = [NSMutableArray array];
-    
-    NSArray* array = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:nil];
-    for(int i = 0; i<[array count]; i++){
-        NSString *fullPath = [path stringByAppendingPathComponent:array[i]];
-        NSError *error = nil;
-        NSDictionary *attr = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:&error];
-        if ([attr[NSFileType] isEqualTo:NSFileTypeDirectory]) {
-            if ([@"lproj" isEqualToString:fullPath.pathExtension]) {
-                [bundles addObject:fullPath];
-            }
-        }
-    }
-    
-    /* NSDirectoryEnumerator *enumerator = [[NSFileManager defaultManager] enumeratorAtPath:path];
-    NSString *filePath = nil;
-    while (filePath = [enumerator nextObject]) {
-        if([filePath hasPrefix:@"DerivedData/"]
-           || [filePath hasPrefix:@".git/"]
-           || [filePath hasPrefix:@"Pods/"])
-            continue;
+        NSString *searchDirectory = [currentWorkspace stringByDeletingPathExtension];
+        NSString *projectName = [currentWorkspace lastPathComponent];
         
-        NSString *fullPath = [path stringByAppendingPathComponent:filePath];
-        NSError *error = nil;
-        NSDictionary *attr = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:&error];
-        if ([attr[NSFileType] isEqualTo:NSFileTypeDirectory]) {
-            if ([@"lproj" isEqualToString:filePath.pathExtension]) {
-                [bundles addObject:fullPath];
-            }
+        [ProjectSetting shareInstance].projectName = projectName;
+        NSString *saveTag = [[ProjectSetting shareInstance] settingName];
+        NSDictionary *dict = [[NSUserDefaults standardUserDefaults] dictionaryForKey:saveTag];
+        if(dict) {
+            [ProjectSetting shareInstance].searchDirectory = dict[kSearchDirectory];
+            [ProjectSetting shareInstance].searchTableName = dict[kSearchTableName];
+        }else{
+            [ProjectSetting shareInstance].searchDirectory = searchDirectory;
+            [ProjectSetting shareInstance].searchTableName = @"Localizable.strings";
         }
-    } */
-    
-    return [NSArray arrayWithArray:bundles];
+        
+        if (self.windowController.window.isVisible) {
+            [self.windowController.window close];
+        } else {
+            if (self.windowController == nil) {
+                StringWindowController* wc = [[StringWindowController alloc] initWithWindowNibName:@"StringWindowController"];
+                self.windowController = wc;
+            }
+            [self.windowController.window makeKeyAndOrderFront:nil];
+        }
+    }
 }
 
 - (void)dealloc
