@@ -178,12 +178,11 @@
                     [keySet unionSet:set];
                 }
                 
-                [_keyArray addObjectsFromArray:keySet.allObjects];
-                NSLog(@"_keyArray %@",_keyArray);
-                [_keyArray sortedArrayUsingComparator:^NSComparisonResult(NSString * obj1, NSString * obj2) {
-                    return [obj1 compare:obj2];
+                NSArray *tmp = [[NSArray alloc]initWithArray:keySet.allObjects];
+                NSArray *sortedArray = [tmp sortedArrayUsingComparator:^NSComparisonResult(NSString * obj1, NSString * obj2) {
+                    return [obj1 compare:obj2 options:NSNumericSearch];
                 }];
-                NSLog(@"_keyArray %@",_keyArray);
+                [_keyArray addObjectsFromArray:sortedArray];
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self refreshTableView];
