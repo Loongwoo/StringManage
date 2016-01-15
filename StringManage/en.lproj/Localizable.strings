@@ -7,8 +7,8 @@
 "OK"="OK";
 "Refresh"="Refresh";
 "FileExtensionInvalid"="File extension is invalid.";
-"SearchDirectory"="Search Directory";
-"SearchTableName"="Search Table Name";
+"SearchDirectory"="Search Directory(superior directory of *.lproj folder)";
+"SearchTableName"="Search Table Name(With extension of .strings)";
 "RecordNumMsg"="Total %ld records";
 "Preferences"="Preferences";
 "StringManage"="String Manage";
@@ -17,4 +17,5 @@
 
 "Search"="Search";
 
-"Good3"="Good4";
+
+

@@ -7,8 +7,8 @@
 "OK"="确定";
 "Refresh"="刷新";
 "FileExtensionInvalid"="文件格式不對";
-"SearchDirectory"="搜索路径";
-"SearchTableName"="搜索表名";
+"SearchDirectory"="搜索路径（*.lproj 文件夹的上级目录）";
+"SearchTableName"="搜索表名（包含.strings后缀）";
 "RecordNumMsg"="共%ld条记录";
 "Preferences"="偏好设置";
 "StringManage"="字符串管理";
@@ -16,4 +16,5 @@
 "InputIsExist"="该字符串已经存在";
 "Search"="搜索";
 
-"Good3"="Good";
+
+

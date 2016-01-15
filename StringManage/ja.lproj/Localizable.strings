@@ -6,14 +6,15 @@
 "InputKeyMsg"="入力して下さい key:";
 "OK"="確定";
 "Refresh"="更新";
-"SearchTableName"="検索表名";
+"SearchTableName"="検索表名（含まれ.strings接尾辞）";
 "FileExtensionInvalid"="ファイル形式は間違っている";
-"SearchDirectory"="検索経路";
-"RecordNumMsg"="Total %ld records";
+"SearchDirectory"="検索経路（*.lproj 上級ディレクトリ）";
+"RecordNumMsg"="%ld件の記録がある";
 "Preferences"="設定";
 "StringManage"="文字列管理";
 
 "InputIsExist"="文字列はすでに存在している";
 "Search"="検索";
 
-"Good3"="Good";
+
+

@@ -103,7 +103,7 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" id="I4O-1U-Rjs">
-                        <rect key="frame" x="805" y="3" width="81" height="32"/>
+                        <rect key="frame" x="805" y="31" width="81" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="Button" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="a6e-yB-NOG">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -114,7 +114,7 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" id="51u-NQ-dAe">
-                        <rect key="frame" x="14" y="3" width="81" height="32"/>
+                        <rect key="frame" x="14" y="31" width="81" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="Button" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="r9o-wg-iNy">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -124,12 +124,8 @@
                             <action selector="refresh:" target="-2" id="SDI-iu-DzO"/>
                         </connections>
                     </button>
-                    <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" id="5uT-PR-2fe">
-                        <rect key="frame" x="46" y="10" width="16" height="16"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    </progressIndicator>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="of1-0h-X5c">
-                        <rect key="frame" x="359" y="14" width="182" height="17"/>
+                        <rect key="frame" x="360" y="12" width="182" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Label" id="hft-OR-gay">
                             <font key="font" metaFont="system"/>
@@ -137,6 +133,10 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" id="5uT-PR-2fe">
+                        <rect key="frame" x="46" y="40" width="16" height="16"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </progressIndicator>
                 </subviews>
             </view>
             <toolbar key="toolbar" implicitIdentifier="FE022600-8BEC-4CD9-9E13-4B6746454E02" autosavesConfiguration="NO" displayMode="labelOnly" sizeMode="regular" id="rEi-SS-K4T">

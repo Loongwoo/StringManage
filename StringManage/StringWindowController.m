@@ -65,6 +65,7 @@
     
     [self.searchField setPlaceholderString:LocalizedString(@"Search")];
     [self.saveBtn setTitle:LocalizedString(@"Save")];
+    [self.saveBtn setEnabled:NO];
     [self.refreshBtn setTitle:LocalizedString(@"Refresh")];
     
     self.progressIndicator.hidden = YES;
@@ -159,7 +160,7 @@
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self refreshTableView];
-                    self.recordLabel.stringValue = [NSString stringWithFormat:LocalizedString(@"RecordNumMsg"),_keyArray.count];
+                    
                     [self.progressIndicator setHidden:YES];
                     [self.progressIndicator startAnimation:nil];
                     [self.refreshBtn setEnabled:YES];
@@ -221,6 +222,7 @@
         }
         self.showArray = tmp;
     }
+    self.recordLabel.stringValue = [NSString stringWithFormat:LocalizedString(@"RecordNumMsg"),self.showArray.count];
     [self.tableview reloadData];
 }
 
@@ -254,8 +256,7 @@
     } else {
         [_keyArray addObject:input];
         [self.searchField setStringValue:@""];
-        self.showArray = _keyArray;
-        [self.tableview reloadData];
+        [self searchAnswer:nil];
         [self.tableview scrollRowToVisible:_keyArray.count-1];
     }
 }
@@ -268,6 +269,7 @@
         [model doAction:_actionArray];
     }
     [_actionArray removeAllObjects];
+    [self.saveBtn setEnabled:NO];
     [self refresh:nil];
 }
 
@@ -319,6 +321,8 @@
             }
             NSInteger index = [_keyArray indexOfObject:oldValue];
             [_keyArray replaceObjectAtIndex:index withObject:newValue];
+            
+            [self.saveBtn setEnabled:YES];
         }
     } else {
         for (StringModel *model in _stringArray) {
@@ -331,6 +335,8 @@
                 [_actionArray addObject:action];
                 
                 [model.stringDictionary setObject:newValue forKey:key];
+                
+                [self.saveBtn setEnabled:YES];
             }
         }
     }
@@ -339,9 +345,9 @@
 -(void)removeAction:(id)sender {
     NSButton *button = (NSButton*)sender;
     NSString *key=button.identifier;
-    NSString *msg = [NSString stringWithFormat:LocalizedString(@"RemoveConfirm"),key];
     
     NSAlert *alert = [[NSAlert alloc]init];
+    NSString *msg = [NSString stringWithFormat:LocalizedString(@"RemoveConfirm"),key];
     [alert setMessageText: msg];
     [alert addButtonWithTitle: LocalizedString(@"OK")];
     [alert addButtonWithTitle:LocalizedString(@"Cancel")];
@@ -356,6 +362,7 @@
                 [_actionArray addObject:action];
                 
                 [model.stringDictionary removeObjectForKey:key];
+                [self.saveBtn setEnabled:YES];
             }
             [_keyArray removeObject:key];
             
