@@ -202,18 +202,20 @@
 }
 
 - (IBAction)searchAnswer:(id)sender {
-    NSString *searchString = [_searchField.stringValue uppercaseString];
+    NSString *searchString = _searchField.stringValue;
     if(searchString.length==0){
         self.showArray = _keyArray;
     }else{
         NSMutableArray *tmp = [NSMutableArray array];
         for (NSString *key in _keyArray) {
-            if([[key uppercaseString] rangeOfString:searchString].length>0){
+            NSRange range = [key rangeOfString:searchString options:NSCaseInsensitiveSearch];
+            if(range.length>0){
                 [tmp addObject:key];
             }else{
                 for (StringModel *model in _stringArray) {
                     NSString *value = [model.stringDictionary objectForKey:key];
-                    if([[value uppercaseString] rangeOfString:searchString].length>0){
+                    NSRange range1 = [value rangeOfString:searchString options:NSCaseInsensitiveSearch];
+                    if(range1.length>0){
                         [tmp addObject:key];
                         break;
                     }
