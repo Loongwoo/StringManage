@@ -15,22 +15,25 @@
 #define KEY @"key"
 #define REMOVE @"remove"
 
-@interface StringWindowController()<NSTableViewDelegate,NSTableViewDataSource,NSTextFieldDelegate>
+@interface StringWindowController()<NSTableViewDelegate,NSTableViewDataSource,NSTextFieldDelegate,NSSearchFieldDelegate>
 
 @property (nonatomic, strong)IBOutlet NSTableView *tableview;
 @property (weak) IBOutlet NSButton *refreshBtn;
 @property (weak) IBOutlet NSButton *saveBtn;
 @property (weak) IBOutlet NSProgressIndicator *progressIndicator;
 @property (weak) IBOutlet NSTextField *recordLabel;
+@property (weak) IBOutlet NSSearchField *searchField;
 
 @property (nonatomic, strong) NSMutableArray *stringArray;
 @property (nonatomic, strong) NSMutableArray *keyArray;
 @property (nonatomic, strong) NSMutableArray *actionArray;
 @property () PreferencesWindowController* prefsController;
+@property (nonatomic, strong) NSArray *showArray;
 
 - (IBAction)addAction:(id)sender;
 - (IBAction)saveAction:(id)sender;
 - (IBAction)refresh:(id)sender;
+- (IBAction)searchAnswer:(id)sender;
 
 @end
 
@@ -60,6 +63,7 @@
     self.tableview.doubleAction = @selector(doubleClicked:);
     [self.window makeFirstResponder:self.tableview];
     
+    [self.searchField setPlaceholderString:LocalizedString(@"Search")];
     [self.saveBtn setTitle:LocalizedString(@"Save")];
     [self.refreshBtn setTitle:LocalizedString(@"Refresh")];
     
@@ -73,38 +77,6 @@
                                                object:nil];
     
     [self refresh:nil];
-}
-
--(void)refreshTableView {
-    NSArray *columns = [[NSArray alloc]initWithArray:self.tableview.tableColumns];
-    [columns enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        NSTableColumn *column = (NSTableColumn*)obj;
-        [self.tableview removeTableColumn:column];
-    }];
-    
-    float width = self.tableview.bounds.size.width;
-    float columnWidth = (width - 80.0)/(_stringArray.count+1);
-    
-    NSTableColumn * column = [[NSTableColumn alloc] initWithIdentifier:KEY];
-    [column setTitle:KEY];
-    [column setWidth:columnWidth];
-    [self.tableview addTableColumn:column];
-    
-    for (StringModel *model in _stringArray) {
-        NSTableColumn * column = [[NSTableColumn alloc] initWithIdentifier:model.identifier];
-        [column setTitle:model.identifier];
-        [column setWidth:columnWidth];
-        [self.tableview addTableColumn:column];
-    }
-    
-    NSTableColumn * lastcolumn = [[NSTableColumn alloc] initWithIdentifier:REMOVE];
-    [lastcolumn setTitle:@""];
-    [lastcolumn setWidth:80];
-    [lastcolumn setMinWidth:60];
-    [lastcolumn setMaxWidth:100];
-    [self.tableview addTableColumn:lastcolumn];
-    
-    [self.tableview reloadData];
 }
 
 - (void)_onNotifyProjectSettingChanged:(NSNotification*)notification {
@@ -186,7 +158,6 @@
                 [_keyArray addObjectsFromArray:sortedArray];
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    
                     [self refreshTableView];
                     self.recordLabel.stringValue = [NSString stringWithFormat:LocalizedString(@"RecordNumMsg"),_keyArray.count];
                     [self.progressIndicator setHidden:YES];
@@ -195,6 +166,63 @@
                 });
             }
     });
+}
+
+-(void)refreshTableView {
+    NSArray *columns = [[NSArray alloc]initWithArray:self.tableview.tableColumns];
+    [columns enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSTableColumn *column = (NSTableColumn*)obj;
+        [self.tableview removeTableColumn:column];
+    }];
+    
+    float width = self.tableview.bounds.size.width;
+    float columnWidth = (width - 80.0)/(_stringArray.count+1);
+    
+    NSTableColumn * column = [[NSTableColumn alloc] initWithIdentifier:KEY];
+    [column setTitle:KEY];
+    [column setWidth:columnWidth];
+    [self.tableview addTableColumn:column];
+    
+    for (StringModel *model in _stringArray) {
+        NSTableColumn * column = [[NSTableColumn alloc] initWithIdentifier:model.identifier];
+        [column setTitle:model.identifier];
+        [column setWidth:columnWidth];
+        [self.tableview addTableColumn:column];
+    }
+    
+    NSTableColumn * lastcolumn = [[NSTableColumn alloc] initWithIdentifier:REMOVE];
+    [lastcolumn setTitle:@""];
+    [lastcolumn setWidth:80];
+    [lastcolumn setMinWidth:60];
+    [lastcolumn setMaxWidth:100];
+    [self.tableview addTableColumn:lastcolumn];
+    
+    [self searchAnswer:nil];
+}
+
+- (IBAction)searchAnswer:(id)sender {
+    NSString *searchString = [_searchField.stringValue uppercaseString];
+    NSLog(@"%s %@",__func__, searchString);
+    if(searchString.length==0){
+        self.showArray = _keyArray;
+    }else{
+        NSMutableArray *tmp = [NSMutableArray array];
+        for (NSString *key in _keyArray) {
+            if([[key uppercaseString] rangeOfString:searchString].length>0){
+                [tmp addObject:key];
+            }else{
+                for (StringModel *model in _stringArray) {
+                    NSString *value = [model.stringDictionary objectForKey:key];
+                    if([[value uppercaseString] rangeOfString:searchString].length>0){
+                        [tmp addObject:key];
+                        break;
+                    }
+                }
+            }
+        }
+        self.showArray = tmp;
+    }
+    [self.tableview reloadData];
 }
 
 - (IBAction)addAction:(id)sender {
@@ -226,6 +254,10 @@
         }];
     } else {
         [_keyArray addObject:input];
+        
+        [self.searchField setStringValue:@""];
+        
+        self.showArray = _keyArray;
         [self.tableview reloadData];
         
         [self.tableview scrollRowToVisible:_keyArray.count-1];
@@ -260,10 +292,10 @@
 -(void)endEditingAction:(NSNotification*)notification {
     NSTextField *textField = notification.object;
     NSString *identifier = textField.identifier;
-    if(identifier.length==0 || textField.tag >= _keyArray.count)
+    if(identifier.length==0 || textField.tag >= _showArray.count)
         return;
     
-    NSString *key = _keyArray[textField.tag];
+    NSString *key = _showArray[textField.tag];
     NSString *oldValue = [self titleWithKey:key identifier:identifier];
     NSString *newValue = textField.stringValue;
     if([oldValue isEqualToString:newValue])
@@ -272,7 +304,7 @@
     if([identifier isEqualToString:KEY]) {
         if([_keyArray containsObject:newValue] || newValue.length==0) {
             //TODO ??? key必须唯一
-            [self.tableview reloadData];
+            [self searchAnswer:nil];
         } else {
             for (StringModel *model in _stringArray) {
                 NSString *value = [self titleWithKey:key identifier:model.identifier];
@@ -292,7 +324,8 @@
                 [_actionArray addObject:action1];
                 [model.stringDictionary removeObjectForKey:key];
             }
-            [_keyArray replaceObjectAtIndex:textField.tag withObject:newValue];
+            NSInteger index = [_keyArray indexOfObject:oldValue];
+            [_keyArray replaceObjectAtIndex:index withObject:newValue];
         }
     } else {
         for (StringModel *model in _stringArray) {
@@ -314,8 +347,7 @@
 
 -(void)removeAction:(id)sender {
     NSButton *button = (NSButton*)sender;
-    NSInteger row = button.tag;
-    NSString *key=[_keyArray objectAtIndex:row];
+    NSString *key=button.identifier;
     NSString *msg = [NSString stringWithFormat:LocalizedString(@"RemoveConfirm"),key];
     
     NSAlert *alert = [[NSAlert alloc]init];
@@ -334,13 +366,13 @@
                 
                 [model.stringDictionary removeObjectForKey:key];
             }
-            [_keyArray removeObjectAtIndex:row];
+            [_keyArray removeObject:key];
             
             [self.tableview beginUpdates];
-            [self.tableview removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:row] withAnimation:NSTableViewAnimationEffectFade];
+            [self.tableview removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:button.tag] withAnimation:NSTableViewAnimationEffectFade];
             [self.tableview endUpdates];
             
-            [self.tableview reloadData];
+            [self searchAnswer:nil];
         }
     }];
 }
@@ -374,7 +406,7 @@
 }
 
 -(NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
-    return self.keyArray.count;
+    return self.showArray.count;
 }
 
 -(CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row {
@@ -382,10 +414,10 @@
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    if(row>=_keyArray.count)
+    if(row>=self.showArray.count)
         return nil;
     NSString *identifier=[tableColumn identifier];
-    NSString *key = _keyArray[row];
+    NSString *key = self.showArray[row];
     if([identifier isEqualToString:@"remove"]){
         NSButton *aView = [tableView makeViewWithIdentifier:identifier owner:self];
         if(!aView) {
@@ -396,6 +428,7 @@
             [aView setState:1];
         }
         [aView setTag:row];
+        [aView setIdentifier:key];
         return aView;
     } else {
         NSString *title = [self titleWithKey:key identifier:identifier];

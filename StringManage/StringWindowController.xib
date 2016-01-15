@@ -11,6 +11,7 @@
                 <outlet property="recordLabel" destination="of1-0h-X5c" id="tRP-vN-EEb"/>
                 <outlet property="refreshBtn" destination="51u-NQ-dAe" id="zJE-9L-OZM"/>
                 <outlet property="saveBtn" destination="I4O-1U-Rjs" id="77R-hv-hZK"/>
+                <outlet property="searchField" destination="mDh-8w-vmB" id="C4z-r1-2n2"/>
                 <outlet property="tableview" destination="8Bz-xn-9ZO" id="xDf-bO-Rpn"/>
                 <outlet property="window" destination="1" id="3"/>
             </connections>
@@ -28,15 +29,27 @@
                 <rect key="frame" x="0.0" y="0.0" width="900" height="600"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
+                    <searchField wantsLayer="YES" verticalHuggingPriority="750" id="mDh-8w-vmB">
+                        <rect key="frame" x="0.0" y="578" width="900" height="22"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <searchFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" borderStyle="bezel" usesSingleLineMode="YES" bezelStyle="round" id="qkq-Jw-S4h">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            <connections>
+                                <action selector="searchAnswer:" target="-2" id="6tE-Id-BPz"/>
+                            </connections>
+                        </searchFieldCell>
+                    </searchField>
                     <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="Olz-UM-36X">
-                        <rect key="frame" x="0.0" y="69" width="901" height="531"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                        <rect key="frame" x="0.0" y="69" width="901" height="511"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES"/>
                         <clipView key="contentView" id="VQE-gg-0rc">
-                            <rect key="frame" x="1" y="0.0" width="899" height="530"/>
+                            <rect key="frame" x="1" y="0.0" width="899" height="510"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="JdV-Fw-ypl" id="8Bz-xn-9ZO">
-                                    <rect key="frame" x="0.0" y="0.0" width="899" height="513"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="899" height="493"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
                                     <color key="backgroundColor" red="0.96862745100000003" green="0.96862745100000003" blue="0.96862745100000003" alpha="1" colorSpace="calibratedRGB"/>
