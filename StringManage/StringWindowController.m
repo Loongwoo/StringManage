@@ -224,13 +224,12 @@
         [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
             
         }];
-        return;
+    } else {
+        [_keyArray addObject:input];
+        [self.tableview reloadData];
+        
+        [self.tableview scrollRowToVisible:_keyArray.count-1];
     }
-    
-    [_keyArray addObject:input];
-    [self.tableview reloadData];
-    
-    [self.tableview scrollRowToVisible:_keyArray.count-1];
 }
 
 - (IBAction)saveAction:(id)sender {
@@ -260,8 +259,11 @@
 
 -(void)endEditingAction:(NSNotification*)notification {
     NSTextField *textField = notification.object;
-    NSString *key = _keyArray[textField.tag];
     NSString *identifier = textField.identifier;
+    if(identifier.length==0 || textField.tag >= _keyArray.count)
+        return;
+    
+    NSString *key = _keyArray[textField.tag];
     NSString *oldValue = [self titleWithKey:key identifier:identifier];
     NSString *newValue = textField.stringValue;
     if([oldValue isEqualToString:newValue])
