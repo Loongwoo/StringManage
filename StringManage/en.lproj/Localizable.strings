@@ -5,7 +5,9 @@
 "Cancel"="Cancel";
 "RemoveConfirm"="Are you sure to remove '%@'?";
 "InputKeyMsg"="Please input the key:";
-"fuck"="fuck";
 "OK"="OK";
 "Refresh"="Refresh";
 "FileExtensionInvalid"="File extension is invalid.";
+"SearchDirectory"="Search Directory";
+"SearchTableName"="Search Table Name";
+"Preference"="Preference";

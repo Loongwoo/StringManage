@@ -4,8 +4,10 @@
 "NoLocalizedFiles"="没有找到本地化文件";
 "Cancel"="取消";
 "RemoveConfirm"="你确定要刪除'%@'吗？";
-"fuck"="碉堡了";
 "InputKeyMsg"="请输入Key:";
 "OK"="确定";
 "Refresh"="刷新";
 "FileExtensionInvalid"="文件格式不對";
+"SearchDirectory"="搜索路径";
+"SearchTableName"="搜索表名";
+"Preference"="偏好设置";

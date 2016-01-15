@@ -33,8 +33,8 @@
                             <rect key="frame" x="1" y="0.0" width="899" height="549"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
-                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" autosaveColumns="NO" headerView="Upo-t4-dkx" id="8Bz-xn-9ZO">
-                                    <rect key="frame" x="0.0" y="0.0" width="899" height="526"/>
+                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="JdV-Fw-ypl" id="8Bz-xn-9ZO">
+                                    <rect key="frame" x="0.0" y="0.0" width="899" height="532"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
                                     <color key="backgroundColor" red="0.96862745100000003" green="0.96862745100000003" blue="0.96862745100000003" alpha="1" colorSpace="calibratedRGB"/>
@@ -63,7 +63,7 @@
                             </subviews>
                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </clipView>
-                        <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="0.5" horizontal="YES" id="M2p-Wz-7dE">
+                        <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="M2p-Wz-7dE">
                             <rect key="frame" x="1" y="534" width="899" height="15"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
@@ -71,8 +71,8 @@
                             <rect key="frame" x="224" y="17" width="15" height="102"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
-                        <tableHeaderView key="headerView" id="Upo-t4-dkx">
-                            <rect key="frame" x="0.0" y="0.0" width="899" height="23"/>
+                        <tableHeaderView key="headerView" id="JdV-Fw-ypl">
+                            <rect key="frame" x="0.0" y="0.0" width="899" height="17"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </tableHeaderView>
                     </scrollView>

@@ -10,6 +10,4 @@
 
 @interface StringWindowController : NSWindowController
 
-- (IBAction)refresh:(id)sender;
-
 @end

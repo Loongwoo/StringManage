@@ -13,8 +13,7 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
 
 @implementation StringModel
 
-- (instancetype)initWithPath:(NSString*)path
-{
+- (instancetype)initWithPath:(NSString*)path {
     self = [super init];
     if (self) {
         self.path = path;
@@ -59,18 +58,15 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
     return self;
 }
 
--(void)doAction:(NSArray*)actions
-{
+-(void)doAction:(NSArray*)actions {
     NSString *string = [NSString stringWithContentsOfFile:self.filePath usedEncoding:nil error:nil];
     
     NSMutableString *mutableString = [[NSMutableString alloc]initWithString:string];
     
     NSRegularExpression *regularExpression = [NSRegularExpression regularExpressionWithPattern:kRegularExpressionPattern options:0 error:nil];
     
-    for (ActionModel *action in actions)
-    {
-        if(![action.identifier isEqualToString:_identifier])
-        {
+    for (ActionModel *action in actions) {
+        if(![action.identifier isEqualToString:_identifier]) {
             continue;
         }
         __block NSInteger lineOffset = 0;
@@ -83,12 +79,10 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
             
             NSRange lineRange = [mutableString lineRangeForRange:NSMakeRange(lineOffset, 0)];
             NSTextCheckingResult *result = [regularExpression firstMatchInString:line options:0 range:NSMakeRange(0, line.length)];
-            if (result.range.location != NSNotFound && result.numberOfRanges == 5)
-            {
+            if (result.range.location != NSNotFound && result.numberOfRanges == 5) {
                 keyRange = [result rangeAtIndex:2];
                 
-                if (keyRange.location == NSNotFound)
-                {
+                if (keyRange.location == NSNotFound) {
                     keyRange = [result rangeAtIndex:3];
                 }
                 valueRange = [result rangeAtIndex:4];
@@ -96,19 +90,12 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
                 value = [line substringWithRange:valueRange];
             }
             
-            if (key && value)
-            {
-                if([key isEqualToString:action.key])
-                {
+            if (key && value) {
+                if([key isEqualToString:action.key]) {
                     found = YES;
-                    if(action.actionType == ActionTypeRemove)
-                    {
-                        NSLog(@"delete a line");
+                    if(action.actionType == ActionTypeRemove) {
                         [mutableString deleteCharactersInRange:lineRange];
-                    }
-                    else
-                    {
-                        NSLog(@"modify a value");
+                    } else {
                         valueRange.location += lineOffset;
                         [mutableString deleteCharactersInRange:valueRange];
                         [mutableString insertString:action.value atIndex:valueRange.location];
@@ -119,24 +106,19 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
             
             lineOffset += lineRange.length;
         }];
-        if(!found && action.actionType == ActionTypeAdd)
-        {
+        if(!found && action.actionType == ActionTypeAdd) {
             [mutableString appendFormat:@"\n\"%@\"=\"%@\";",action.key, action.value];
         }
     }
-    
-    NSLog(@"mutableString %@",mutableString);
     //write to filepath
     NSError *error = nil;
     BOOL result = [mutableString writeToFile:self.filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
-    if(!result)
-    {
+    if(!result) {
         NSLog(@"failed to save %@",[error description]);
     }
 }
 
--(NSString*)description
-{
+-(NSString*)description {
     return [NSString stringWithFormat:@"path %@\n filePath %@\n identifier %@\n stringDictionary %@",_path,_filePath,_identifier,_stringDictionary];
 }
 
@@ -144,8 +126,7 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
 
 @implementation ActionModel
 
--(NSString*)description
-{
+-(NSString*)description {
     return [NSString stringWithFormat:@"%ld %@ %@ %@",_actionType, _identifier, _key, _value];
 }
 

@@ -7,9 +7,11 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="PreferencesWindowController">
             <connections>
+                <outlet property="dirTitleTextField" destination="9Gl-CX-mpM" id="dUK-rD-wiv"/>
                 <outlet property="directoryTextField" destination="eLp-i5-sLN" id="1Fg-ce-h05"/>
                 <outlet property="saveBtn" destination="w0S-q5-atc" id="Urz-EQ-vAI"/>
                 <outlet property="tableNameTextField" destination="X8Q-nw-JiC" id="jiX-2R-edF"/>
+                <outlet property="tableTitleTextField" destination="4cn-m2-ndp" id="dfC-0M-Q4B"/>
                 <outlet property="window" destination="1" id="3"/>
             </connections>
         </customObject>
@@ -18,23 +20,23 @@
         <window title="StringManage Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" oneShot="NO" releasedWhenClosed="NO" animationBehavior="default" id="1" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" utility="YES" documentModal="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="196" y="240" width="400" height="186"/>
+            <rect key="contentRect" x="196" y="240" width="548" height="186"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1028"/>
             <view key="contentView" id="2">
-                <rect key="frame" x="0.0" y="0.0" width="400" height="186"/>
+                <rect key="frame" x="0.0" y="0.0" width="548" height="186"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textField verticalHuggingPriority="750" id="eLp-i5-sLN">
-                        <rect key="frame" x="21" y="120" width="359" height="22"/>
+                        <rect key="frame" x="21" y="120" width="507" height="22"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="" drawsBackground="YES" id="xUd-8U-R96">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" white="0.79045962589999996" alpha="1" colorSpace="calibratedWhite"/>
+                            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="9Gl-CX-mpM">
-                        <rect key="frame" x="18" y="149" width="364" height="17"/>
+                        <rect key="frame" x="18" y="149" width="512" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Search Directory" id="Lrb-34-KIB">
                             <font key="font" metaFont="system"/>
@@ -43,7 +45,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="4cn-m2-ndp">
-                        <rect key="frame" x="19" y="85" width="363" height="17"/>
+                        <rect key="frame" x="19" y="85" width="511" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Search Table Name" id="SsT-5M-fW4">
                             <font key="font" metaFont="system"/>
@@ -52,16 +54,16 @@
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" id="X8Q-nw-JiC">
-                        <rect key="frame" x="20" y="60" width="360" height="22"/>
+                        <rect key="frame" x="20" y="60" width="508" height="22"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="" drawsBackground="YES" id="5xv-t9-R3v">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" white="0.79045962591240881" alpha="1" colorSpace="calibratedWhite"/>
+                            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" id="w0S-q5-atc">
-                        <rect key="frame" x="305" y="13" width="81" height="32"/>
+                        <rect key="frame" x="453" y="13" width="81" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="Button" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="dVN-T0-Tcn">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -76,7 +78,7 @@
             <connections>
                 <outlet property="delegate" destination="-2" id="JA5-A9-I4b"/>
             </connections>
-            <point key="canvasLocation" x="426" y="233"/>
+            <point key="canvasLocation" x="500" y="233"/>
         </window>
         <arrayController objectClassName="XToDoTagName" preservesSelection="NO" avoidsEmptySelection="NO" clearsFilterPredicateOnInsertion="NO" automaticallyRearrangesObjects="YES" id="WWn-Ij-LgJ">
             <declaredKeys>

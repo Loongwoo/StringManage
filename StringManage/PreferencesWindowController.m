@@ -11,7 +11,8 @@
 #import "ProjectSetting.h"
 
 @interface PreferencesWindowController ()
-
+@property (weak) IBOutlet NSTextField *dirTitleTextField;
+@property (weak) IBOutlet NSTextField *tableTitleTextField;
 @property (weak) IBOutlet NSTextField* directoryTextField;
 @property (weak) IBOutlet NSTextField* tableNameTextField;
 @property (weak) IBOutlet NSButton *saveBtn;
@@ -31,19 +32,16 @@
 {
     [super loadWindow];
     
-    [self.saveBtn setTitle:LocalizedString(@"Save")];
-    
-    [self _updateDirsUI];
-}
-
-- (void)_updateDirsUI {
+    [self.window setTitle:LocalizedString(@"Preference")];
+    [self.dirTitleTextField setStringValue:LocalizedString(@"SearchDirectory")];
+    [self.tableTitleTextField setStringValue:LocalizedString(@"SearchTableName")];
     self.directoryTextField.stringValue = [[ProjectSetting shareInstance] searchDirectory];
     self.tableNameTextField.stringValue = [[ProjectSetting shareInstance] searchTableName];
+    [self.saveBtn setTitle:LocalizedString(@"Save")];
 }
 
 - (IBAction)saveAction:(id)sender {
     NSString *extension = [self.tableNameTextField.stringValue pathExtension];
-    NSLog(@"extension %@",extension);
     if(![extension isEqualToString:@"strings"]) {
         NSAlert *alert = [[NSAlert alloc]init];
         [alert setMessageText: LocalizedString(@"FileExtensionInvalid")];
