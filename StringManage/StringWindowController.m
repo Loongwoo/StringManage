@@ -20,6 +20,7 @@
 @property (nonatomic, strong)IBOutlet NSTableView *tableview;
 @property (weak) IBOutlet NSButton *refreshBtn;
 @property (weak) IBOutlet NSButton *saveBtn;
+@property (weak) IBOutlet NSProgressIndicator *progressIndicator;
 
 @property (nonatomic, strong) NSMutableArray *stringArray;
 @property (nonatomic, strong) NSMutableArray *keyArray;
@@ -59,6 +60,8 @@
     
     [self.saveBtn setTitle:LocalizedString(@"Save")];
     [self.refreshBtn setTitle:LocalizedString(@"Refresh")];
+    
+    self.progressIndicator.hidden = YES;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
     
@@ -139,18 +142,26 @@
 }
 
 - (IBAction)refresh:(id)sender {
+    
+    [self.progressIndicator setHidden:NO];
+    [self.progressIndicator startAnimation:nil];
+    [self.refreshBtn setEnabled:NO];
+    
     NSString *searchDirectory = [ProjectSetting shareInstance].searchDirectory;
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         
         NSArray *lprojDirectorys = [self lprojDirectoryInPath:searchDirectory];
             if (lprojDirectorys.count == 0) {
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    
                     NSAlert *alert = [[NSAlert alloc]init];
                     [alert setMessageText: LocalizedString(@"NoLocalizedFiles")];
                     [alert addButtonWithTitle: LocalizedString(@"OK")];
                     [alert setAlertStyle:NSWarningAlertStyle];
                     [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
-                        ;
+                        [self.progressIndicator setHidden:YES];
+                        [self.progressIndicator stopAnimation:nil];
+                        [self.refreshBtn setEnabled:YES];
                     }];
                 });
             } else {
@@ -173,7 +184,11 @@
                 [_keyArray addObjectsFromArray:sortedArray];
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    
                     [self refreshTableView];
+                    [self.progressIndicator setHidden:YES];
+                    [self.progressIndicator startAnimation:nil];
+                    [self.refreshBtn setEnabled:YES];
                 });
             }
     });

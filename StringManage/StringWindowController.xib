@@ -7,6 +7,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="StringWindowController">
             <connections>
+                <outlet property="progressIndicator" destination="5uT-PR-2fe" id="ihM-7D-qal"/>
                 <outlet property="refreshBtn" destination="51u-NQ-dAe" id="zJE-9L-OZM"/>
                 <outlet property="saveBtn" destination="I4O-1U-Rjs" id="77R-hv-hZK"/>
                 <outlet property="tableview" destination="8Bz-xn-9ZO" id="xDf-bO-Rpn"/>
@@ -109,6 +110,10 @@
                             <action selector="refresh:" target="-2" id="SDI-iu-DzO"/>
                         </connections>
                     </button>
+                    <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" id="5uT-PR-2fe">
+                        <rect key="frame" x="46" y="10" width="16" height="16"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </progressIndicator>
                 </subviews>
             </view>
             <toolbar key="toolbar" implicitIdentifier="FE022600-8BEC-4CD9-9E13-4B6746454E02" autosavesConfiguration="NO" displayMode="labelOnly" sizeMode="regular" id="rEi-SS-K4T">
