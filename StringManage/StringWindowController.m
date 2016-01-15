@@ -84,7 +84,7 @@
 }
 
 - (IBAction)openAbout:(id)sender {
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://www.xulongwu.com"]];
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/Loongwoo/StringManage"]];
 }
 
 - (IBAction)showPreferencesPanel:(id)sender {
@@ -202,7 +202,6 @@
 
 - (IBAction)searchAnswer:(id)sender {
     NSString *searchString = [_searchField.stringValue uppercaseString];
-    NSLog(@"%s %@",__func__, searchString);
     if(searchString.length==0){
         self.showArray = _keyArray;
     }else{
@@ -254,27 +253,21 @@
         }];
     } else {
         [_keyArray addObject:input];
-        
         [self.searchField setStringValue:@""];
-        
         self.showArray = _keyArray;
         [self.tableview reloadData];
-        
         [self.tableview scrollRowToVisible:_keyArray.count-1];
     }
 }
 
 - (IBAction)saveAction:(id)sender {
     [self.window makeFirstResponder:nil];
-    
     if(_actionArray.count==0)
         return;
-    
     for (StringModel *model in _stringArray) {
         [model doAction:_actionArray];
     }
     [_actionArray removeAllObjects];
-    
     [self refresh:nil];
 }
 
@@ -329,9 +322,7 @@
         }
     } else {
         for (StringModel *model in _stringArray) {
-            
             if([model.identifier isEqualToString:identifier]) {
-                
                 ActionModel *action = [[ActionModel alloc]init];
                 action.actionType = ActionTypeAdd;
                 action.identifier = model.identifier;
@@ -391,8 +382,8 @@
     return @"";
 }
 
-#pragma
-#pragma NSTableViewDelegate & NSTableViewDataSource
+#pragma mark -
+#pragma mark - NSTableViewDelegate & NSTableViewDataSource
 - (BOOL)tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)row {
     return NO;
 }
@@ -445,6 +436,6 @@
         return aView;
     }
 }
-#pragma NSTableViewDelegate & NSTableViewDataSource
-#pragma
+#pragma mark - NSTableViewDelegate & NSTableViewDataSource
+#pragma mark -
 @end
