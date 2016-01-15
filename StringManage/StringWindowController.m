@@ -207,15 +207,30 @@
     [alert setAlertStyle:NSInformationalAlertStyle];
     [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
         if(returnCode == NSAlertFirstButtonReturn) {
-            [input validateEditing];
-            
-            if(input.stringValue.length==0)
-                return;
-            
-            [_keyArray addObject:input.stringValue];
-            [self.tableview reloadData];
+            [self dealWithInput:input.stringValue];
         }
     }];
+}
+
+-(void)dealWithInput:(NSString*)input
+{
+    if(input.length==0)
+        return;
+    if([_keyArray containsObject:input]) {
+        NSAlert *alert = [[NSAlert alloc]init];
+        [alert setMessageText: LocalizedString(@"InputIsExist")];
+        [alert addButtonWithTitle: LocalizedString(@"OK")];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
+            
+        }];
+        return;
+    }
+    
+    [_keyArray addObject:input];
+    [self.tableview reloadData];
+    
+    [self.tableview scrollRowToVisible:_keyArray.count-1];
 }
 
 - (IBAction)saveAction:(id)sender {
@@ -357,7 +372,7 @@
 }
 
 -(NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
-    return _keyArray.count;
+    return self.keyArray.count;
 }
 
 -(CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row {
@@ -365,6 +380,8 @@
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
+    if(row>=_keyArray.count)
+        return nil;
     NSString *identifier=[tableColumn identifier];
     NSString *key = _keyArray[row];
     if([identifier isEqualToString:@"remove"]){
