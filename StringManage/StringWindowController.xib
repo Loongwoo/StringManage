@@ -8,6 +8,7 @@
         <customObject id="-2" userLabel="File's Owner" customClass="StringWindowController">
             <connections>
                 <outlet property="progressIndicator" destination="5uT-PR-2fe" id="ihM-7D-qal"/>
+                <outlet property="recordLabel" destination="of1-0h-X5c" id="tRP-vN-EEb"/>
                 <outlet property="refreshBtn" destination="51u-NQ-dAe" id="zJE-9L-OZM"/>
                 <outlet property="saveBtn" destination="I4O-1U-Rjs" id="77R-hv-hZK"/>
                 <outlet property="tableview" destination="8Bz-xn-9ZO" id="xDf-bO-Rpn"/>
@@ -28,14 +29,14 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="Olz-UM-36X">
-                        <rect key="frame" x="0.0" y="50" width="901" height="550"/>
+                        <rect key="frame" x="0.0" y="69" width="901" height="531"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
                         <clipView key="contentView" id="VQE-gg-0rc">
-                            <rect key="frame" x="1" y="0.0" width="899" height="549"/>
+                            <rect key="frame" x="1" y="0.0" width="899" height="530"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
-                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="JdV-Fw-ypl" id="8Bz-xn-9ZO">
-                                    <rect key="frame" x="0.0" y="0.0" width="899" height="532"/>
+                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="JdV-Fw-ypl" id="8Bz-xn-9ZO">
+                                    <rect key="frame" x="0.0" y="0.0" width="899" height="513"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
                                     <color key="backgroundColor" red="0.96862745100000003" green="0.96862745100000003" blue="0.96862745100000003" alpha="1" colorSpace="calibratedRGB"/>
@@ -78,7 +79,7 @@
                         </tableHeaderView>
                     </scrollView>
                     <button verticalHuggingPriority="750" id="dZd-QA-tK3">
-                        <rect key="frame" x="435" y="9" width="30" height="28"/>
+                        <rect key="frame" x="435" y="34" width="30" height="28"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="NSAddTemplate" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="VXd-Qw-nAP">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -114,6 +115,15 @@
                         <rect key="frame" x="46" y="10" width="16" height="16"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </progressIndicator>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="of1-0h-X5c">
+                        <rect key="frame" x="359" y="14" width="182" height="17"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Label" id="hft-OR-gay">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                 </subviews>
             </view>
             <toolbar key="toolbar" implicitIdentifier="FE022600-8BEC-4CD9-9E13-4B6746454E02" autosavesConfiguration="NO" displayMode="labelOnly" sizeMode="regular" id="rEi-SS-K4T">

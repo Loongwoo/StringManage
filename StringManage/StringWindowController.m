@@ -21,6 +21,7 @@
 @property (weak) IBOutlet NSButton *refreshBtn;
 @property (weak) IBOutlet NSButton *saveBtn;
 @property (weak) IBOutlet NSProgressIndicator *progressIndicator;
+@property (weak) IBOutlet NSTextField *recordLabel;
 
 @property (nonatomic, strong) NSMutableArray *stringArray;
 @property (nonatomic, strong) NSMutableArray *keyArray;
@@ -52,6 +53,7 @@
     
     self.window.level = NSFloatingWindowLevel;
     self.window.hidesOnDeactivate = YES;
+    [self.window setTitle:LocalizedString(@"StringManage")];
     
     self.tableview.delegate=self;
     self.tableview.dataSource = self;
@@ -186,6 +188,7 @@
                 dispatch_async(dispatch_get_main_queue(), ^{
                     
                     [self refreshTableView];
+                    self.recordLabel.stringValue = [NSString stringWithFormat:LocalizedString(@"RecordNumMsg"),_keyArray.count];
                     [self.progressIndicator setHidden:YES];
                     [self.progressIndicator startAnimation:nil];
                     [self.refreshBtn setEnabled:YES];
@@ -216,6 +219,8 @@
 }
 
 - (IBAction)saveAction:(id)sender {
+    [self.window makeFirstResponder:nil];
+    
     if(_actionArray.count==0)
         return;
     
@@ -228,7 +233,14 @@
 }
 
 -(void)doubleClicked:(id)sender {
-    [_tableview editColumn:_tableview.clickedColumn row:_tableview.clickedRow withEvent:nil select:YES];
+    NSInteger column = _tableview.clickedColumn;
+    NSInteger row = _tableview.clickedRow;
+    if(column<0 || column >= self.tableview.tableColumns.count)
+        return;
+    if(row < 0 || row >= _keyArray.count)
+        return;
+    
+    [_tableview editColumn:column row:row withEvent:nil select:YES];
 }
 
 -(void)endEditingAction:(NSNotification*)notification {
@@ -337,7 +349,7 @@
 }
 
 - (BOOL)tableView:(NSTableView *)tableView shouldSelectTableColumn:(nullable NSTableColumn *)tableColumn {
-    return !([tableColumn.identifier isEqualToString:KEY] || [tableColumn.identifier isEqualToString:REMOVE]);
+    return NO;
 }
 
 -(BOOL)tableView:(NSTableView *)tableView shouldEditTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {

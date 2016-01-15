@@ -1,4 +1,3 @@
-"StringManage"="字符串管理";
 "Remove"="刪除";
 "Save"="保存";
 "NoLocalizedFiles"="沒有找到本地化文件";
@@ -8,4 +7,8 @@
 "OK"="確定";
 "Refresh"="刷新";
 "FileExtensionInvalid"="文件格式不對";
-"Preference"="偏好设置";
+"SearchTableName"="搜索表名";
+"SearchDirectory"="搜索路徑";
+"RecordNumMsg"="共%ld條記錄";
+"Preferences"="偏好设置";
+"StringManage"="字符串管理";

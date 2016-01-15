@@ -1,4 +1,3 @@
-"StringManage"="String manage";
 "Remove"="Remove";
 "Save"="Save";
 "NoLocalizedFiles"="No localized string file";
@@ -10,4 +9,6 @@
 "FileExtensionInvalid"="File extension is invalid.";
 "SearchDirectory"="Search Directory";
 "SearchTableName"="Search Table Name";
-"Preference"="Preference";
+"RecordNumMsg"="Total %ld records";
+"Preferences"="Preferences";
+"StringManage"="String Manage";

@@ -32,7 +32,7 @@
 {
     [super loadWindow];
     
-    [self.window setTitle:LocalizedString(@"Preference")];
+    [self.window setTitle:LocalizedString(@"Preferences")];
     [self.dirTitleTextField setStringValue:LocalizedString(@"SearchDirectory")];
     [self.tableTitleTextField setStringValue:LocalizedString(@"SearchTableName")];
     self.directoryTextField.stringValue = [[ProjectSetting shareInstance] searchDirectory];
