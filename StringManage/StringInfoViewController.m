@@ -47,7 +47,6 @@
 @end
 
 @interface StringInfoViewController ()
-@property IBOutlet NSTableView* tableView;
 @property NSMutableArray* array;
 @end
 
@@ -59,23 +58,34 @@
 }
 
 #pragma mark - override
-- (id)initWithArray:(NSArray*)array {
-    StringInfoViewController* pathEditViewController = [self initWithNibName:@"StringInfoViewController"
-                                                                    bundle:[StringManage sharedPlugin].bundle];
-    self.array = [[NSMutableArray alloc] initWithArray:array];
-    return pathEditViewController;
+
+- (instancetype)initWithArray:(NSArray*)array
+{
+    self = [super initWithNibName:nil bundle:nil];
+    if (self) {
+        self.array = [[NSMutableArray alloc] initWithArray:array];
+    }
+    return self;
 }
 
-- (void)awakeFromNib {
-    NSRect rect = self.view.frame;
-    rect.size.height = MIN(10+_array.count*35, 360);
-    self.view.frame = rect;
+-(void)loadView
+{
+    float height = MIN(10+_array.count*35, 360);
+    self.view = [[NSView alloc]initWithFrame:NSMakeRect(0,0,600, height)];
+    NSScrollView * tableContainer = [[NSScrollView alloc] initWithFrame:NSInsetRect(self.view.bounds, 5, 5)];
+    NSTableView * tableView = [[NSTableView alloc] initWithFrame:tableContainer.bounds];
+    NSTableColumn * column1 = [[NSTableColumn alloc] initWithIdentifier:@"mycell"];
+    [column1 setWidth:tableView.bounds.size.width];
+    [tableView addTableColumn:column1];
     
-    self.tableView.frame = NSInsetRect(self.view.bounds, 5, 5);
-    
-    self.tableView.dataSource = self;
-    self.tableView.delegate=self;
-    [self.tableView reloadData];
+    [tableView setDelegate:self];
+    [tableView setDataSource:self];
+    [tableView setHeaderView:nil];
+    [tableView setGridStyleMask:NSTableViewSolidHorizontalGridLineMask];
+    [tableView reloadData];
+    [tableContainer setDocumentView:tableView];
+    [tableContainer setHasVerticalScroller:YES];
+    [self.view addSubview:tableContainer];
 }
 
 #pragma mark - NSTableView
@@ -94,8 +104,8 @@
         cellView.identifier = @"mycell";
     }
     StringItem *item = [self.array objectAtIndex:row];
-    cellView.titleField.stringValue =[NSString stringWithFormat:@"Line %ld : %@",item.lineNumber, item.filePath];
-    cellView.fileField.stringValue = item.content;
+    cellView.titleField.stringValue =[NSString stringWithFormat:@"Path : %@", item.filePath];
+    cellView.fileField.stringValue = [NSString stringWithFormat:@"Line %ld:%@",item.lineNumber, item.content];
     return cellView;
 }
 

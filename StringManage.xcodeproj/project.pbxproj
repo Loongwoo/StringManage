@@ -14,7 +14,6 @@
 		111BA6961C46554C00AA9E80 /* StringManage.m in Sources */ = {isa = PBXBuildFile; fileRef = 111BA6951C46554C00AA9E80 /* StringManage.m */; };
 		1147CC3A1C4BE9FA00C44F66 /* DVTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1147CC391C4BE9FA00C44F66 /* DVTKit.framework */; };
 		1147CC3E1C4BF03000C44F66 /* StringInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1147CC3C1C4BF03000C44F66 /* StringInfoViewController.m */; };
-		1147CC3F1C4BF03000C44F66 /* StringInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1147CC3D1C4BF03000C44F66 /* StringInfoViewController.xib */; };
 		1166BD821C47C86600AC94F7 /* PreferencesWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1166BD801C47C86600AC94F7 /* PreferencesWindowController.m */; };
 		1166BD831C47C86600AC94F7 /* PreferencesWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1166BD811C47C86600AC94F7 /* PreferencesWindowController.xib */; };
 		11682D251C494445000C507E /* NSData+Split.m in Sources */ = {isa = PBXBuildFile; fileRef = 11682D241C494445000C507E /* NSData+Split.m */; };
@@ -42,7 +41,6 @@
 		1147CC391C4BE9FA00C44F66 /* DVTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = DVTKit.framework; sourceTree = "<group>"; };
 		1147CC3B1C4BF03000C44F66 /* StringInfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringInfoViewController.h; sourceTree = "<group>"; };
 		1147CC3C1C4BF03000C44F66 /* StringInfoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringInfoViewController.m; sourceTree = "<group>"; };
-		1147CC3D1C4BF03000C44F66 /* StringInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = StringInfoViewController.xib; sourceTree = "<group>"; };
 		1166BD7F1C47C86600AC94F7 /* PreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesWindowController.h; sourceTree = "<group>"; };
 		1166BD801C47C86600AC94F7 /* PreferencesWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesWindowController.m; sourceTree = "<group>"; };
 		1166BD811C47C86600AC94F7 /* PreferencesWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesWindowController.xib; sourceTree = "<group>"; };
@@ -125,7 +123,6 @@
 				11E4C7E01C4BBE9E00D4BEA9 /* StringSetting.m */,
 				1147CC3B1C4BF03000C44F66 /* StringInfoViewController.h */,
 				1147CC3C1C4BF03000C44F66 /* StringInfoViewController.m */,
-				1147CC3D1C4BF03000C44F66 /* StringInfoViewController.xib */,
 			);
 			path = StringManage;
 			sourceTree = "<group>";
@@ -202,7 +199,6 @@
 			files = (
 				11CE6C7D1C4660AC00A05A3D /* StringWindowController.xib in Resources */,
 				1166BD831C47C86600AC94F7 /* PreferencesWindowController.xib in Resources */,
-				1147CC3F1C4BF03000C44F66 /* StringInfoViewController.xib in Resources */,
 				11012F061C47404200FB4391 /* Localizable.strings in Resources */,
 				11C27BA41C4A263800AB8F97 /* PathEditViewController.xib in Resources */,
 				111BA6931C46554C00AA9E80 /* StringManage.xcscheme in Resources */,

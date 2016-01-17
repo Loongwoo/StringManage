@@ -397,9 +397,7 @@
     if(self.infoDict && key.length>0)
     {
         NSArray *infos = self.infoDict[key];
-        NSLog(@"infos %@",infos);
         NSPopover* popover = [[NSPopover alloc] init];
-        popover.delegate = self;
         popover.behavior = NSPopoverBehaviorSemitransient;
         StringInfoViewController* viewController = [[StringInfoViewController alloc] initWithArray:infos];
         [popover setContentViewController:viewController];
