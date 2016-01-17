@@ -12,7 +12,6 @@
 		111BA68F1C46554C00AA9E80 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 111BA68E1C46554C00AA9E80 /* Foundation.framework */; };
 		111BA6931C46554C00AA9E80 /* StringManage.xcscheme in Resources */ = {isa = PBXBuildFile; fileRef = 111BA6921C46554C00AA9E80 /* StringManage.xcscheme */; };
 		111BA6961C46554C00AA9E80 /* StringManage.m in Sources */ = {isa = PBXBuildFile; fileRef = 111BA6951C46554C00AA9E80 /* StringManage.m */; };
-		1147CC381C4BE7C100C44F66 /* IAWorkspace.m in Sources */ = {isa = PBXBuildFile; fileRef = 1147CC371C4BE7C100C44F66 /* IAWorkspace.m */; };
 		1147CC3A1C4BE9FA00C44F66 /* DVTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1147CC391C4BE9FA00C44F66 /* DVTKit.framework */; };
 		1166BD821C47C86600AC94F7 /* PreferencesWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1166BD801C47C86600AC94F7 /* PreferencesWindowController.m */; };
 		1166BD831C47C86600AC94F7 /* PreferencesWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1166BD811C47C86600AC94F7 /* PreferencesWindowController.xib */; };
@@ -38,9 +37,6 @@
 		111BA6941C46554C00AA9E80 /* StringManage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringManage.h; sourceTree = "<group>"; };
 		111BA6951C46554C00AA9E80 /* StringManage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StringManage.m; sourceTree = "<group>"; };
 		111BA69A1C46554C00AA9E80 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		1147CC321C4BE79D00C44F66 /* XcodeIDE.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XcodeIDE.h; sourceTree = "<group>"; };
-		1147CC361C4BE7C100C44F66 /* IAWorkspace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IAWorkspace.h; sourceTree = "<group>"; };
-		1147CC371C4BE7C100C44F66 /* IAWorkspace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IAWorkspace.m; sourceTree = "<group>"; };
 		1147CC391C4BE9FA00C44F66 /* DVTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = DVTKit.framework; sourceTree = "<group>"; };
 		1166BD7F1C47C86600AC94F7 /* PreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesWindowController.h; sourceTree = "<group>"; };
 		1166BD801C47C86600AC94F7 /* PreferencesWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesWindowController.m; sourceTree = "<group>"; };
@@ -104,9 +100,6 @@
 		111BA6901C46554C00AA9E80 /* StringManage */ = {
 			isa = PBXGroup;
 			children = (
-				1147CC321C4BE79D00C44F66 /* XcodeIDE.h */,
-				1147CC361C4BE7C100C44F66 /* IAWorkspace.h */,
-				1147CC371C4BE7C100C44F66 /* IAWorkspace.m */,
 				111BA6941C46554C00AA9E80 /* StringManage.h */,
 				111BA6951C46554C00AA9E80 /* StringManage.m */,
 				111BA6911C46554C00AA9E80 /* Supporting Files */,
@@ -216,7 +209,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				1166BD821C47C86600AC94F7 /* PreferencesWindowController.m in Sources */,
-				1147CC381C4BE7C100C44F66 /* IAWorkspace.m in Sources */,
 				111BA6961C46554C00AA9E80 /* StringManage.m in Sources */,
 				11682D251C494445000C507E /* NSData+Split.m in Sources */,
 				11C27BA31C4A263800AB8F97 /* PathEditViewController.m in Sources */,

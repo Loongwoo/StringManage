@@ -9,7 +9,6 @@
 #import "StringManage.h"
 #import "StringWindowController.h"
 #import "StringModel.h"
-#import "IAWorkspace.h"
 
 @interface StringManage()
 
@@ -63,7 +62,7 @@
 }
 
 - (void)doMenuAction {
-    NSString* filePath = [IAWorkspace currentWorkspacePath];
+    NSString* filePath = [[StringModel currentWorkspaceDocument].workspace.representingFilePath.fileURL path];
     if (filePath) {
         NSString* projectDir = [filePath stringByDeletingLastPathComponent];
         NSString *projectName = [filePath lastPathComponent];
