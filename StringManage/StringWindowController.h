@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface StringWindowController : NSWindowController
+@interface StringWindowController : NSWindowController<NSPopoverDelegate>
 
 - (void)setSearchRootDir:(NSString*)searchRootDir projectName:(NSString*)projectName;
 

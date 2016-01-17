@@ -11,9 +11,11 @@
 #import "StringManage.h"
 #import "PreferencesWindowController.h"
 #import "StringSetting.h"
+#import "StringInfoViewController.h"
 
 #define KEY @"key"
 #define REMOVE @"remove"
+#define kInfo @"info"
 
 @interface StringWindowController()<NSTableViewDelegate,NSTableViewDataSource,NSTextFieldDelegate,NSSearchFieldDelegate>
 
@@ -31,6 +33,7 @@
 @property (nonatomic, strong) NSArray *showArray;
 @property (nonatomic, copy) NSString* projectPath;
 @property (nonatomic, copy) NSString* projectName;
+@property (nonatomic, copy) NSDictionary* infoDict;
 
 - (IBAction)addAction:(id)sender;
 - (IBAction)saveAction:(id)sender;
@@ -146,7 +149,7 @@
                 }];
                 [_keyArray addObjectsFromArray:sortedArray];
                 
-                [StringModel findItemsWithProjectPath:projectSetting projectPath:self.projectPath findStrings:_keyArray];
+                self.infoDict = [StringModel findItemsWithProjectPath:projectSetting projectPath:self.projectPath findStrings:_keyArray];
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self refreshTableView];
@@ -167,7 +170,7 @@
     }];
     
     float width = self.tableview.bounds.size.width;
-    float columnWidth = (width - 80.0)/(_stringArray.count+1);
+    float columnWidth = (width - 160.0)/(_stringArray.count+1);
     
     NSTableColumn * column = [[NSTableColumn alloc] initWithIdentifier:KEY];
     [column setTitle:KEY];
@@ -187,6 +190,12 @@
     [lastcolumn setMinWidth:60];
     [lastcolumn setMaxWidth:100];
     [self.tableview addTableColumn:lastcolumn];
+    NSTableColumn * infocolumn = [[NSTableColumn alloc] initWithIdentifier:kInfo];
+    [infocolumn setTitle:@""];
+    [infocolumn setWidth:80];
+    [infocolumn setMinWidth:60];
+    [infocolumn setMaxWidth:100];
+    [self.tableview addTableColumn:infocolumn];
     
     [self searchAnswer:nil];
 }
@@ -381,6 +390,23 @@
     return @"";
 }
 
+-(void)infoAction:(id)sender
+{
+    NSButton *button = (NSButton*)sender;
+    NSString *key=button.identifier;
+    if(self.infoDict && key.length>0)
+    {
+        NSArray *infos = self.infoDict[key];
+        NSLog(@"infos %@",infos);
+        NSPopover* popover = [[NSPopover alloc] init];
+        popover.delegate = self;
+        popover.behavior = NSPopoverBehaviorTransient;
+        StringInfoViewController* viewController = [[StringInfoViewController alloc] initWithArray:infos];
+        [popover setContentViewController:viewController];
+        [popover showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];
+    }
+}
+
 #pragma mark -
 #pragma mark - NSTableViewDelegate & NSTableViewDataSource
 - (BOOL)tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)row {
@@ -420,7 +446,19 @@
         [aView setTag:row];
         [aView setIdentifier:key];
         return aView;
-    } else {
+    } if([identifier isEqualToString:@"info"]){
+        NSButton *aView = [tableView makeViewWithIdentifier:identifier owner:self];
+        if(!aView) {
+            aView = [[NSButton alloc]initWithFrame:NSZeroRect];
+            [aView setTitle:LocalizedString(@"Info")];
+            [aView setAction:@selector(infoAction:)];
+            [aView setTarget:self];
+            [aView setState:1];
+        }
+        [aView setTag:row];
+        [aView setIdentifier:key];
+        return aView;
+    }else {
         NSString *title = [self titleWithKey:key identifier:identifier];
         NSTextField *aView = [tableView makeViewWithIdentifier:@"MYCell" owner:self];
         if(!aView) {

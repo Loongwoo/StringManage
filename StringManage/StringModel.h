@@ -156,7 +156,8 @@
 + (NSString*)explandRootPathMacro:(NSString*)path projectPath:(NSString*)projectPath;
 + (NSArray*)explandRootPathMacros:(NSArray*)paths projectPath:(NSString*)projectPath;
 +(NSArray*)lprojDirectoriesWithProjectSetting:(StringSetting*)setting project:(NSString*)project;
-+ (NSArray*)findItemsWithProjectPath:(StringSetting*)projectSetting projectPath:(NSString*)projectPath findStrings:(NSArray*)findStrings;
++ (NSDictionary*)findItemsWithProjectPath:(StringSetting*)projectSetting projectPath:(NSString*)projectPath findStrings:(NSArray*)findStrings;
++ (BOOL)openItem:(StringItem*)item;
 + (StringSetting*)projectSettingByProjectName:(NSString*)projectName;
 + (void)saveProjectSetting:(StringSetting*)projectSetting ByProjectName:(NSString*)projectName;
 @end

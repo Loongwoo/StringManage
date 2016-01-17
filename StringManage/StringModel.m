@@ -439,9 +439,9 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory,
         for (NSData* dataItem in dataArray) {
             NSString* string = [[NSString alloc] initWithData:dataItem encoding:NSUTF8StringEncoding];
             if (string != nil && string.length>0) {
+                NSLog(@"string %@",string);
                 StringItem *item = [StringModel itemFromLine:string];
                 [results addObject:item];
-//                [results addObject:string];
             }
         }
         NSLog(@"findString %@ results %@ ",findString,results);
@@ -459,11 +459,12 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory,
     if (lineComponents.count < 3) {
         return nil;
     }
-    
+    NSArray *subArray = [lineComponents subarrayWithRange:NSMakeRange(2, lineComponents.count-2)];
+    NSString *content = [[NSString alloc]initWithString:[subArray componentsJoinedByString:@":"]];
     StringItem* item = [[StringItem alloc] init];
     item.filePath = lineComponents[0];
     item.lineNumber = [lineComponents[1] integerValue];
-    item.content = lineComponents[2];
+    item.content = content;
     return item;
 }
 
