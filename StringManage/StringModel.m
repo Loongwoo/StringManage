@@ -124,7 +124,6 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
     return [NSString stringWithFormat:@"path %@\n filePath %@\n identifier %@\n stringDictionary %@",_path,_filePath,_identifier,_stringDictionary];
 }
 
-/*
 + (IDEWorkspaceTabController*)tabController
 {
     NSWindowController* currentWindowController =
@@ -183,7 +182,6 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
     
     return nil;
 }
-*/
 
 +(BOOL)isSwiftWithProjectPath:(NSString*)projectPath {
     NSDirectoryEnumerator *enumerator = [[NSFileManager defaultManager] enumeratorAtPath:projectPath];
@@ -446,7 +444,7 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory,
 //                [results addObject:string];
             }
         }
-        NSLog(@"findString %@ %@ ",findString,results);
+        NSLog(@"findString %@ results %@ ",findString,results);
         if(results){
             [mutableDict setObject:results forKey:findString];
         }
@@ -468,7 +466,7 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory,
     item.content = lineComponents[2];
     return item;
 }
-/*
+
 
 + (void)highlightItem:(StringItem*)item inTextView:(NSTextView*)textView
 {
@@ -547,7 +545,7 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory,
     
     return result;
 }
-*/
+
 
 +(NSArray*)lprojDirectoriesWithProjectSetting:(StringSetting*)setting project:(NSString*)project{
     NSMutableArray *bundles = [NSMutableArray array];

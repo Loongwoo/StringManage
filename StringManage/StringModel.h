@@ -147,7 +147,7 @@
 
 -(void)doAction:(NSArray*)actions;
 
-//+ (IDEWorkspaceDocument*)currentWorkspaceDocument;
++ (IDEWorkspaceDocument*)currentWorkspaceDocument;
 
 - (instancetype)initWithPath:(NSString*)path projectSetting:(StringSetting*)projectSetting;
 
