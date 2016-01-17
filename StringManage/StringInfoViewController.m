@@ -88,7 +88,7 @@
         cellView.identifier = @"mycell";
     }
     StringItem *item = [self.array objectAtIndex:row];
-    cellView.titleField.stringValue =[NSString stringWithFormat:@"%@:%ld",item.filePath,item.lineNumber];
+    cellView.titleField.stringValue =[NSString stringWithFormat:@"Line %ld : %@",item.lineNumber, item.filePath];
     cellView.fileField.stringValue = item.content;
     return cellView;
 }
