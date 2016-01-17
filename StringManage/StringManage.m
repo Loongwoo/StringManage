@@ -7,9 +7,9 @@
 //
 
 #import "StringManage.h"
-#import "IAWorkspace.h"
 #import "StringWindowController.h"
-#import "ProjectSetting.h"
+#import "StringModel.h"
+#import "IAWorkspace.h"
 
 @interface StringManage()
 
@@ -63,21 +63,10 @@
 }
 
 - (void)doMenuAction {
-    NSString *currentWorkspace = [IAWorkspace currentWorkspacePath];
-    if (currentWorkspace) {
-        NSString *searchDirectory = [currentWorkspace stringByDeletingPathExtension];
-        NSString *projectName = [currentWorkspace lastPathComponent];
-        
-        [ProjectSetting shareInstance].projectName = projectName;
-        NSString *saveTag = [[ProjectSetting shareInstance] settingName];
-        NSDictionary *dict = [[NSUserDefaults standardUserDefaults] dictionaryForKey:saveTag];
-        if(dict) {
-            [ProjectSetting shareInstance].searchDirectory = dict[kSearchDirectory];
-            [ProjectSetting shareInstance].searchTableName = dict[kSearchTableName];
-        }else{
-            [ProjectSetting shareInstance].searchDirectory = searchDirectory;
-            [ProjectSetting shareInstance].searchTableName = @"Localizable.strings";
-        }
+    NSString* filePath = [IAWorkspace currentWorkspacePath];
+    if (filePath) {
+        NSString* projectDir = [filePath stringByDeletingLastPathComponent];
+        NSString *projectName = [filePath lastPathComponent];
         
         if (self.windowController.window.isVisible) {
             [self.windowController.window close];
@@ -87,6 +76,8 @@
                 self.windowController = wc;
             }
             [self.windowController.window makeKeyAndOrderFront:nil];
+            [self.windowController setSearchRootDir:projectDir projectName:projectName];
+            [self.windowController refresh:nil];
         }
     }
 }

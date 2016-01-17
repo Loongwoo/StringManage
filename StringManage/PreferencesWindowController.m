@@ -8,20 +8,34 @@
 
 #import "PreferencesWindowController.h"
 #import "StringManage.h"
-#import "ProjectSetting.h"
+#import "StringSetting.h"
+#import "PathEditViewController.h"
+#import "StringModel.h"
+
+NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChanged";
 
 @interface PreferencesWindowController ()
 @property (weak) IBOutlet NSTextField *dirTitleTextField;
 @property (weak) IBOutlet NSTextField *tableTitleTextField;
 @property (weak) IBOutlet NSTextField* directoryTextField;
 @property (weak) IBOutlet NSTextField* tableNameTextField;
-@property (weak) IBOutlet NSButton *saveBtn;
 
-- (IBAction)saveAction:(id)sender;
+@property (weak) IBOutlet NSTextField *searchFilesTextField;
+@property (weak) IBOutlet NSTextField *includeTextField;
+@property (weak) IBOutlet NSTextField *excludeTextField;
+- (IBAction)onTouchUpInsideLocalizable:(id)sender;
+- (IBAction)onTouchUpInsideExtension:(id)sender;
 
+- (IBAction)onTouchUpInsideEditInclude:(id)sender;
+- (IBAction)onTouchUpInsideEditExclude:(id)sender;
 @end
 
 @implementation PreferencesWindowController
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 
 - (id)init
 {
@@ -35,27 +49,138 @@
     [self.window setTitle:LocalizedString(@"Preferences")];
     [self.dirTitleTextField setStringValue:LocalizedString(@"SearchDirectory")];
     [self.tableTitleTextField setStringValue:LocalizedString(@"SearchTableName")];
-    self.directoryTextField.stringValue = [[ProjectSetting shareInstance] searchDirectory];
-    self.tableNameTextField.stringValue = [[ProjectSetting shareInstance] searchTableName];
-    [self.saveBtn setTitle:LocalizedString(@"Save")];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
+    
+    [self _updateDirsUI];
+    
+    [self.window makeFirstResponder:nil];
 }
 
-- (IBAction)saveAction:(id)sender {
-    NSString *extension = [self.tableNameTextField.stringValue pathExtension];
-    if(![extension isEqualToString:@"strings"]) {
-        NSAlert *alert = [[NSAlert alloc]init];
-        [alert setMessageText: LocalizedString(@"FileExtensionInvalid")];
-        [alert addButtonWithTitle: LocalizedString(@"OK")];
-        [alert setAlertStyle:NSWarningAlertStyle];
-        [alert runModal];
+-(void)endEditingAction:(NSNotification*)notification
+{
+    if([notification object] == self.tableNameTextField){
+        NSString *extension = [self.tableNameTextField.stringValue pathExtension];
+        if(![extension isEqualToString:@"strings"]) {
+            NSAlert *alert = [[NSAlert alloc]init];
+            [alert setMessageText: LocalizedString(@"FileExtensionInvalid")];
+            [alert addButtonWithTitle: LocalizedString(@"OK")];
+            [alert setAlertStyle:NSWarningAlertStyle];
+            [alert runModal];
+        }else{
+            StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+            projectSetting.searchTableName=self.tableNameTextField.stringValue;
+        }
+    }
+}
+
+-(void)_updateDirsUI
+{
+    StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+    
+    NSString *path1 = [StringModel explandRootPathMacro:[projectSetting searchDirectory] projectPath:self.projectPath];
+    self.directoryTextField.stringValue = path1;
+    [self.directoryTextField setSelectable:YES];
+    [self.directoryTextField setEditable:NO];
+    [self.directoryTextField resignFirstResponder];
+    
+    self.tableNameTextField.stringValue = [projectSetting searchTableName];
+    
+    self.searchFilesTextField.stringValue = [[projectSetting searchTypes] componentsJoinedByString:@","];
+    [self.searchFilesTextField setSelectable:YES];
+    [self.searchFilesTextField setEditable:NO];
+    [self.searchFilesTextField resignFirstResponder];
+    
+    NSArray* includeDirs = [StringModel explandRootPathMacros:[projectSetting includeDirs]
+                                                          projectPath:self.projectPath];
+    self.includeTextField.stringValue = [includeDirs componentsJoinedByString:@"    "];
+    [self.includeTextField setSelectable:YES];
+    [self.includeTextField setEditable:NO];
+    [self.includeTextField resignFirstResponder];
+    
+    NSArray* excludeDirs = [StringModel explandRootPathMacros:[projectSetting excludeDirs]
+                                                          projectPath:self.projectPath];
+    self.excludeTextField.stringValue = [excludeDirs componentsJoinedByString:@"    "];
+    [self.excludeTextField setSelectable:YES];
+    [self.excludeTextField setEditable:NO];
+    [self.excludeTextField resignFirstResponder];
+}
+
+- (void)windowWillClose:(NSNotification*)notification {
+    [self.window makeFirstResponder:nil];
+    
+    StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+    [StringModel saveProjectSetting:projectSetting ByProjectName:self.projectName];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kNotifyProjectSettingChanged object:nil];
+}
+
+#pragma mark - private
+- (IBAction)onTouchUpInsideLocalizable:(id)sender {
+    StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+    NSPopover* popover = [[NSPopover alloc] init];
+    popover.delegate = self;
+    popover.behavior = NSPopoverBehaviorTransient;
+    PathEditViewController* viewController = [[PathEditViewController alloc] initWithArray:@[projectSetting.searchDirectory]];
+    [popover setContentViewController:viewController];
+    viewController.pathEditType = PathEditTypeLocalizable;
+    [popover showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];
+}
+
+- (IBAction)onTouchUpInsideExtension:(id)sender {
+    StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+    NSPopover* popover = [[NSPopover alloc] init];
+    popover.delegate = self;
+    popover.behavior = NSPopoverBehaviorTransient;
+    PathEditViewController* viewController = [[PathEditViewController alloc] initWithArray:projectSetting.searchTypes];
+    [popover setContentViewController:viewController];
+    viewController.pathEditType = PathEditTypeExtension;
+    [popover showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];
+}
+
+- (IBAction)onTouchUpInsideEditInclude:(id)sender {
+    StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+    NSPopover* popover = [[NSPopover alloc] init];
+    popover.delegate = self;
+    popover.behavior = NSPopoverBehaviorTransient;
+    PathEditViewController* viewController = [[PathEditViewController alloc] initWithArray:projectSetting.includeDirs];
+    [popover setContentViewController:viewController];
+    viewController.pathEditType = PathEditTypeInclude;
+    [popover showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];
+}
+
+- (IBAction)onTouchUpInsideEditExclude:(id)sender {
+    StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+    NSPopover* popover = [[NSPopover alloc] init];
+    popover.delegate = self;
+    popover.behavior = NSPopoverBehaviorTransient;
+    PathEditViewController* viewController = [[PathEditViewController alloc] initWithArray:projectSetting.excludeDirs];
+    [popover setContentViewController:viewController];
+    viewController.pathEditType = PathEditTypeInclude;
+    [popover showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];
+}
+
+#pragma mark - NSPopoverDelegate
+- (void)popoverDidClose:(NSNotification*)notification
+{
+    NSPopover* popOver = [notification object];
+    if ([popOver isKindOfClass:[NSPopover class]] == NO) {
         return;
     }
     
-    if(! [[ProjectSetting shareInstance].searchDirectory isEqualToString:self.directoryTextField.stringValue]
-       || ! [[ProjectSetting shareInstance].searchTableName isEqualToString: self.tableNameTextField.stringValue]) {
-        [ProjectSetting shareInstance].searchDirectory = self.directoryTextField.stringValue;
-        [ProjectSetting shareInstance].searchTableName = self.tableNameTextField.stringValue;
-        [[ProjectSetting shareInstance] save];
+    PathEditViewController* pathEditViewController = (PathEditViewController*)[popOver contentViewController];
+    if ([pathEditViewController isKindOfClass:[PathEditViewController class]] == NO) {
+        return;
     }
+    StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+    if (pathEditViewController.pathEditType == PathEditTypeInclude) {
+        projectSetting.includeDirs = [pathEditViewController array];
+    } else if (pathEditViewController.pathEditType == PathEditTypeExclude) {
+        projectSetting.excludeDirs = [pathEditViewController array];
+    }else if (pathEditViewController.pathEditType == PathEditTypeLocalizable) {
+        projectSetting.searchDirectory = [[pathEditViewController array] objectAtIndex:0];
+    }else if (pathEditViewController.pathEditType == PathEditTypeExtension) {
+        projectSetting.searchTypes = [pathEditViewController array];
+    }
+    [self _updateDirsUI];
 }
 @end

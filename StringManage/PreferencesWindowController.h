@@ -8,6 +8,9 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface PreferencesWindowController : NSWindowController
+@interface PreferencesWindowController : NSWindowController<NSPopoverDelegate>
+
+@property (nonatomic, copy) NSString* projectPath;
+@property (nonatomic, copy) NSString* projectName;
 
 @end

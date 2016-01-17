@@ -10,4 +10,8 @@
 
 @interface StringWindowController : NSWindowController
 
+- (void)setSearchRootDir:(NSString*)searchRootDir projectName:(NSString*)projectName;
+
+- (IBAction)refresh:(id)sender;
+
 @end

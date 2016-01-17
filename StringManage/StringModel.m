@@ -7,18 +7,20 @@
 //
 
 #import "StringModel.h"
-#import "ProjectSetting.h"
+#import "StringSetting.h"
+#import "NSData+Split.h"
+#import "StringSetting.h"
+#import <objc/runtime.h>
 
 static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\\S+))\\s*=\\s*\"(.*)\";$";
 
 @implementation StringModel
 
-- (instancetype)initWithPath:(NSString*)path {
+- (instancetype)initWithPath:(NSString*)path projectSetting:(StringSetting*)projectSetting{
     self = [super init];
     if (self) {
         self.path = path;
-        NSString *searchTableName = [ProjectSetting shareInstance].searchTableName;
-        self.filePath = [path stringByAppendingPathComponent:searchTableName];
+        self.filePath = [path stringByAppendingPathComponent:projectSetting.searchTableName];
         self.identifier = [[path lastPathComponent] stringByDeletingPathExtension];
         
         self.stringDictionary = [NSMutableDictionary dictionary];
@@ -122,12 +124,536 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
     return [NSString stringWithFormat:@"path %@\n filePath %@\n identifier %@\n stringDictionary %@",_path,_filePath,_identifier,_stringDictionary];
 }
 
+/*
++ (IDEWorkspaceTabController*)tabController
+{
+    NSWindowController* currentWindowController =
+    [[NSApp keyWindow] windowController];
+    if ([currentWindowController
+         isKindOfClass:NSClassFromString(@"IDEWorkspaceWindowController")]) {
+        IDEWorkspaceWindowController* workspaceController = (IDEWorkspaceWindowController*)currentWindowController;
+        
+        return workspaceController.activeWorkspaceTabController;
+    }
+    return nil;
+}
+
++ (id)currentEditor
+{
+    NSWindowController* currentWindowController =
+    [[NSApp mainWindow] windowController];
+    if ([currentWindowController
+         isKindOfClass:NSClassFromString(@"IDEWorkspaceWindowController")]) {
+        IDEWorkspaceWindowController* workspaceController = (IDEWorkspaceWindowController*)currentWindowController;
+        IDEEditorArea* editorArea = [workspaceController editorArea];
+        IDEEditorContext* editorContext = [editorArea lastActiveEditorContext];
+        return [editorContext editor];
+    }
+    return nil;
+}
+
++ (IDEWorkspaceDocument*)currentWorkspaceDocument
+{
+    NSWindowController* currentWindowController =
+    [[NSApp mainWindow] windowController];
+    id document = [currentWindowController document];
+    if (currentWindowController &&
+        [document isKindOfClass:NSClassFromString(@"IDEWorkspaceDocument")]) {
+        return (IDEWorkspaceDocument*)document;
+    }
+    return nil;
+}
+
++ (IDESourceCodeDocument*)currentSourceCodeDocument
+{
+    
+    IDESourceCodeEditor* editor = [self currentEditor];
+    
+    if ([editor isKindOfClass:NSClassFromString(@"IDESourceCodeEditor")]) {
+        return editor.sourceCodeDocument;
+    }
+    
+    if ([editor
+         isKindOfClass:NSClassFromString(@"IDESourceCodeComparisonEditor")]) {
+        if ([[(IDESourceCodeComparisonEditor*)editor primaryDocument]
+             isKindOfClass:NSClassFromString(@"IDESourceCodeDocument")]) {
+            return (id)[(IDESourceCodeComparisonEditor*)editor primaryDocument];
+        }
+    }
+    
+    return nil;
+}
+*/
+
++(BOOL)isSwiftWithProjectPath:(NSString*)projectPath {
+    NSDirectoryEnumerator *enumerator = [[NSFileManager defaultManager] enumeratorAtPath:projectPath];
+    NSString *filePath = nil;
+    while (filePath = [enumerator nextObject]){
+        NSString *file = [filePath lastPathComponent];
+        if([file isEqualToString:@"AppDelegate.swift"]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
++ (NSArray*)explandRootPathMacros:(NSArray*)paths
+                      projectPath:(NSString*)projectPath
+{
+    if (projectPath == nil) {
+        return paths;
+    }
+    
+    NSMutableArray* explandPaths =
+    [NSMutableArray arrayWithCapacity:[paths count]];
+    for (NSString* path in paths) {
+        [explandPaths addObject:[StringModel explandRootPathMacro:path
+                                                     projectPath:projectPath]];
+    }
+    return explandPaths;
+}
+
++ (NSString*)explandRootPathMacro:(NSString*)path
+                      projectPath:(NSString*)projectPath
+{
+    projectPath = [StringModel addPathSlash:projectPath];
+    path = [path stringByReplacingOccurrencesOfString:[StringModel rootPathMacro]
+                                           withString:projectPath];
+    
+    return [StringModel addPathSlash:path];
+}
+
++ (NSString*)addPathSlash:(NSString*)path
+{
+    if ([path length] > 0) {
+        if ([path characterAtIndex:([path length] - 1)] != '/') {
+            path = [NSString stringWithFormat:@"%@/", path];
+        }
+    }
+    return path;
+}
+
++ (NSString*)rootPathMacro
+{
+    return [StringModel addPathSlash:@"$(SRCROOT)"];
+}
+
++ (NSString*)_settingDirectory {
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString* settingDirectory = [(NSString*)[paths objectAtIndex:0] stringByAppendingPathComponent:@"StringManage"];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:settingDirectory] == NO) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:settingDirectory
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:NULL];
+    }
+    return settingDirectory;
+}
+
++ (NSString*)_tempFileDirectory {
+    NSString* tempFileDirectory =
+    [[self _settingDirectory] stringByAppendingPathComponent:@"Temp"];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:tempFileDirectory] == NO) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:tempFileDirectory
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:NULL];
+    }
+    return tempFileDirectory;
+}
+
++ (void)cleanAllTempFiles
+{
+    [StringModel
+     scanFolder:[StringModel _tempFileDirectory]
+     findedItemBlock:^(NSString* fullPath, BOOL isDirectory, BOOL* skipThis,
+                       BOOL* stopAll) {
+         [[NSFileManager defaultManager] removeItemAtPath:fullPath error:nil];
+     }];
+}
+
+typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory,
+                             BOOL* skipThis, BOOL* stopAll);
++ (void)scanFolder:(NSString*)folder
+   findedItemBlock:(OnFindedItem)findedItemBlock
+{
+    BOOL stopAll = NO;
+    
+    NSFileManager* localFileManager = [[NSFileManager alloc] init];
+    NSDirectoryEnumerationOptions option = NSDirectoryEnumerationSkipsHiddenFiles | NSDirectoryEnumerationSkipsPackageDescendants;
+    NSDirectoryEnumerator* directoryEnumerator =
+    [localFileManager enumeratorAtURL:[NSURL fileURLWithPath:folder]
+           includingPropertiesForKeys:nil
+                              options:option
+                         errorHandler:nil];
+    for (NSURL* theURL in directoryEnumerator) {
+        if (stopAll) {
+            break;
+        }
+        
+        NSString* fileName = nil;
+        [theURL getResourceValue:&fileName forKey:NSURLNameKey error:NULL];
+        
+        NSNumber* isDirectory = nil;
+        [theURL getResourceValue:&isDirectory
+                          forKey:NSURLIsDirectoryKey
+                           error:NULL];
+        
+        BOOL skinThis = NO;
+        
+        BOOL directory = [isDirectory boolValue];
+        
+        findedItemBlock([theURL path], directory, &skinThis, &stopAll);
+        
+        if (skinThis) {
+            [directoryEnumerator skipDescendents];
+        }
+    }
+}
+
++ (NSArray*)findFileNameWithProjectPath:(NSString*)projectPath
+                            includeDirs:(NSArray*)includeDirs
+                            excludeDirs:(NSArray*)excludeDirs
+                              fileTypes:(NSSet*)fileTypes
+{
+    includeDirs =
+    [StringModel explandRootPathMacros:includeDirs projectPath:projectPath];
+//    includeDirs = [XToDoModel removeSubDirs:includeDirs];
+    excludeDirs =
+    [StringModel explandRootPathMacros:excludeDirs projectPath:projectPath];
+//    excludeDirs = [XToDoModel removeSubDirs:excludeDirs];
+    fileTypes = [StringModel lowercaseFileTypes:fileTypes];
+    NSMutableArray* allFilePaths = [NSMutableArray arrayWithCapacity:1000];
+    for (NSString* includeDir in includeDirs) {
+        [StringModel
+         scanFolder:includeDir
+         findedItemBlock:^(NSString* fullPath, BOOL isDirectory, BOOL* skipThis,
+                           BOOL* stopAll) {
+             if (isDirectory) {
+                 for (NSString *excludeDir in excludeDirs) {
+                     if ([fullPath hasPrefix:excludeDir]) {
+                         *skipThis = YES;
+                         return;
+                     }
+                 }
+             } else {
+                 if ([fileTypes containsObject:
+                      [[fullPath pathExtension] lowercaseString]]) {
+                     [allFilePaths addObject:fullPath];
+                 }
+             }
+         }];
+    }
+    return allFilePaths;
+}
+
++ (NSSet*)lowercaseFileTypes:(NSSet*)fileTypes
+{
+    NSMutableSet* set = [NSMutableSet setWithCapacity:[fileTypes count]];
+    for (NSString* fileType in fileTypes) {
+        [set addObject:[fileType lowercaseString]];
+    }
+    return set;
+}
+
++ (NSDictionary*)findItemsWithProjectPath:(StringSetting*)projectSetting projectPath:(NSString*)projectPath findStrings:(NSArray*)findStrings {
+    if(findStrings.count==0)
+        return nil;
+    NSArray* includeDirs = [projectSetting includeDirs];
+    if ([includeDirs count] == 0) {
+        return nil;
+    }
+    
+    NSDictionary* items = nil;
+    NSString* tempFilePath = [[StringModel _tempFileDirectory]
+                              stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
+    NSSet *set = [NSSet setWithArray:projectSetting.searchTypes];
+    @try {
+        items = [StringModel
+                 findItemsWithProjectPath:projectPath
+                 includeDirs:[projectSetting includeDirs]
+                 excludeDirs:[projectSetting excludeDirs]
+                 fileTypes:set
+                 tempFilePath:tempFilePath
+                 findStrings:findStrings];
+    }
+    @catch (NSException* exception)
+    {
+    }
+    @finally
+    {
+        [[NSFileManager defaultManager]
+         removeItemAtPath:tempFilePath
+         error:nil]; // HAVE TO delete temp file.
+    }
+    return items;
+}
+
++ (NSDictionary*)findItemsWithProjectPath:(NSString*)projectPath
+                         includeDirs:(NSArray*)includeDirs
+                         excludeDirs:(NSArray*)excludeDirs
+                           fileTypes:(NSSet*)fileTypes
+                        tempFilePath:(NSString*)tempFilePath
+             findStrings:(NSArray*)findStrings
+{
+    NSArray* filePaths = [StringModel findFileNameWithProjectPath:projectPath
+                                                     includeDirs:includeDirs
+                                                     excludeDirs:excludeDirs
+                                                       fileTypes:fileTypes];
+    NSLog(@"filePaths %@",filePaths);
+    // xargs -0 need "\0" as separtor
+    NSData* dataAllFilePaths = [[filePaths componentsJoinedByString:@"\0"] dataUsingEncoding:NSUTF8StringEncoding];
+
+    NSLog(@"tempFilePath %@",tempFilePath);
+    if ([dataAllFilePaths writeToFile:tempFilePath atomically:NO] == NO) {
+        NSLog(@"write failed");
+        return nil;
+    }
+    
+    NSString* shellPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"find" ofType:@"sh"];
+    NSLog(@"shellPath %@",shellPath);
+    if(shellPath.length==0){
+        return nil;
+    }
+    
+    NSMutableDictionary *mutableDict = [NSMutableDictionary dictionary];
+    for (NSString *findString in findStrings) {
+        
+        NSFileHandle* inputFileHandle = [NSFileHandle fileHandleForReadingAtPath:tempFilePath];
+        if (inputFileHandle == nil) {
+            return nil;
+        }
+        
+        NSTask* task = [[NSTask alloc] init];
+        [task setLaunchPath:@"/bin/bash"];
+        [task setArguments:@[shellPath, findString]];
+        [task setStandardInput:inputFileHandle];
+        [task setStandardOutput:[NSPipe pipe]];
+        NSFileHandle* readHandle = [[task standardOutput] fileHandleForReading];
+        NSLog(@"started find %@",findString);
+        [task launch];
+        
+        NSData* data = [readHandle readDataToEndOfFile];
+        [inputFileHandle closeFile];
+        
+        NSArray* dataArray = [data componentsSeparatedByByte:'\n'];
+        NSMutableArray* results = [NSMutableArray arrayWithCapacity:[dataArray count]];
+        for (NSData* dataItem in dataArray) {
+            NSString* string = [[NSString alloc] initWithData:dataItem encoding:NSUTF8StringEncoding];
+            if (string != nil && string.length>0) {
+                StringItem *item = [StringModel itemFromLine:string];
+                [results addObject:item];
+//                [results addObject:string];
+            }
+        }
+        NSLog(@"findString %@ %@ ",findString,results);
+        if(results){
+            [mutableDict setObject:results forKey:findString];
+        }
+    }
+    
+    return mutableDict;
+}
+
++ (StringItem*)itemFromLine:(NSString*)line
+{
+    NSMutableArray* lineComponents = [[line componentsSeparatedByString:@":"] mutableCopy];
+    if (lineComponents.count < 3) {
+        return nil;
+    }
+    
+    StringItem* item = [[StringItem alloc] init];
+    item.filePath = lineComponents[0];
+    item.lineNumber = [lineComponents[1] integerValue];
+    item.content = lineComponents[2];
+    return item;
+}
+/*
+
++ (void)highlightItem:(StringItem*)item inTextView:(NSTextView*)textView
+{
+    NSUInteger lineNumber = item.lineNumber - 1;
+    NSString* text = [textView string];
+    
+    NSRegularExpression* re =
+    [NSRegularExpression regularExpressionWithPattern:@"\n"
+                                              options:0
+                                                error:nil];
+    
+    NSArray* result = [re matchesInString:text
+                                  options:NSMatchingReportCompletion
+                                    range:NSMakeRange(0, text.length)];
+    
+    if (result.count <= lineNumber) {
+        return;
+    }
+    
+    NSUInteger location = 0;
+    NSTextCheckingResult* aim = result[lineNumber];
+    location = aim.range.location;
+    
+    NSRange range = [text lineRangeForRange:NSMakeRange(location, 0)];
+    
+    [textView scrollRangeToVisible:range];
+    
+    [textView setSelectedRange:range];
+}
+
++ (BOOL)openItem:(StringItem*)item
+{
+    NSWindowController* currentWindowController = [[NSApp mainWindow] windowController];
+    
+    // NSLog(@"currentWindowController %@",[currentWindowController description]);
+    
+    if ([currentWindowController
+         isKindOfClass:NSClassFromString(@"IDEWorkspaceWindowController")]) {
+        
+        // NSLog(@"Open in current Xocde");
+        id<NSApplicationDelegate> appDelegate = (id<NSApplicationDelegate>)[NSApp delegate];
+        if ([appDelegate application:NSApp openFile:item.filePath]) {
+            
+            IDESourceCodeEditor* editor = [StringModel currentEditor];
+            if ([editor isKindOfClass:NSClassFromString(@"IDESourceCodeEditor")]) {
+                NSTextView* textView = editor.textView;
+                if (textView) {
+                    
+                    [self highlightItem:item inTextView:textView];
+                    
+                    return YES;
+                }
+            }
+        }
+    }
+    
+    // open the file
+    BOOL result = [[NSWorkspace sharedWorkspace] openFile:item.filePath
+                                          withApplication:@"Xcode"];
+    
+    // open the line
+    if (result) {
+        
+        // pretty slow to open file with applescript
+        
+        NSString* theSource = [NSString
+                               stringWithFormat:
+                               @"do shell script \"xed --line %ld \" & quoted form of \"%@\"",
+                               item.lineNumber, item.filePath];
+        NSAppleScript* theScript = [[NSAppleScript alloc] initWithSource:theSource];
+        [theScript performSelectorInBackground:@selector(executeAndReturnError:)
+                                    withObject:nil];
+        
+        return NO;
+    }
+    
+    return result;
+}
+*/
+
++(NSArray*)lprojDirectoriesWithProjectSetting:(StringSetting*)setting project:(NSString*)project{
+    NSMutableArray *bundles = [NSMutableArray array];
+    NSString *path = [self explandRootPathMacro:[setting searchDirectory] projectPath:project];
+    NSArray* array = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:nil];
+    for(int i = 0; i<[array count]; i++){
+        NSString *fullPath = [path stringByAppendingPathComponent:array[i]];
+        NSError *error = nil;
+        NSDictionary *attr = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:&error];
+        if ([attr[NSFileType] isEqualTo:NSFileTypeDirectory]) {
+            if ([@"lproj" isEqualToString:fullPath.pathExtension]) {
+                NSString *filePath = [fullPath stringByAppendingPathComponent:setting.searchTableName];
+                BOOL isDir = NO;
+                if([[NSFileManager defaultManager] fileExistsAtPath:filePath isDirectory:&isDir] && !isDir){
+                    [bundles addObject:fullPath];
+                }
+            }
+        }
+    }
+    return [NSArray arrayWithArray:bundles];
+}
+
++ (NSString*)settingFilePathByProjectName:(NSString*)projectName
+{
+    NSString* settingDirectory = [StringModel _settingDirectory];
+    NSString* fileName = [projectName length] ? projectName : @"Test.xcodeproj";
+    return [settingDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.plist", fileName]];
+}
+
++ (StringSetting*)projectSettingByProjectName:(NSString*)projectName
+{
+    static NSMutableDictionary* projectName2ProjectSetting = nil;
+    if (projectName2ProjectSetting == nil) {
+        projectName2ProjectSetting = [[NSMutableDictionary alloc] init];
+    }
+    NSLog(@"projectName2ProjectSetting %@",projectName2ProjectSetting);
+    if (projectName != nil) {
+        id object = [projectName2ProjectSetting objectForKey:projectName];
+        if ([object isKindOfClass:[StringSetting class]]) {
+            return object;
+        }
+    }
+    
+    NSString* fullPath = [StringModel settingFilePathByProjectName:projectName];
+    NSLog(@"fullPath %@",fullPath);
+    StringSetting* projectSetting = nil;
+    if([[NSFileManager defaultManager] fileExistsAtPath:fullPath]){
+        @try {
+            projectSetting = [NSKeyedUnarchiver unarchiveObjectWithFile:fullPath];
+        }
+        @catch (NSException* exception)
+        {
+            NSLog(@"读取失败 exception %@",exception);
+            projectSetting = nil;
+        }
+    }
+    
+    if ([projectSetting isKindOfClass:[projectSetting class]] == NO) {
+        projectSetting = nil;
+    }
+    
+    if (projectSetting == nil) {
+        NSLog(@"重新生成");
+        projectSetting = [StringSetting defaultSettingWithProject:projectName];
+    }
+    if ((projectSetting != nil) && (projectName != nil)) {
+        [projectName2ProjectSetting setObject:projectSetting forKey:projectName];
+    }
+    
+    return projectSetting;
+}
+
++ (void)saveProjectSetting:(StringSetting*)projectSetting
+             ByProjectName:(NSString*)projectName
+{
+    if (projectSetting == nil) {
+        return;
+    }
+    NSString* filePath = [StringModel settingFilePathByProjectName:projectName];
+    @try {
+        BOOL result = [NSKeyedArchiver archiveRootObject:projectSetting toFile:filePath];
+        NSLog(@"result %d",result);
+        filePath = nil;
+    }
+    @catch (NSException* exception)
+    {
+         NSLog(@"saveProjectSetting:exception:%@", exception);
+    }
+     NSLog(@"haha");
+}
+
 @end
 
 @implementation ActionModel
 
 -(NSString*)description {
     return [NSString stringWithFormat:@"%ld %@ %@ %@",_actionType, _identifier, _key, _value];
+}
+
+@end
+
+@implementation StringItem
+
+-(NSString *)description
+{
+    return [NSString stringWithFormat:@"%@:%ld:%@",self.filePath,self.lineNumber,self.content];
 }
 
 @end

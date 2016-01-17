@@ -10,7 +10,7 @@
 #import "StringModel.h"
 #import "StringManage.h"
 #import "PreferencesWindowController.h"
-#import "ProjectSetting.h"
+#import "StringSetting.h"
 
 #define KEY @"key"
 #define REMOVE @"remove"
@@ -29,10 +29,11 @@
 @property (nonatomic, strong) NSMutableArray *actionArray;
 @property () PreferencesWindowController* prefsController;
 @property (nonatomic, strong) NSArray *showArray;
+@property (nonatomic, copy) NSString* projectPath;
+@property (nonatomic, copy) NSString* projectName;
 
 - (IBAction)addAction:(id)sender;
 - (IBAction)saveAction:(id)sender;
-- (IBAction)refresh:(id)sender;
 - (IBAction)searchAnswer:(id)sender;
 
 @end
@@ -76,8 +77,13 @@
                                              selector:@selector(_onNotifyProjectSettingChanged:)
                                                  name:kNotifyProjectSettingChanged
                                                object:nil];
-    
-    [self refresh:nil];
+}
+
+- (void)setSearchRootDir:(NSString*)searchRootDir projectName:(NSString*)projectName {
+    self.projectPath = searchRootDir;
+    self.projectName = projectName;
+    self.prefsController.projectPath = searchRootDir;
+    self.prefsController.projectName = projectName;
 }
 
 - (void)_onNotifyProjectSettingChanged:(NSNotification*)notification {
@@ -99,33 +105,15 @@
     [self.prefsController showWindow:sender];
 }
 
-- (NSArray *)lprojDirectoryInPath:(NSString *)path {
-    NSMutableArray *bundles = [NSMutableArray array];
-    
-    NSArray* array = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:nil];
-    for(int i = 0; i<[array count]; i++){
-        NSString *fullPath = [path stringByAppendingPathComponent:array[i]];
-        NSError *error = nil;
-        NSDictionary *attr = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:&error];
-        if ([attr[NSFileType] isEqualTo:NSFileTypeDirectory]) {
-            if ([@"lproj" isEqualToString:fullPath.pathExtension]) {
-                [bundles addObject:fullPath];
-            }
-        }
-    }
-    return [NSArray arrayWithArray:bundles];
-}
-
 - (IBAction)refresh:(id)sender {
     
     [self.progressIndicator setHidden:NO];
     [self.progressIndicator startAnimation:nil];
     [self.refreshBtn setEnabled:NO];
     
-    NSString *searchDirectory = [ProjectSetting shareInstance].searchDirectory;
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        
-        NSArray *lprojDirectorys = [self lprojDirectoryInPath:searchDirectory];
+        StringSetting *projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+        NSArray *lprojDirectorys = [StringModel lprojDirectoriesWithProjectSetting:projectSetting project:self.projectPath];
             if (lprojDirectorys.count == 0) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     
@@ -145,7 +133,7 @@
                 
                 NSMutableSet *keySet = [[NSMutableSet alloc]init];
                 for (NSString *path in lprojDirectorys) {
-                    StringModel *model = [[StringModel alloc]initWithPath:path];
+                    StringModel *model = [[StringModel alloc]initWithPath:path projectSetting:projectSetting];
                     [_stringArray addObject:model];
                     NSArray *keys = model.stringDictionary.allKeys;
                     NSSet *set = [NSSet setWithArray:keys];
@@ -157,6 +145,8 @@
                     return [obj1 compare:obj2 options:NSNumericSearch];
                 }];
                 [_keyArray addObjectsFromArray:sortedArray];
+                
+                [StringModel findItemsWithProjectPath:projectSetting projectPath:self.projectPath findStrings:_keyArray];
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self refreshTableView];
