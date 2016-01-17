@@ -400,7 +400,7 @@
         NSLog(@"infos %@",infos);
         NSPopover* popover = [[NSPopover alloc] init];
         popover.delegate = self;
-        popover.behavior = NSPopoverBehaviorTransient;
+        popover.behavior = NSPopoverBehaviorSemitransient;
         StringInfoViewController* viewController = [[StringInfoViewController alloc] initWithArray:infos];
         [popover setContentViewController:viewController];
         [popover showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];

@@ -18,20 +18,20 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xkY-1C-P6G">
-                    <rect key="frame" x="0.0" y="0.0" width="626" height="223"/>
+                    <rect key="frame" x="5" y="5" width="616" height="213"/>
                     <clipView key="contentView" ambiguous="YES" id="Huh-80-mPF">
-                        <rect key="frame" x="1" y="1" width="624" height="221"/>
+                        <rect key="frame" x="1" y="1" width="614" height="211"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" id="Imb-la-8r2">
-                                <rect key="frame" x="0.0" y="0.0" width="624" height="221"/>
+                                <rect key="frame" x="0.0" y="0.0" width="614" height="211"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <size key="intercellSpacing" width="3" height="2"/>
                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 <tableViewGridLines key="gridStyleMask" horizontal="YES"/>
                                 <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                 <tableColumns>
-                                    <tableColumn width="621" minWidth="40" maxWidth="1000" id="Sql-Pe-nBD">
+                                    <tableColumn width="611" minWidth="40" maxWidth="1000" id="Sql-Pe-nBD">
                                         <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -45,7 +45,7 @@
                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                         <prototypeCellViews>
                                             <tableCellView id="pkl-oI-rOG">
-                                                <rect key="frame" x="1" y="1" width="621" height="17"/>
+                                                <rect key="frame" x="1" y="1" width="611" height="17"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             </tableCellView>
                                         </prototypeCellViews>

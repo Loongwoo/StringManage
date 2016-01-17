@@ -67,6 +67,12 @@
 }
 
 - (void)awakeFromNib {
+    NSRect rect = self.view.frame;
+    rect.size.height = MIN(10+_array.count*35, 360);
+    self.view.frame = rect;
+    
+    self.tableView.frame = NSInsetRect(self.view.bounds, 5, 5);
+    
     self.tableView.dataSource = self;
     self.tableView.delegate=self;
     [self.tableView reloadData];
