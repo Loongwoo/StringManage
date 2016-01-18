@@ -385,6 +385,9 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
             block(findString, results);
         }
     }
+    if(block){
+        block(nil, nil);
+    }
 }
 
 + (StringItem*)itemFromLine:(NSString*)line{

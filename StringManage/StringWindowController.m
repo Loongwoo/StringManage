@@ -26,6 +26,8 @@
 @property (weak) IBOutlet NSTextField *recordLabel;
 @property (weak) IBOutlet NSSearchField *searchField;
 @property (weak) IBOutlet NSButton *addBtn;
+@property (weak) IBOutlet NSButton *CheckBtn;
+@property (weak) IBOutlet NSProgressIndicator *checkIndicator;
 
 @property (nonatomic, strong) NSMutableArray *stringArray;
 @property (nonatomic, strong) NSMutableArray *keyArray;
@@ -38,10 +40,12 @@
 @property (nonatomic, assign) BOOL isRefreshing;
 @property (nonatomic, copy) NSArray *rawKeyArray;
 @property (nonatomic, strong) NSMutableDictionary* keyDict;
+@property (nonatomic, assign) BOOL isChecking;
 
 - (IBAction)addAction:(id)sender;
 - (IBAction)saveAction:(id)sender;
 - (IBAction)searchAnswer:(id)sender;
+- (IBAction)checkAction:(id)sender;
 @end
 
 @implementation StringWindowController
@@ -76,8 +80,9 @@
     
     [self.searchField setPlaceholderString:LocalizedString(@"Search")];
     [self.saveBtn setTitle:LocalizedString(@"Save")];
-    [self.saveBtn setEnabled:NO];
     [self.refreshBtn setTitle:LocalizedString(@"Refresh")];
+    [self.CheckBtn setTitle:LocalizedString(@"Check")];
+    [self.checkIndicator setHidden:YES];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
     
@@ -104,6 +109,23 @@
         [self.progressIndicator stopAnimation:nil];
         [self.refreshBtn setEnabled:YES];
         [self.addBtn setEnabled:YES];
+    }
+}
+
+-(void)setIsChecking:(BOOL)isChecking{
+    _isChecking = isChecking;
+    if(isChecking){
+        [self.refreshBtn setEnabled:NO];
+        [self.addBtn setEnabled:NO];
+        [self.CheckBtn setEnabled:NO];
+        [self.checkIndicator setHidden:NO];
+        [self.checkIndicator startAnimation:nil];
+    }else{
+        [self.refreshBtn setEnabled:YES];
+        [self.addBtn setEnabled:YES];
+        [self.CheckBtn setEnabled:YES];
+        [self.checkIndicator setHidden:YES];
+        [self.checkIndicator stopAnimation:nil];
     }
 }
 
@@ -188,7 +210,7 @@
 }
 
 - (IBAction)showPreferencesPanel:(id)sender {
-    if(self.isRefreshing)
+    if(self.isRefreshing || self.isChecking)
         return;
     [self.prefsController loadWindow];
     
@@ -221,7 +243,6 @@
             } else {
                 [_stringArray removeAllObjects];
                 [_keyArray removeAllObjects];
-                [_infoDict removeAllObjects];
                 [_keyDict removeAllObjects];
                 
                 NSMutableSet *keySet = [[NSMutableSet alloc]init];
@@ -244,15 +265,6 @@
                     [self refreshTableView];
                     self.isRefreshing = NO;
                 });
-                
-                [StringModel findItemsWithProjectPath:projectSetting projectPath:self.projectPath findStrings:self.keyArray block:^(NSString *key, NSArray *items) {
-                    if(items.count>0){
-                        [_infoDict setObject:items forKey:key];
-                    }
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self searchAnswer:nil];
-                    });
-                }];
             }
     });
 }
@@ -283,10 +295,35 @@
     self.recordLabel.stringValue = [NSString stringWithFormat:LocalizedString(@"RecordNumMsg"),self.showArray.count];
     [self.tableview reloadData];
     
-    NSLog(@"%s _actionArray %@",__func__, _actionArray);
     if(_actionArray.count>0){
         [self.saveBtn setEnabled:YES];
     }
+}
+
+- (IBAction)checkAction:(id)sender {
+    if(self.keyArray.count==0)
+        return;
+    
+    self.isChecking = YES;
+    [_infoDict removeAllObjects];
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        StringSetting *projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+        [StringModel findItemsWithProjectPath:projectSetting projectPath:self.projectPath findStrings:self.keyArray block:^(NSString *key, NSArray *items) {
+            if(key==nil && items==nil) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    self.isChecking=NO;
+                });
+            }else{
+                if(items.count>0){
+                    [_infoDict setObject:items forKey:key];
+                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self searchAnswer:nil];
+                });
+            }
+        }];
+    });
 }
 
 - (IBAction)addAction:(id)sender {
@@ -475,18 +512,6 @@
 }
 
 #pragma mark - NSTableViewDelegate & NSTableViewDataSource
-- (BOOL)tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)row {
-    return NO;
-}
-
-- (BOOL)tableView:(NSTableView *)tableView shouldSelectTableColumn:(nullable NSTableColumn *)tableColumn {
-    return NO;
-}
-
--(BOOL)tableView:(NSTableView *)tableView shouldEditTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    return ![tableColumn.identifier isEqualToString:REMOVE];
-}
-
 -(NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
     return self.showArray.count;
 }
@@ -551,7 +576,6 @@
                 [aView setTextColor: [NSColor darkGrayColor]];
             }
         }
-        
         [aView setTag:row];
         [aView setIdentifier:identifier];
         [aView setPlaceholderString:title];
