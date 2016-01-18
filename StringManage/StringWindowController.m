@@ -36,6 +36,7 @@
 @property (nonatomic, copy) NSString* projectName;
 @property (nonatomic, strong) NSMutableDictionary* infoDict;
 @property (nonatomic, assign) BOOL isRefreshing;
+@property (nonatomic, copy) NSArray *rawKeyArray;
 
 - (IBAction)addAction:(id)sender;
 - (IBAction)saveAction:(id)sender;
@@ -211,6 +212,7 @@
                     return [obj1 compare:obj2 options:NSNumericSearch];
                 }];
                 [_keyArray addObjectsFromArray:sortedArray];
+                self.rawKeyArray = sortedArray;
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self refreshTableView];
@@ -268,14 +270,12 @@
         if(returnCode == NSAlertFirstButtonReturn) {
             if(input.stringValue.length==0)
                 return;
-            if([_keyArray containsObject:input]) {
+            if([_keyArray containsObject:input.stringValue]) {
                 NSAlert *alert = [[NSAlert alloc]init];
                 [alert setMessageText: LocalizedString(@"InputIsExist")];
                 [alert addButtonWithTitle: LocalizedString(@"OK")];
                 [alert setAlertStyle:NSWarningAlertStyle];
-                [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
-                    
-                }];
+                [alert beginSheetModalForWindow:self.window completionHandler:nil];
             } else {
                 [_keyArray addObject:input.stringValue];
                 [self.searchField setStringValue:@""];
@@ -332,7 +332,7 @@
                             }
                         }
                     }];
-                    if(!found) {
+                    if([self.rawKeyArray containsObject:key]) {
                         ActionModel *action = [[ActionModel alloc]init];
                         action.actionType = ActionTypeRemove;
                         action.identifier = model.identifier;
