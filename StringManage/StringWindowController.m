@@ -157,6 +157,15 @@
     return @"";
 }
 
+-(BOOL)changedWithKey:(NSString*)key identifier:(NSString*)identifier {
+    for (ActionModel *action in _actionArray) {
+        if([action.key isEqualToString:key] && [action.identifier isEqualToString:identifier]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 #pragma mark - Button Action
 - (IBAction)openAbout:(id)sender {
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/Loongwoo/StringManage"]];
@@ -348,7 +357,8 @@
             [self.tableview removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:button.tag] withAnimation:NSTableViewAnimationEffectFade];
             [self.tableview endUpdates];
             
-            NSLog(@"_actionArray %@",_actionArray);
+            [self searchAnswer:nil];
+            NSLog(@"%s _actionArray %@",__func__, _actionArray);
             if(_actionArray.count>0){
                 [self.saveBtn setEnabled:YES];
             }
@@ -467,7 +477,9 @@
             }
         }
     }
-    NSLog(@"_actionArray %@",_actionArray);
+    
+    [self searchAnswer:nil];
+    NSLog(@"%s _actionArray %@",__func__, _actionArray);
     if(_actionArray.count>0){
         [self.saveBtn setEnabled:YES];
     }
@@ -530,12 +542,13 @@
         return aView;
     }else {
         NSString *title = [self titleWithKey:key identifier:identifier];
+        BOOL changed = [self changedWithKey:key identifier:identifier];
         NSTextField *aView = [tableView makeViewWithIdentifier:@"MYCell" owner:self];
         if(!aView) {
             aView = [[NSTextField alloc]initWithFrame:NSZeroRect];
-            [aView setTextColor:[NSColor blackColor]];
             [aView setTarget:self];
         }
+        [aView setTextColor:changed? [NSColor blueColor] : [NSColor blackColor]];
         [aView setTag:row];
         [aView setIdentifier:identifier];
         [aView setPlaceholderString:title];
