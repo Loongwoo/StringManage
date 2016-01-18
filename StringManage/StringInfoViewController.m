@@ -17,7 +17,7 @@
     if (self) {
         self.titleField = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 20, frame.size.width - 20, 15)];
         self.titleField.font = [NSFont systemFontOfSize:10];
-        self.titleField.textColor = [NSColor darkGrayColor];
+        self.titleField.textColor = [NSColor lightGrayColor];
         [self.titleField setAutoresizingMask:NSViewWidthSizable];
         [[self.titleField cell] setLineBreakMode:NSLineBreakByTruncatingTail];
         [self addSubview:self.titleField];
@@ -99,7 +99,7 @@
         cellView.identifier = @"mycell";
     }
     StringItem *item = [self.array objectAtIndex:row];
-    cellView.titleField.stringValue =[NSString stringWithFormat:@"Path : %@", item.filePath];
+    cellView.titleField.stringValue =[NSString stringWithFormat:@"File : %@", item.filePath];
     cellView.fileField.stringValue = [NSString stringWithFormat:@"Line %ld:%@",item.lineNumber, item.content];
     return cellView;
 }

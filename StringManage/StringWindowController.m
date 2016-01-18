@@ -68,7 +68,7 @@
     
     self.tableview.delegate=self;
     self.tableview.dataSource = self;
-    self.tableview.doubleAction = @selector(doubleClicked:);
+    self.tableview.action = @selector(cellClicked:);
     [self.window makeFirstResponder:self.tableview];
     
     [self.searchField setPlaceholderString:LocalizedString(@"Search")];
@@ -300,7 +300,7 @@
     [self refresh:nil];
 }
 
--(void)doubleClicked:(id)sender {
+-(void)cellClicked:(id)sender {
     NSInteger column = _tableview.clickedColumn;
     NSInteger row = _tableview.clickedRow;
     if(column<0 || column >= self.tableview.tableColumns.count)
