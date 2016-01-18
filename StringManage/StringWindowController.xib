@@ -49,7 +49,7 @@
                             <rect key="frame" x="1" y="0.0" width="899" height="510"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
-                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="JdV-Fw-ypl" id="8Bz-xn-9ZO">
+                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnReordering="NO" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="JdV-Fw-ypl" id="8Bz-xn-9ZO">
                                     <rect key="frame" x="0.0" y="0.0" width="899" height="493"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <size key="intercellSpacing" width="3" height="2"/>

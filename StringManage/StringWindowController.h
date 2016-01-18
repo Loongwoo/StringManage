@@ -8,7 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface StringWindowController : NSWindowController<NSPopoverDelegate>
+typedef enum : NSUInteger {
+    KeyTypeDefult,
+    KeyTypeAdd,
+    KeyTypeRemove,
+} KeyType;
+
+@interface StringWindowController : NSWindowController<NSPopoverDelegate,NSTableViewDelegate,NSTableViewDataSource,NSTextFieldDelegate,NSSearchFieldDelegate>
 
 - (void)setSearchRootDir:(NSString*)searchRootDir projectName:(NSString*)projectName;
 

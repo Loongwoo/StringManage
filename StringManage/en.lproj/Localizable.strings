@@ -2,9 +2,7 @@
 "Save"="Save";
 "NoLocalizedFiles"="No localized string file";
 "Cancel"="Cancel";
-"RemoveConfirm"="Are you sure to remove '%@'?";
 "InputKeyMsg"="Please input the key:";
-"OK"="OK";
 "Refresh"="Refresh";
 "FileExtensionInvalid"="File extension is invalid.";
 "SearchDirectory"="Search Directory(superior directory of *.lproj folder)";
@@ -15,3 +13,4 @@
 "InputIsExist"="The string already exists";
 "Search"="Search";
 "FoundNum"="Num";
+"OK"="OK";
