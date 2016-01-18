@@ -1,5 +1,4 @@
 "Remove"="删除";
-"Save"="保存";
 "NoLocalizedFiles"="没有找到本地化文件";
 "Cancel"="取消";
 "RemoveConfirm"="你确定要刪除'%@'吗？";
@@ -20,3 +19,4 @@
 
 
 "FoundNum"="次数";
+"Save"="保存";

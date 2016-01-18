@@ -142,25 +142,6 @@
     [self searchAnswer:nil];
 }
 
--(void)dealWithInput:(NSString*)input {
-    if(input.length==0)
-        return;
-    if([_keyArray containsObject:input]) {
-        NSAlert *alert = [[NSAlert alloc]init];
-        [alert setMessageText: LocalizedString(@"InputIsExist")];
-        [alert addButtonWithTitle: LocalizedString(@"OK")];
-        [alert setAlertStyle:NSWarningAlertStyle];
-        [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
-            
-        }];
-    } else {
-        [_keyArray addObject:input];
-        [self.searchField setStringValue:@""];
-        [self searchAnswer:nil];
-        [self.tableview scrollRowToVisible:_keyArray.count-1];
-    }
-}
-
 -(NSString*)titleWithKey:(NSString*)key identifier:(NSString*)identifier {
     if([identifier isEqualToString:KEY]) {
         return key;
@@ -195,6 +176,8 @@
 
 - (IBAction)refresh:(id)sender {
     self.isRefreshing = YES;
+    [_actionArray removeAllObjects];
+    [self.saveBtn setEnabled:NO];
     
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         StringSetting *projectSetting = [StringModel projectSettingByProjectName:self.projectName];
@@ -283,7 +266,22 @@
     [alert setAlertStyle:NSInformationalAlertStyle];
     [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
         if(returnCode == NSAlertFirstButtonReturn) {
-            [self dealWithInput:input.stringValue];
+            if(input.stringValue.length==0)
+                return;
+            if([_keyArray containsObject:input]) {
+                NSAlert *alert = [[NSAlert alloc]init];
+                [alert setMessageText: LocalizedString(@"InputIsExist")];
+                [alert addButtonWithTitle: LocalizedString(@"OK")];
+                [alert setAlertStyle:NSWarningAlertStyle];
+                [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
+                    
+                }];
+            } else {
+                [_keyArray addObject:input.stringValue];
+                [self.searchField setStringValue:@""];
+                [self searchAnswer:nil];
+                [_tableview scrollRowToVisible:_tableview.numberOfRows-1];
+            }
         }
     }];
 }
@@ -297,17 +295,16 @@
     }
     [_actionArray removeAllObjects];
     [self.saveBtn setEnabled:NO];
-    [self refresh:nil];
+    [self searchAnswer:nil];
 }
 
 -(void)cellClicked:(id)sender {
     NSInteger column = _tableview.clickedColumn;
     NSInteger row = _tableview.clickedRow;
-    if(column<0 || column >= self.tableview.tableColumns.count)
+    if(column<0 || column >= self.tableview.numberOfColumns)
         return;
-    if(row < 0 || row >= _keyArray.count)
+    if(row < 0 || row >= self.tableview.numberOfRows)
         return;
-    
     [_tableview editColumn:column row:row withEvent:nil select:YES];
 }
 
@@ -324,14 +321,26 @@
     [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
         if(returnCode == NSAlertFirstButtonReturn) {
             for (StringModel *model in _stringArray) {
-                ActionModel *action = [[ActionModel alloc]init];
-                action.actionType = ActionTypeRemove;
-                action.identifier = model.identifier;
-                action.key = key;
-                [_actionArray addObject:action];
-                
-                [model.stringDictionary removeObjectForKey:key];
-                [self.saveBtn setEnabled:YES];
+                NSString *value = [self titleWithKey:key identifier:model.identifier];
+                if(value.length>0) {
+                    __block BOOL found = NO;
+                    [self.actionArray enumerateObjectsUsingBlock:^(ActionModel * obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                        if ([obj.key isEqualToString:key] && [obj.identifier isEqualToString:model.identifier]) {
+                            if(obj.actionType == ActionTypeAdd){
+                                found = YES;
+                                [self.actionArray removeObject:obj];
+                            }
+                        }
+                    }];
+                    if(!found) {
+                        ActionModel *action = [[ActionModel alloc]init];
+                        action.actionType = ActionTypeRemove;
+                        action.identifier = model.identifier;
+                        action.key = key;
+                        [_actionArray addObject:action];
+                    }
+                    [model.stringDictionary removeObjectForKey:key];
+                }
             }
             [_keyArray removeObject:key];
             
@@ -339,7 +348,10 @@
             [self.tableview removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:button.tag] withAnimation:NSTableViewAnimationEffectFade];
             [self.tableview endUpdates];
             
-            [self searchAnswer:nil];
+            NSLog(@"_actionArray %@",_actionArray);
+            if(_actionArray.count>0){
+                [self.saveBtn setEnabled:YES];
+            }
         }
     }];
 }
@@ -347,8 +359,7 @@
 -(void)infoAction:(id)sender {
     NSButton *button = (NSButton*)sender;
     NSString *key=button.identifier;
-    if(self.infoDict && key.length>0)
-    {
+    if(self.infoDict && key.length>0){
         NSArray *infos = self.infoDict[key];
         if(infos.count>0) {
             NSPopover* popover = [[NSPopover alloc] init];
@@ -380,42 +391,85 @@
         } else {
             for (StringModel *model in _stringArray) {
                 NSString *value = [self titleWithKey:key identifier:model.identifier];
-                ActionModel *action = [[ActionModel alloc]init];
-                action.actionType = ActionTypeAdd;
-                action.identifier = model.identifier;
-                action.key = newValue;
-                action.value = value;
-                [_actionArray addObject:action];
-                [model.stringDictionary setObject:value forKey:newValue];
-                
-                ActionModel *action1 = [[ActionModel alloc]init];
-                action1.actionType = ActionTypeRemove;
-                action1.identifier = model.identifier;
-                action1.key = oldValue;
-                action1.value = value;
-                [_actionArray addObject:action1];
-                [model.stringDictionary removeObjectForKey:key];
+                if(value.length>0) {
+                    ActionModel *action = [[ActionModel alloc]init];
+                    action.actionType = ActionTypeAdd;
+                    action.identifier = model.identifier;
+                    action.key = newValue;
+                    action.value = value;
+                    [_actionArray addObject:action];
+                    [model.stringDictionary setObject:value forKey:newValue];
+                    
+                    ActionModel *action1 = [[ActionModel alloc]init];
+                    action1.actionType = ActionTypeRemove;
+                    action1.identifier = model.identifier;
+                    action1.key = oldValue;
+                    action1.value = value;
+                    [_actionArray addObject:action1];
+                    [model.stringDictionary removeObjectForKey:key];
+                }
             }
             NSInteger index = [_keyArray indexOfObject:oldValue];
             [_keyArray replaceObjectAtIndex:index withObject:newValue];
-            
-            [self.saveBtn setEnabled:YES];
         }
     } else {
         for (StringModel *model in _stringArray) {
             if([model.identifier isEqualToString:identifier]) {
-                ActionModel *action = [[ActionModel alloc]init];
-                action.actionType = ActionTypeAdd;
-                action.identifier = model.identifier;
-                action.key = key;
-                action.value = newValue;
-                [_actionArray addObject:action];
-                
-                [model.stringDictionary setObject:newValue forKey:key];
-                
-                [self.saveBtn setEnabled:YES];
+                __block BOOL found = NO;
+                [self.actionArray enumerateObjectsUsingBlock:^(ActionModel * obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    if ([obj.key isEqualToString:key] && [obj.identifier isEqualToString:model.identifier]) {
+                        found = YES;
+                        if(obj.actionType == ActionTypeRemove){
+                            if(newValue.length>0) {
+                                [self.actionArray removeObject:obj];
+                                ActionModel *action = [[ActionModel alloc]init];
+                                action.actionType = ActionTypeAdd;
+                                action.identifier = model.identifier;
+                                action.key = key;
+                                action.value = newValue;
+                                [_actionArray addObject:action];
+                                [model.stringDictionary setObject:newValue forKey:key];
+                            }
+                        }else if(obj.actionType == ActionTypeAdd){
+                            if(newValue.length==0) {
+                                [self.actionArray removeObject:obj];
+                                ActionModel *action = [[ActionModel alloc]init];
+                                action.actionType = ActionTypeRemove;
+                                action.identifier = model.identifier;
+                                action.key = key;
+                                [_actionArray addObject:action];
+                                [model.stringDictionary removeObjectForKey:key];
+                            }else{
+                                obj.value = newValue;
+                                [model.stringDictionary setObject:newValue forKey:key];
+                            }
+                        }
+                    }
+                }];
+                if(!found) {
+                    if(newValue.length==0) {
+                        ActionModel *action = [[ActionModel alloc]init];
+                        action.actionType = ActionTypeRemove;
+                        action.identifier = model.identifier;
+                        action.key = key;
+                        [_actionArray addObject:action];
+                        [model.stringDictionary removeObjectForKey:key];
+                    }else{
+                        ActionModel *action = [[ActionModel alloc]init];
+                        action.actionType = ActionTypeAdd;
+                        action.identifier = model.identifier;
+                        action.key = key;
+                        action.value = newValue;
+                        [_actionArray addObject:action];
+                        [model.stringDictionary setObject:newValue forKey:key];
+                    }
+                }
             }
         }
+    }
+    NSLog(@"_actionArray %@",_actionArray);
+    if(_actionArray.count>0){
+        [self.saveBtn setEnabled:YES];
     }
 }
 
