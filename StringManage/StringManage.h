@@ -11,13 +11,8 @@
 #define LocalizedString(key) [[StringManage sharedPlugin].bundle localizedStringForKey:(key) value:(key) table:nil]
 
 @class StringManage;
-
 static StringManage *sharedPlugin;
-
 @interface StringManage : NSObject
-
 + (instancetype)sharedPlugin;
-- (id)initWithBundle:(NSBundle *)plugin;
-
 @property (nonatomic, strong, readonly) NSBundle* bundle;
 @end

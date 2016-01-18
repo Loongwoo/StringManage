@@ -2,8 +2,8 @@
 //  PathEditViewController
 //  XToDo
 //
-//  Created by shuice on 2014-03-09.
-//  Copyright (c) 2014. All rights reserved.
+//  Created by kiwik on 1/16/16.
+//  Copyright © 2016 Kiwik. All rights reserved.
 //
 
 #import "StringInfoViewController.h"
@@ -12,8 +12,7 @@
 
 @implementation StringCellView
 
-- (id)initWithFrame:(NSRect)frame
-{
+- (id)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
         self.titleField = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 20, frame.size.width - 20, 15)];
@@ -52,15 +51,12 @@
 
 @implementation StringInfoViewController
 
-- (void)dealloc
-{
+#pragma mark - override
+- (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-#pragma mark - override
-
-- (instancetype)initWithArray:(NSArray*)array
-{
+- (instancetype)initWithArray:(NSArray*)array {
     self = [super initWithNibName:nil bundle:nil];
     if (self) {
         self.array = [[NSMutableArray alloc] initWithArray:array];
@@ -68,8 +64,7 @@
     return self;
 }
 
--(void)loadView
-{
+-(void)loadView {
     float height = MIN(10+_array.count*35, 360);
     self.view = [[NSView alloc]initWithFrame:NSMakeRect(0,0,600, height)];
     NSScrollView * tableContainer = [[NSScrollView alloc] initWithFrame:NSInsetRect(self.view.bounds, 5, 5)];

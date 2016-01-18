@@ -25,6 +25,7 @@
 @property (weak) IBOutlet NSProgressIndicator *progressIndicator;
 @property (weak) IBOutlet NSTextField *recordLabel;
 @property (weak) IBOutlet NSSearchField *searchField;
+@property (weak) IBOutlet NSButton *addBtn;
 
 @property (nonatomic, strong) NSMutableArray *stringArray;
 @property (nonatomic, strong) NSMutableArray *keyArray;
@@ -33,7 +34,8 @@
 @property (nonatomic, strong) NSArray *showArray;
 @property (nonatomic, copy) NSString* projectPath;
 @property (nonatomic, copy) NSString* projectName;
-@property (nonatomic, copy) NSDictionary* infoDict;
+@property (nonatomic, strong) NSMutableDictionary* infoDict;
+@property (nonatomic, assign) BOOL isRefreshing;
 
 - (IBAction)addAction:(id)sender;
 - (IBAction)saveAction:(id)sender;
@@ -43,6 +45,7 @@
 
 @implementation StringWindowController
 
+#pragma mark - override
 -(void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
@@ -57,6 +60,7 @@
     self.actionArray=[[NSMutableArray alloc]init];
     self.stringArray = [[NSMutableArray alloc]init];
     self.keyArray = [[NSMutableArray alloc]init];
+    self.infoDict = [[NSMutableDictionary alloc]init];
     
     self.window.level = NSFloatingWindowLevel;
     self.window.hidesOnDeactivate = YES;
@@ -72,16 +76,12 @@
     [self.saveBtn setEnabled:NO];
     [self.refreshBtn setTitle:LocalizedString(@"Refresh")];
     
-    self.progressIndicator.hidden = YES;
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(_onNotifyProjectSettingChanged:)
-                                                 name:kNotifyProjectSettingChanged
-                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_onNotifyProjectSettingChanged:)  name:kNotifyProjectSettingChanged object:nil];
 }
 
+#pragma mark - Private
 - (void)setSearchRootDir:(NSString*)searchRootDir projectName:(NSString*)projectName {
     self.projectPath = searchRootDir;
     self.projectName = projectName;
@@ -89,77 +89,19 @@
     self.prefsController.projectName = projectName;
 }
 
-- (void)_onNotifyProjectSettingChanged:(NSNotification*)notification {
-    [self refresh:nil];
-}
-
-- (IBAction)openAbout:(id)sender {
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/Loongwoo/StringManage"]];
-}
-
-- (IBAction)showPreferencesPanel:(id)sender {
-    [self.prefsController loadWindow];
-    
-    NSRect windowFrame = [[self window] frame], prefsFrame = [[self.prefsController window] frame];
-    prefsFrame.origin = NSMakePoint(windowFrame.origin.x + (windowFrame.size.width - prefsFrame.size.width) / 2.0,
-                                    NSMaxY(windowFrame) - NSHeight(prefsFrame) - 20.0);
-    
-    [[self.prefsController window] setFrame:prefsFrame display:NO];
-    [self.prefsController showWindow:sender];
-}
-
-- (IBAction)refresh:(id)sender {
-    
-    [self.progressIndicator setHidden:NO];
-    [self.progressIndicator startAnimation:nil];
-    [self.refreshBtn setEnabled:NO];
-    
-    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        StringSetting *projectSetting = [StringModel projectSettingByProjectName:self.projectName];
-        NSArray *lprojDirectorys = [StringModel lprojDirectoriesWithProjectSetting:projectSetting project:self.projectPath];
-            if (lprojDirectorys.count == 0) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    
-                    NSAlert *alert = [[NSAlert alloc]init];
-                    [alert setMessageText: LocalizedString(@"NoLocalizedFiles")];
-                    [alert addButtonWithTitle: LocalizedString(@"OK")];
-                    [alert setAlertStyle:NSWarningAlertStyle];
-                    [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
-                        [self.progressIndicator setHidden:YES];
-                        [self.progressIndicator stopAnimation:nil];
-                        [self.refreshBtn setEnabled:YES];
-                    }];
-                });
-            } else {
-                [_stringArray removeAllObjects];
-                [_keyArray removeAllObjects];
-                
-                NSMutableSet *keySet = [[NSMutableSet alloc]init];
-                for (NSString *path in lprojDirectorys) {
-                    StringModel *model = [[StringModel alloc]initWithPath:path projectSetting:projectSetting];
-                    [_stringArray addObject:model];
-                    NSArray *keys = model.stringDictionary.allKeys;
-                    NSSet *set = [NSSet setWithArray:keys];
-                    [keySet unionSet:set];
-                }
-                
-                NSArray *tmp = [[NSArray alloc]initWithArray:keySet.allObjects];
-                NSArray *sortedArray = [tmp sortedArrayUsingComparator:^NSComparisonResult(NSString * obj1, NSString * obj2) {
-                    return [obj1 compare:obj2 options:NSNumericSearch];
-                }];
-                [_keyArray addObjectsFromArray:sortedArray];
-                
-                self.infoDict = [StringModel findItemsWithProjectPath:projectSetting projectPath:self.projectPath findStrings:_keyArray];
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self refreshTableView];
-                    
-                    [self.progressIndicator setHidden:YES];
-                    [self.progressIndicator startAnimation:nil];
-                    [self.refreshBtn setEnabled:YES];
-                });
-            }
-    });
+-(void)setIsRefreshing:(BOOL)isRefreshing {
+    _isRefreshing = isRefreshing;
+    if(isRefreshing) {
+        [self.progressIndicator setHidden:NO];
+        [self.progressIndicator startAnimation:nil];
+        [self.refreshBtn setEnabled:NO];
+        [self.addBtn setEnabled:NO];
+    }else{
+        [self.progressIndicator setHidden:YES];
+        [self.progressIndicator stopAnimation:nil];
+        [self.refreshBtn setEnabled:YES];
+        [self.addBtn setEnabled:YES];
+    }
 }
 
 -(void)refreshTableView {
@@ -185,19 +127,123 @@
     }
     
     NSTableColumn * lastcolumn = [[NSTableColumn alloc] initWithIdentifier:REMOVE];
-    [lastcolumn setTitle:@""];
+    [lastcolumn setTitle:LocalizedString(@"Remove")];
     [lastcolumn setWidth:80];
     [lastcolumn setMinWidth:60];
     [lastcolumn setMaxWidth:100];
     [self.tableview addTableColumn:lastcolumn];
     NSTableColumn * infocolumn = [[NSTableColumn alloc] initWithIdentifier:kInfo];
-    [infocolumn setTitle:@""];
+    [infocolumn setTitle:LocalizedString(@"FoundNum")];
     [infocolumn setWidth:80];
     [infocolumn setMinWidth:60];
     [infocolumn setMaxWidth:100];
     [self.tableview addTableColumn:infocolumn];
     
     [self searchAnswer:nil];
+}
+
+-(void)dealWithInput:(NSString*)input {
+    if(input.length==0)
+        return;
+    if([_keyArray containsObject:input]) {
+        NSAlert *alert = [[NSAlert alloc]init];
+        [alert setMessageText: LocalizedString(@"InputIsExist")];
+        [alert addButtonWithTitle: LocalizedString(@"OK")];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
+            
+        }];
+    } else {
+        [_keyArray addObject:input];
+        [self.searchField setStringValue:@""];
+        [self searchAnswer:nil];
+        [self.tableview scrollRowToVisible:_keyArray.count-1];
+    }
+}
+
+-(NSString*)titleWithKey:(NSString*)key identifier:(NSString*)identifier {
+    if([identifier isEqualToString:KEY]) {
+        return key;
+    } else  {
+        for (StringModel *model in _stringArray) {
+            if ([identifier isEqualToString:model.identifier])  {
+                NSString *result = model.stringDictionary[key];
+                return result.length ? result : @"";
+            }
+        }
+    }
+    return @"";
+}
+
+#pragma mark - Button Action
+- (IBAction)openAbout:(id)sender {
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/Loongwoo/StringManage"]];
+}
+
+- (IBAction)showPreferencesPanel:(id)sender {
+    if(self.isRefreshing)
+        return;
+    [self.prefsController loadWindow];
+    
+    NSRect windowFrame = [[self window] frame], prefsFrame = [[self.prefsController window] frame];
+    prefsFrame.origin = NSMakePoint(windowFrame.origin.x + (windowFrame.size.width - prefsFrame.size.width) / 2.0,
+                                    NSMaxY(windowFrame) - NSHeight(prefsFrame) - 20.0);
+    
+    [[self.prefsController window] setFrame:prefsFrame display:NO];
+    [self.prefsController showWindow:sender];
+}
+
+- (IBAction)refresh:(id)sender {
+    self.isRefreshing = YES;
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        StringSetting *projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+        NSArray *lprojDirectorys = [StringModel lprojDirectoriesWithProjectSetting:projectSetting project:self.projectPath];
+            if (lprojDirectorys.count == 0) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSAlert *alert = [[NSAlert alloc]init];
+                    [alert setMessageText: LocalizedString(@"NoLocalizedFiles")];
+                    [alert addButtonWithTitle: LocalizedString(@"OK")];
+                    [alert setAlertStyle:NSWarningAlertStyle];
+                    [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
+                        self.isRefreshing = NO;
+                    }];
+                });
+            } else {
+                [_stringArray removeAllObjects];
+                [_keyArray removeAllObjects];
+                [_infoDict removeAllObjects];
+                
+                NSMutableSet *keySet = [[NSMutableSet alloc]init];
+                for (NSString *path in lprojDirectorys) {
+                    StringModel *model = [[StringModel alloc]initWithPath:path projectSetting:projectSetting];
+                    [_stringArray addObject:model];
+                    NSArray *keys = model.stringDictionary.allKeys;
+                    NSSet *set = [NSSet setWithArray:keys];
+                    [keySet unionSet:set];
+                }
+                
+                NSArray *tmp = [[NSArray alloc]initWithArray:keySet.allObjects];
+                NSArray *sortedArray = [tmp sortedArrayUsingComparator:^NSComparisonResult(NSString * obj1, NSString * obj2) {
+                    return [obj1 compare:obj2 options:NSNumericSearch];
+                }];
+                [_keyArray addObjectsFromArray:sortedArray];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self refreshTableView];
+                    self.isRefreshing = NO;
+                });
+                
+                [StringModel findItemsWithProjectPath:projectSetting projectPath:self.projectPath findStrings:_keyArray block:^(NSString *key, NSArray *items) {
+                    if(items.count>0){
+                        [_infoDict setObject:items forKey:key];
+                    }
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self searchAnswer:nil];
+                    });
+                }];
+            }
+    });
 }
 
 - (IBAction)searchAnswer:(id)sender {
@@ -242,26 +288,6 @@
     }];
 }
 
--(void)dealWithInput:(NSString*)input
-{
-    if(input.length==0)
-        return;
-    if([_keyArray containsObject:input]) {
-        NSAlert *alert = [[NSAlert alloc]init];
-        [alert setMessageText: LocalizedString(@"InputIsExist")];
-        [alert addButtonWithTitle: LocalizedString(@"OK")];
-        [alert setAlertStyle:NSWarningAlertStyle];
-        [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
-            
-        }];
-    } else {
-        [_keyArray addObject:input];
-        [self.searchField setStringValue:@""];
-        [self searchAnswer:nil];
-        [self.tableview scrollRowToVisible:_keyArray.count-1];
-    }
-}
-
 - (IBAction)saveAction:(id)sender {
     [self.window makeFirstResponder:nil];
     if(_actionArray.count==0)
@@ -285,6 +311,56 @@
     [_tableview editColumn:column row:row withEvent:nil select:YES];
 }
 
+-(void)removeAction:(id)sender {
+    NSButton *button = (NSButton*)sender;
+    NSString *key=button.identifier;
+    
+    NSAlert *alert = [[NSAlert alloc]init];
+    NSString *msg = [NSString stringWithFormat:LocalizedString(@"RemoveConfirm"),key];
+    [alert setMessageText: msg];
+    [alert addButtonWithTitle: LocalizedString(@"OK")];
+    [alert addButtonWithTitle:LocalizedString(@"Cancel")];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
+        if(returnCode == NSAlertFirstButtonReturn) {
+            for (StringModel *model in _stringArray) {
+                ActionModel *action = [[ActionModel alloc]init];
+                action.actionType = ActionTypeRemove;
+                action.identifier = model.identifier;
+                action.key = key;
+                [_actionArray addObject:action];
+                
+                [model.stringDictionary removeObjectForKey:key];
+                [self.saveBtn setEnabled:YES];
+            }
+            [_keyArray removeObject:key];
+            
+            [self.tableview beginUpdates];
+            [self.tableview removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:button.tag] withAnimation:NSTableViewAnimationEffectFade];
+            [self.tableview endUpdates];
+            
+            [self searchAnswer:nil];
+        }
+    }];
+}
+
+-(void)infoAction:(id)sender {
+    NSButton *button = (NSButton*)sender;
+    NSString *key=button.identifier;
+    if(self.infoDict && key.length>0)
+    {
+        NSArray *infos = self.infoDict[key];
+        if(infos.count>0) {
+            NSPopover* popover = [[NSPopover alloc] init];
+            popover.behavior = NSPopoverBehaviorSemitransient;
+            StringInfoViewController* viewController = [[StringInfoViewController alloc] initWithArray:infos];
+            [popover setContentViewController:viewController];
+            [popover showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];
+        }
+    }
+}
+
+#pragma mark - Notification
 -(void)endEditingAction:(NSNotification*)notification {
     NSTextField *textField = notification.object;
     NSString *identifier = textField.identifier;
@@ -343,69 +419,10 @@
     }
 }
 
--(void)removeAction:(id)sender {
-    NSButton *button = (NSButton*)sender;
-    NSString *key=button.identifier;
-    
-    NSAlert *alert = [[NSAlert alloc]init];
-    NSString *msg = [NSString stringWithFormat:LocalizedString(@"RemoveConfirm"),key];
-    [alert setMessageText: msg];
-    [alert addButtonWithTitle: LocalizedString(@"OK")];
-    [alert addButtonWithTitle:LocalizedString(@"Cancel")];
-    [alert setAlertStyle:NSWarningAlertStyle];
-    [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
-        if(returnCode == NSAlertFirstButtonReturn) {
-            for (StringModel *model in _stringArray) {
-                ActionModel *action = [[ActionModel alloc]init];
-                action.actionType = ActionTypeRemove;
-                action.identifier = model.identifier;
-                action.key = key;
-                [_actionArray addObject:action];
-                
-                [model.stringDictionary removeObjectForKey:key];
-                [self.saveBtn setEnabled:YES];
-            }
-            [_keyArray removeObject:key];
-            
-            [self.tableview beginUpdates];
-            [self.tableview removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:button.tag] withAnimation:NSTableViewAnimationEffectFade];
-            [self.tableview endUpdates];
-            
-            [self searchAnswer:nil];
-        }
-    }];
+- (void)_onNotifyProjectSettingChanged:(NSNotification*)notification {
+    [self refresh:nil];
 }
 
--(NSString*)titleWithKey:(NSString*)key identifier:(NSString*)identifier {
-    if([identifier isEqualToString:KEY]) {
-        return key;
-    } else  {
-        for (StringModel *model in _stringArray) {
-            if ([identifier isEqualToString:model.identifier])  {
-                NSString *result = model.stringDictionary[key];
-                return result.length ? result : @"";
-            }
-        }
-    }
-    return @"";
-}
-
--(void)infoAction:(id)sender
-{
-    NSButton *button = (NSButton*)sender;
-    NSString *key=button.identifier;
-    if(self.infoDict && key.length>0)
-    {
-        NSArray *infos = self.infoDict[key];
-        NSPopover* popover = [[NSPopover alloc] init];
-        popover.behavior = NSPopoverBehaviorSemitransient;
-        StringInfoViewController* viewController = [[StringInfoViewController alloc] initWithArray:infos];
-        [popover setContentViewController:viewController];
-        [popover showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];
-    }
-}
-
-#pragma mark -
 #pragma mark - NSTableViewDelegate & NSTableViewDataSource
 - (BOOL)tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)row {
     return NO;
@@ -445,16 +462,17 @@
         [aView setIdentifier:key];
         return aView;
     } if([identifier isEqualToString:@"info"]){
+        NSArray *items = self.infoDict[key];
         NSButton *aView = [tableView makeViewWithIdentifier:identifier owner:self];
         if(!aView) {
             aView = [[NSButton alloc]initWithFrame:NSZeroRect];
-            [aView setTitle:LocalizedString(@"Info")];
             [aView setAction:@selector(infoAction:)];
             [aView setTarget:self];
             [aView setState:1];
         }
         [aView setTag:row];
         [aView setIdentifier:key];
+        [aView setTitle:[@(items.count) stringValue]];
         return aView;
     }else {
         NSString *title = [self titleWithKey:key identifier:identifier];
@@ -471,6 +489,4 @@
         return aView;
     }
 }
-#pragma mark - NSTableViewDelegate & NSTableViewDataSource
-#pragma mark -
 @end

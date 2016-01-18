@@ -1,7 +1,8 @@
 //
 //  NSData+Split.h
 //
-//  Created by ████
+//  Created by kiwik on 1/16/16.
+//  Copyright © 2016 Kiwik. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

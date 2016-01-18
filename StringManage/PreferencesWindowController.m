@@ -2,8 +2,8 @@
 //  XToDoPreferencesWindowController.m
 //  XToDo
 //
-//  Created by Georg Kaindl on 25/01/14.
-//  Copyright (c) 2014 Plumn LLC. All rights reserved.
+//  Created by kiwik on 1/16/16.
+//  Copyright © 2016 Kiwik. All rights reserved.
 //
 
 #import "PreferencesWindowController.h"
@@ -32,18 +32,16 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
 
 @implementation PreferencesWindowController
 
-- (void)dealloc
-{
+#pragma mark - override
+- (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (id)init
-{
+- (id)init {
     return [self initWithWindowNibName:@"PreferencesWindowController"];
 }
 
-- (void)loadWindow
-{
+- (void)loadWindow {
     [super loadWindow];
     
     [self.window setTitle:LocalizedString(@"Preferences")];
@@ -57,25 +55,7 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     [self.window makeFirstResponder:nil];
 }
 
--(void)endEditingAction:(NSNotification*)notification
-{
-    if([notification object] == self.tableNameTextField){
-        NSString *extension = [self.tableNameTextField.stringValue pathExtension];
-        if(![extension isEqualToString:@"strings"]) {
-            NSAlert *alert = [[NSAlert alloc]init];
-            [alert setMessageText: LocalizedString(@"FileExtensionInvalid")];
-            [alert addButtonWithTitle: LocalizedString(@"OK")];
-            [alert setAlertStyle:NSWarningAlertStyle];
-            [alert runModal];
-        }else{
-            StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
-            projectSetting.searchTableName=self.tableNameTextField.stringValue;
-        }
-    }
-}
-
--(void)_updateDirsUI
-{
+-(void)_updateDirsUI {
     StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
     
     NSString *path1 = [StringModel explandRootPathMacro:[projectSetting searchDirectory] projectPath:self.projectPath];
@@ -104,6 +84,23 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     [self.excludeTextField setSelectable:YES];
     [self.excludeTextField setEditable:NO];
     [self.excludeTextField resignFirstResponder];
+}
+
+#pragma mark - NSNotification
+-(void)endEditingAction:(NSNotification*)notification {
+    if([notification object] == self.tableNameTextField){
+        NSString *extension = [self.tableNameTextField.stringValue pathExtension];
+        if(![extension isEqualToString:@"strings"]) {
+            NSAlert *alert = [[NSAlert alloc]init];
+            [alert setMessageText: LocalizedString(@"FileExtensionInvalid")];
+            [alert addButtonWithTitle: LocalizedString(@"OK")];
+            [alert setAlertStyle:NSWarningAlertStyle];
+            [alert runModal];
+        }else{
+            StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+            projectSetting.searchTableName=self.tableNameTextField.stringValue;
+        }
+    }
 }
 
 - (void)windowWillClose:(NSNotification*)notification {
@@ -155,13 +152,12 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     popover.behavior = NSPopoverBehaviorTransient;
     PathEditViewController* viewController = [[PathEditViewController alloc] initWithArray:projectSetting.excludeDirs];
     [popover setContentViewController:viewController];
-    viewController.pathEditType = PathEditTypeInclude;
+    viewController.pathEditType = PathEditTypeExclude;
     [popover showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];
 }
 
 #pragma mark - NSPopoverDelegate
-- (void)popoverDidClose:(NSNotification*)notification
-{
+- (void)popoverDidClose:(NSNotification*)notification {
     NSPopover* popOver = [notification object];
     if ([popOver isKindOfClass:[NSPopover class]] == NO) {
         return;

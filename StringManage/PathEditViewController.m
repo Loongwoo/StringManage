@@ -2,8 +2,8 @@
 //  PathEditViewController
 //  XToDo
 //
-//  Created by shuice on 2014-03-09.
-//  Copyright (c) 2014. All rights reserved.
+//  Created by kiwik on 1/16/16.
+//  Copyright © 2016 Kiwik. All rights reserved.
 //
 
 #import "PathEditViewController.h"
@@ -21,16 +21,14 @@
 @implementation PathEditViewController
 
 #pragma mark - override
-- (id)initWithArray:(NSArray*)array
-{
+- (id)initWithArray:(NSArray*)array {
     PathEditViewController* pathEditViewController = [self initWithNibName:@"PathEditViewController"
                                                                     bundle:[StringManage sharedPlugin].bundle];
     self.array = [[NSMutableArray alloc] initWithArray:array copyItems:YES];
     return pathEditViewController;
 }
 
-- (void)awakeFromNib
-{
+- (void)awakeFromNib{
     [self.tableView setGridStyleMask:NSTableViewSolidHorizontalGridLineMask];
     [self.tableView setHeaderView:nil];
     self.tableView.dataSource = self;
@@ -41,12 +39,10 @@
                                                object:nil];
 }
 
--(void)loadView
-{
+-(void)loadView{
     [super loadView];
     
-    if(_pathEditType == PathEditTypeLocalizable)
-    {
+    if(_pathEditType == PathEditTypeLocalizable){
         self.InsertBtn.hidden=YES;
         self.DeleteBtn.hidden=YES;
     }else{
@@ -55,8 +51,7 @@
     }
 }
 
-- (void)dealloc
-{
+- (void)dealloc{
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 

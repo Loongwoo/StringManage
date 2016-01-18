@@ -2,8 +2,8 @@
 //  PathEditViewController
 //  XToDo
 //
-//  Created by shuice on 2014-03-09.
-//  Copyright (c) 2014. All rights reserved.
+//  Created by kiwik on 1/16/16.
+//  Copyright © 2016 Kiwik. All rights reserved.
 //
 
 #import <AppKit/AppKit.h>

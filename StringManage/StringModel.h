@@ -137,6 +137,8 @@
 @property (nonatomic, copy) NSString* content;
 @end
 
+typedef void (^onFoundBlock)(NSString* key, NSArray *items);
+
 @class ActionModel;
 @interface StringModel : NSObject
 
@@ -156,7 +158,7 @@
 + (NSString*)explandRootPathMacro:(NSString*)path projectPath:(NSString*)projectPath;
 + (NSArray*)explandRootPathMacros:(NSArray*)paths projectPath:(NSString*)projectPath;
 +(NSArray*)lprojDirectoriesWithProjectSetting:(StringSetting*)setting project:(NSString*)project;
-+ (NSDictionary*)findItemsWithProjectPath:(StringSetting*)projectSetting projectPath:(NSString*)projectPath findStrings:(NSArray*)findStrings;
++ (void)findItemsWithProjectPath:(StringSetting*)projectSetting projectPath:(NSString*)projectPath findStrings:(NSArray*)findStrings block:(onFoundBlock)block;
 + (BOOL)openItem:(StringItem*)item;
 + (StringSetting*)projectSettingByProjectName:(NSString*)projectName;
 + (void)saveProjectSetting:(StringSetting*)projectSetting ByProjectName:(NSString*)projectName;

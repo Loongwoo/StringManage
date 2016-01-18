@@ -11,16 +11,13 @@
 #import "StringModel.h"
 
 @interface StringManage()
-
 @property (nonatomic, strong, readwrite) NSBundle *bundle;
 @property (nonatomic, strong) StringWindowController* windowController;
-
 @end
 
 @implementation StringManage
 
-+ (void)pluginDidLoad:(NSBundle *)plugin
-{
++ (void)pluginDidLoad:(NSBundle *)plugin {
     static dispatch_once_t onceToken;
     NSString *currentApplicationName = [[NSBundle mainBundle] infoDictionary][@"CFBundleName"];
     if ([currentApplicationName isEqual:@"Xcode"]) {
@@ -30,13 +27,11 @@
     }
 }
 
-+ (instancetype)sharedPlugin
-{
++ (instancetype)sharedPlugin {
     return sharedPlugin;
 }
 
-- (id)initWithBundle:(NSBundle *)plugin
-{
+- (id)initWithBundle:(NSBundle *)plugin {
     if (self = [super init]) {
         self.bundle = plugin;
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -47,8 +42,7 @@
     return self;
 }
 
-- (void)didApplicationFinishLaunchingNotification:(NSNotification*)noti
-{
+- (void)didApplicationFinishLaunchingNotification:(NSNotification*)noti {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSApplicationDidFinishLaunchingNotification object:nil];
     
     NSMenuItem *menuItem = [[NSApp mainMenu] itemWithTitle:@"Edit"];
@@ -66,7 +60,6 @@
     if (filePath) {
         NSString* projectDir = [filePath stringByDeletingLastPathComponent];
         NSString *projectName = [filePath lastPathComponent];
-        
         if (self.windowController.window.isVisible) {
             [self.windowController.window close];
         } else {
@@ -79,10 +72,6 @@
             [self.windowController refresh:nil];
         }
     }
-}
-
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end

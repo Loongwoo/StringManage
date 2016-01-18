@@ -7,6 +7,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="StringWindowController">
             <connections>
+                <outlet property="addBtn" destination="dZd-QA-tK3" id="N8L-iu-Shm"/>
                 <outlet property="progressIndicator" destination="5uT-PR-2fe" id="ihM-7D-qal"/>
                 <outlet property="recordLabel" destination="of1-0h-X5c" id="tRP-vN-EEb"/>
                 <outlet property="refreshBtn" destination="51u-NQ-dAe" id="zJE-9L-OZM"/>

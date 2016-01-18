@@ -2,8 +2,8 @@
 //  XToDoPreferencesWindowController.h
 //  XToDo
 //
-//  Created by Georg Kaindl on 25/01/14.
-//  Copyright (c) 2014 Plumn LLC. All rights reserved.
+//  Created by kiwik on 1/16/16.
+//  Copyright © 2016 Kiwik. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>

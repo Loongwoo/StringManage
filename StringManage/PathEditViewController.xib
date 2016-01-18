@@ -64,7 +64,7 @@
                     </tableHeaderView>
                 </scrollView>
                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2cb-9s-4CC">
-                    <rect key="frame" x="0.0" y="0.0" width="39" height="21"/>
+                    <rect key="frame" x="0.0" y="1" width="39" height="21"/>
                     <buttonCell key="cell" type="bevel" title="+" bezelStyle="rounded" alignment="center" imageScaling="proportionallyDown" inset="2" id="RzA-13-mdm">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
@@ -74,7 +74,7 @@
                     </connections>
                 </button>
                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="I3A-6g-04P">
-                    <rect key="frame" x="41" y="0.0" width="36" height="21"/>
+                    <rect key="frame" x="41" y="1" width="36" height="21"/>
                     <buttonCell key="cell" type="bevel" title="-" bezelStyle="rounded" alignment="center" imageScaling="proportionallyDown" inset="2" id="4SK-bd-8Ro">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
