@@ -110,7 +110,9 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
             lineOffset += lineRange.length;
         }];
         if(!found && action.actionType == ActionTypeAdd) {
-            [mutableString appendFormat:@"\n\"%@\"=\"%@\";",action.key, action.value];
+            if(![mutableString hasSuffix:@"\n"])
+                [mutableString appendFormat:@"\n"];
+            [mutableString appendFormat:@"\"%@\"=\"%@\";",action.key, action.value];
         }
     }
     //write to filepath
