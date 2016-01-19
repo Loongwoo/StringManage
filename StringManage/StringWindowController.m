@@ -12,6 +12,7 @@
 #import "PreferencesWindowController.h"
 #import "StringSetting.h"
 #import "StringInfoViewController.h"
+#import "NSButton+Extension.h"
 
 #define KEY @"key"
 #define REMOVE @"remove"
@@ -23,6 +24,7 @@
 @property (weak) IBOutlet NSButton *refreshBtn;
 @property (weak) IBOutlet NSButton *saveBtn;
 @property (weak) IBOutlet NSProgressIndicator *progressIndicator;
+@property (weak) IBOutlet NSTextField *tipsLabel;
 @property (weak) IBOutlet NSTextField *recordLabel;
 @property (weak) IBOutlet NSSearchField *searchField;
 @property (weak) IBOutlet NSButton *addBtn;
@@ -82,6 +84,7 @@
     [self.saveBtn setTitle:LocalizedString(@"Save")];
     [self.refreshBtn setTitle:LocalizedString(@"Refresh")];
     [self.CheckBtn setTitle:LocalizedString(@"Check")];
+    [self.tipsLabel setStringValue:LocalizedString(@"UseTips")];
     [self.checkIndicator setHidden:YES];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
@@ -172,16 +175,19 @@
         return @"";
     if([identifier isEqualToString:KEY]) {
         return key;
-    } else  {
-        ActionModel *action = [self findActionWith:key identify:identifier];
-        if(action){
-            return action.value;
-        }
-        StringModel *model = [self findStringModelWithIdentifier:identifier];
-        if(model){
-            NSString *value = model.stringDictionary[key];
-            return value.length==0 ? @"" : value;
-        }
+    }
+    ActionModel *action = [self findActionWith:key identify:identifier];
+    if(action){
+        return action.value.length==0 ? @"" : action.value;
+    }
+    return [self valueInRaw:key identifier:identifier];
+}
+
+-(NSString*)valueInRaw:(NSString*)key  identifier:(NSString*)identifier {
+    StringModel *model = [self findStringModelWithIdentifier:identifier];
+    if(model){
+        NSString *value = model.stringDictionary[key];
+        return value.length==0 ? @"" : value;
     }
     return @"";
 }
@@ -293,11 +299,8 @@
         self.showArray = tmp;
     }
     self.recordLabel.stringValue = [NSString stringWithFormat:LocalizedString(@"RecordNumMsg"),self.showArray.count];
+    [self.saveBtn setEnabled:(_actionArray.count>0)];
     [self.tableview reloadData];
-    
-    if(_actionArray.count>0){
-        [self.saveBtn setEnabled:YES];
-    }
 }
 
 - (IBAction)checkAction:(id)sender {
@@ -384,23 +387,32 @@
 -(void)doubleAction:(id)sender {
     NSInteger column = _tableview.clickedColumn;
     NSInteger row = _tableview.clickedRow;
-    if(column<=0 || column > self.tableview.numberOfColumns-2)
+    if(column<0 || column > self.tableview.numberOfColumns-2)
         return;
     if(row < 0 || row >= self.tableview.numberOfRows)
         return;
     NSString *key = _showArray[row];
-    StringModel *model = _stringArray[column-1];
+    NSString *identifier = nil;
+    if(column==0){
+        identifier=@"key";
+    }else{
+        StringModel *model = _stringArray[column-1];
+        identifier = model.identifier;
+    }
     NSInteger status = [_keyDict[key] integerValue];
     if(status != KeyTypeRemove) {
-        BOOL found = NO;
         [_actionArray enumerateObjectsUsingBlock:^(ActionModel *obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            if([obj.key isEqual:key] && [obj.identifier isEqualToString:model.identifier]){
+            if([obj.key isEqual:key] && [obj.identifier isEqualToString:identifier]){
                 [_actionArray removeObject:obj];
+                [self searchAnswer:nil];
+                *stop=NO;
             }
         }];
-        if(found){
-            [self searchAnswer:nil];
-        }
+        
+        NSString *value = [self titleWithKey:key identifier:identifier];
+        NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+        [pasteboard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:self];
+        [pasteboard setString:value forType:NSStringPboardType];
     }
 }
 
@@ -459,6 +471,7 @@
         return;
     
     NSString *key = _showArray[textField.tag];
+    NSString *rawValue = [self valueInRaw:key identifier:identifier];
     NSString *oldValue = [self titleWithKey:key identifier:identifier];
     NSString *newValue = textField.stringValue;
     if([oldValue isEqualToString:newValue])
@@ -472,6 +485,10 @@
     [_actionArray enumerateObjectsUsingBlock:^(ActionModel * obj, NSUInteger idx, BOOL * _Nonnull stop) {
         if ([obj.key isEqualToString:key] && [obj.identifier isEqualToString:model.identifier]) {
             found = YES;
+            if([rawValue isEqualToString:newValue]){
+                [_actionArray removeObject:obj];
+                *stop = YES;
+            }
             if(obj.actionType == ActionTypeRemove){
                 if(newValue.length>0) {
                     obj.actionType = ActionTypeAdd;
@@ -485,6 +502,7 @@
                     obj.value = newValue;
                 }
             }
+            *stop = YES;
         }
     }];
     if(!found) {
@@ -493,6 +511,7 @@
             action.actionType = ActionTypeRemove;
             action.identifier = model.identifier;
             action.key = key;
+            action.value=newValue;
             [_actionArray addObject:action];
         }else{
             ActionModel *action = [[ActionModel alloc]init];
@@ -508,6 +527,7 @@
 }
 
 - (void)_onNotifyProjectSettingChanged:(NSNotification*)notification {
+    [_infoDict removeAllObjects];
     [self refresh:nil];
 }
 
@@ -535,14 +555,18 @@
             [aView setState:1];
         }
         if(status == KeyTypeRemove){
-            [aView setTitle:LocalizedString(@"撤销")];
+            NSAttributedString *title = [[NSAttributedString alloc]initWithString:LocalizedString(@"Revoke")];
+            [aView setAttributedTitle:title];
+            [aView setTextColor:[NSColor redColor]];
         }else{
-            [aView setTitle:LocalizedString(@"Remove")];
+            NSAttributedString *title = [[NSAttributedString alloc]initWithString:LocalizedString(@"Remove")];
+            [aView setAttributedTitle:title];
+            [aView setTextColor:[NSColor blackColor]];
         }
         [aView setTag:row];
         [aView setIdentifier:key];
         return aView;
-    } if([identifier isEqualToString:kInfo]){
+    }else if([identifier isEqualToString:kInfo]){
         NSArray *items = _infoDict[key];
         NSButton *aView = [tableView makeViewWithIdentifier:identifier owner:self];
         if(!aView) {
@@ -556,6 +580,7 @@
         [aView setTitle:[@(items.count) stringValue]];
         return aView;
     }else {
+        NSString *rawTitle = [self valueInRaw:key identifier:identifier];
         NSString *title = [self titleWithKey:key identifier:identifier];
         ActionModel *action = [self findActionWith:key identify:identifier];
         NSTextField *aView = [tableView makeViewWithIdentifier:@"MYCell" owner:self];
@@ -566,7 +591,7 @@
         if(status == KeyTypeRemove){
             [aView setTextColor:[NSColor redColor]];
         }else if (status == KeyTypeAdd) {
-            [aView setTextColor: [NSColor grayColor]];
+            [aView setTextColor: [NSColor colorWithRed:0 green:0.8 blue:0 alpha:1.0]];
         }else{
             if(action && action.actionType == ActionTypeAdd){
                 [aView setTextColor: [NSColor blueColor]];
@@ -578,7 +603,7 @@
         }
         [aView setTag:row];
         [aView setIdentifier:identifier];
-        [aView setPlaceholderString:title];
+        [aView setPlaceholderString:rawTitle];
         [aView setStringValue:title];
         return aView;
     }

@@ -15,3 +15,6 @@
 "FoundNum"="Num";
 "OK"="OK";
 "Check"="Check";
+"Revoke"="Revoke";
+"UseTips"="Red: remove; Green: Add; Blue: modify; Single click: edit; Double click: revoke or copy to pasteboard.";
+"Good"="Good";

@@ -8,5 +8,5 @@
 
 KEYWORDS="$1"
 
-# New matching strategy handles colon noise more gracefully, supports keywords in multi-line comments, supports mid-line keywords, and generally leaves less clean-up work for Obj-C
+#xargs -0 egrep  --with-filename --line-number --only-matching "^.*?\"($KEYWORDS)\".*?$"
 xargs -0 egrep -H -n -o "^.*?\"($KEYWORDS)\".*?$"

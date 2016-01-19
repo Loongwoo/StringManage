@@ -16,7 +16,7 @@
     StringSetting* projectSetting = [[StringSetting alloc] init];
     projectSetting.searchDirectory = [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:name]];
     projectSetting.searchTableName = @"Localizable.strings";
-    projectSetting.searchTypes = @[@"h", @"m",@"swift",@"mm"];
+    projectSetting.searchTypes = @[@"h", @"m",@"swift",@"mm",@"pch"];
     projectSetting.includeDirs = @[ [StringModel rootPathMacro] ];
     projectSetting.excludeDirs = @[ [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"Pods"]], [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"Carthage"]],[StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"DerivedData"]] ];
     return projectSetting;

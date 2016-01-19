@@ -17,7 +17,7 @@
     if (self) {
         self.titleField = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 20, frame.size.width - 20, 15)];
         self.titleField.font = [NSFont systemFontOfSize:10];
-        self.titleField.textColor = [NSColor lightGrayColor];
+        self.titleField.textColor = [NSColor grayColor];
         [self.titleField setAutoresizingMask:NSViewWidthSizable];
         [[self.titleField cell] setLineBreakMode:NSLineBreakByTruncatingTail];
         [self addSubview:self.titleField];

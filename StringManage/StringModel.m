@@ -518,7 +518,6 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
         return;
     NSString* filePath = [StringModel settingFilePathByProjectName:projectName];
     @try {
-        NSLog(@"save %@ %@",projectSetting.includeDirs, projectSetting.excludeDirs);
         [NSKeyedArchiver archiveRootObject:projectSetting toFile:filePath];
         filePath = nil;
     }

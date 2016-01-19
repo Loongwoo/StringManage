@@ -16,6 +16,7 @@
                 <outlet property="saveBtn" destination="I4O-1U-Rjs" id="77R-hv-hZK"/>
                 <outlet property="searchField" destination="mDh-8w-vmB" id="C4z-r1-2n2"/>
                 <outlet property="tableview" destination="8Bz-xn-9ZO" id="xDf-bO-Rpn"/>
+                <outlet property="tipsLabel" destination="Rgz-Ey-KJf" id="7l4-gl-IxA"/>
                 <outlet property="window" destination="1" id="3"/>
             </connections>
         </customObject>
@@ -155,6 +156,15 @@
                         <rect key="frame" x="817" y="40" width="16" height="16"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                     </progressIndicator>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Rgz-Ey-KJf">
+                        <rect key="frame" x="8" y="6" width="874" height="17"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Label" id="9au-B8-96M">
+                            <font key="font" metaFont="system" size="12"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                 </subviews>
             </view>
             <toolbar key="toolbar" implicitIdentifier="FE022600-8BEC-4CD9-9E13-4B6746454E02" autosavesConfiguration="NO" displayMode="labelOnly" sizeMode="regular" id="rEi-SS-K4T">
