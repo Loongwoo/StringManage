@@ -11,7 +11,7 @@
 
 @implementation StringSetting
 
-+ (StringSetting*)defaultSettingWithProject:(NSString*)projectName {
++ (StringSetting*)defaultSettingWithProjectPath:(NSString *)projectPath projectName:(NSString*)projectName {
     NSString *name = [projectName stringByDeletingPathExtension];
     StringSetting* projectSetting = [[StringSetting alloc] init];
     projectSetting.searchDirectory = [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:name]];
@@ -19,6 +19,7 @@
     projectSetting.searchTypes = @[@"h", @"m",@"swift",@"mm",@"pch"];
     projectSetting.includeDirs = @[ [StringModel rootPathMacro] ];
     projectSetting.excludeDirs = @[ [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"Pods"]], [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"Carthage"]],[StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"DerivedData"]] ];
+    projectSetting.language = [StringModel devLanguageWithProjectPath:projectPath];
     return projectSetting;
 }
 
@@ -29,6 +30,7 @@ static NSString *searchTableName = @"searchTableName";
 static NSString *searchTypes = @"searchTypes";
 static NSString *includeDirs = @"includeDirs";
 static NSString *excludeDirs = @"excludeDirs";
+static NSString *language = @"language";
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
@@ -39,6 +41,7 @@ static NSString *excludeDirs = @"excludeDirs";
         _searchTypes = [aDecoder decodeObjectForKey:searchTypes];
         _includeDirs = [aDecoder decodeObjectForKey:includeDirs];
         _excludeDirs = [aDecoder decodeObjectForKey:excludeDirs];
+        _language = [aDecoder decodeIntegerForKey:language];
     }
     return self;
 }
@@ -50,6 +53,7 @@ static NSString *excludeDirs = @"excludeDirs";
     [aCoder encodeObject:self.searchTypes ? self.searchTypes : @[] forKey:searchTypes];
     [aCoder encodeObject:self.includeDirs ? self.includeDirs : @[] forKey:includeDirs];
     [aCoder encodeObject:self.excludeDirs ? self.excludeDirs : @[] forKey:excludeDirs];
+    [aCoder encodeInteger:self.language forKey:language];
 }
 
 @end

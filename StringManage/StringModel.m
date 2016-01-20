@@ -61,7 +61,7 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
     return self;
 }
 
--(void)doAction:(NSArray*)actions {
+-(void)doAction:(NSArray*)actions projectSetting:(StringSetting*)projectSetting{
     NSString *string = [NSString stringWithContentsOfFile:self.filePath usedEncoding:nil error:nil];
     
     NSMutableString *mutableString = [[NSMutableString alloc]initWithString:string];
@@ -112,7 +112,11 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
         if(!found && action.actionType == ActionTypeAdd) {
             if(![mutableString hasSuffix:@"\n"])
                 [mutableString appendFormat:@"\n"];
-            [mutableString appendFormat:@"\"%@\"=\"%@\";",action.key, action.value];
+            if(projectSetting.language==1) {
+                [mutableString appendFormat:@"%@=\"%@\";",action.key, action.value];
+            }else{
+                [mutableString appendFormat:@"\"%@\"=\"%@\";",action.key, action.value];
+            }
         }
     }
     //write to filepath
@@ -171,16 +175,17 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
     return nil;
 }
 
-+(BOOL)isSwiftWithProjectPath:(NSString*)projectPath {
+//0->Obj-C; 1->Swift
++(NSInteger)devLanguageWithProjectPath:(NSString*)projectPath {
     NSDirectoryEnumerator *enumerator = [[NSFileManager defaultManager] enumeratorAtPath:projectPath];
     NSString *filePath = nil;
     while (filePath = [enumerator nextObject]){
         NSString *file = [filePath lastPathComponent];
         if([file isEqualToString:@"AppDelegate.swift"]) {
-            return YES;
+            return 1;
         }
     }
-    return NO;
+    return 0;
 }
 
 + (NSArray*)explandRootPathMacros:(NSArray*)paths projectPath:(NSString*)projectPath {
@@ -474,7 +479,7 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
     return [settingDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.plist", fileName]];
 }
 
-+ (StringSetting*)projectSettingByProjectName:(NSString*)projectName{
++ (StringSetting*)projectSettingByProjectPath:(NSString*)projectPath projectName:(NSString*)projectName{
     static NSMutableDictionary* projectName2ProjectSetting = nil;
     if (projectName2ProjectSetting == nil) {
         projectName2ProjectSetting = [[NSMutableDictionary alloc] init];
@@ -505,7 +510,7 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
     
     if (projectSetting == nil) {
         NSLog(@"重新生成");
-        projectSetting = [StringSetting defaultSettingWithProject:projectName];
+        projectSetting = [StringSetting defaultSettingWithProjectPath:projectPath projectName:projectName];
     }
     if ((projectSetting != nil) && (projectName != nil)) {
         [projectName2ProjectSetting setObject:projectSetting forKey:projectName];

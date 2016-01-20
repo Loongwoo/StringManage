@@ -147,12 +147,11 @@ typedef void (^onFoundBlock)(NSString* key, NSArray *items);
 @property (nonatomic, strong) NSString *identifier;//国家
 @property (nonatomic, strong) NSMutableDictionary *stringDictionary;//字符串字典
 
--(void)doAction:(NSArray*)actions;
-
-+ (IDEWorkspaceDocument*)currentWorkspaceDocument;
-
+-(void)doAction:(NSArray*)actions projectSetting:(StringSetting*)projectSetting;
 - (instancetype)initWithPath:(NSString*)path projectSetting:(StringSetting*)projectSetting;
 
++ (IDEWorkspaceDocument*)currentWorkspaceDocument;
++(NSInteger)devLanguageWithProjectPath:(NSString*)projectPath;
 + (NSString*)rootPathMacro;
 + (NSString*)addPathSlash:(NSString*)path;
 + (NSString*)explandRootPathMacro:(NSString*)path projectPath:(NSString*)projectPath;
@@ -160,7 +159,7 @@ typedef void (^onFoundBlock)(NSString* key, NSArray *items);
 +(NSArray*)lprojDirectoriesWithProjectSetting:(StringSetting*)setting project:(NSString*)project;
 + (void)findItemsWithProjectPath:(StringSetting*)projectSetting projectPath:(NSString*)projectPath findStrings:(NSArray*)findStrings block:(onFoundBlock)block;
 + (BOOL)openItem:(StringItem*)item;
-+ (StringSetting*)projectSettingByProjectName:(NSString*)projectName;
++ (StringSetting*)projectSettingByProjectPath:(NSString*)projectPath projectName:(NSString*)projectName;
 + (void)saveProjectSetting:(StringSetting*)projectSetting ByProjectName:(NSString*)projectName;
 @end
 

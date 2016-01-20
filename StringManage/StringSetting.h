@@ -14,6 +14,7 @@
 @property (nonatomic , copy) NSArray* searchTypes;
 @property (nonatomic , copy) NSArray* includeDirs;
 @property (nonatomic , copy) NSArray* excludeDirs;
+@property (nonatomic , assign) NSInteger language;
 
-+ (StringSetting*)defaultSettingWithProject:(NSString*)projectName;
++ (StringSetting*)defaultSettingWithProjectPath:(NSString *)projectPath projectName:(NSString*)projectName;
 @end

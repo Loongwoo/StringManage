@@ -19,13 +19,14 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
 @property (weak) IBOutlet NSTextField *tableTitleTextField;
 @property (weak) IBOutlet NSTextField* directoryTextField;
 @property (weak) IBOutlet NSTextField* tableNameTextField;
-
 @property (weak) IBOutlet NSTextField *searchFilesTextField;
 @property (weak) IBOutlet NSTextField *includeTextField;
 @property (weak) IBOutlet NSTextField *excludeTextField;
+@property (weak) IBOutlet NSPopUpButton *languagePopUpBtn;
+@property (weak) IBOutlet NSTextField *languageLabel;
+@property (weak) IBOutlet NSTextField *languageTipsLabel;
 - (IBAction)onTouchUpInsideLocalizable:(id)sender;
 - (IBAction)onTouchUpInsideExtension:(id)sender;
-
 - (IBAction)onTouchUpInsideEditInclude:(id)sender;
 - (IBAction)onTouchUpInsideEditExclude:(id)sender;
 @end
@@ -47,6 +48,8 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     [self.window setTitle:LocalizedString(@"Preferences")];
     [self.dirTitleTextField setStringValue:LocalizedString(@"SearchDirectory")];
     [self.tableTitleTextField setStringValue:LocalizedString(@"SearchTableName")];
+    [self.languageLabel setStringValue:LocalizedString(@"DevLanguage")];
+    [self.languageTipsLabel setStringValue:LocalizedString(@"DevLanguageTips")];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
     
@@ -55,8 +58,12 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     [self.window makeFirstResponder:nil];
 }
 
+-(StringSetting*)getSetting {
+    return [StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName];
+}
+
 -(void)_updateDirsUI {
-    StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+    StringSetting* projectSetting = [self getSetting];
     
     NSString *path1 = [StringModel explandRootPathMacro:[projectSetting searchDirectory] projectPath:self.projectPath];
     self.directoryTextField.stringValue = path1;
@@ -65,6 +72,12 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     [self.directoryTextField resignFirstResponder];
     
     self.tableNameTextField.stringValue = [projectSetting searchTableName];
+    
+    if(self.languagePopUpBtn.numberOfItems > projectSetting.language) {
+        [self.languagePopUpBtn selectItemAtIndex:projectSetting.language];
+    }else{
+        [self.languagePopUpBtn selectItemAtIndex:0];
+    }
     
     self.searchFilesTextField.stringValue = [[projectSetting searchTypes] componentsJoinedByString:@","];
     [self.searchFilesTextField setSelectable:YES];
@@ -97,7 +110,7 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
             [alert setAlertStyle:NSWarningAlertStyle];
             [alert runModal];
         }else{
-            StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+            StringSetting* projectSetting = [self getSetting];
             projectSetting.searchTableName=self.tableNameTextField.stringValue;
         }
     }
@@ -106,14 +119,14 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
 - (void)windowWillClose:(NSNotification*)notification {
     [self.window makeFirstResponder:nil];
     
-    StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+    StringSetting* projectSetting = [self getSetting];
     [StringModel saveProjectSetting:projectSetting ByProjectName:self.projectName];
     [[NSNotificationCenter defaultCenter] postNotificationName:kNotifyProjectSettingChanged object:nil];
 }
 
 #pragma mark - private
 - (IBAction)onTouchUpInsideLocalizable:(id)sender {
-    StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+    StringSetting* projectSetting = [self getSetting];
     NSPopover* popover = [[NSPopover alloc] init];
     popover.delegate = self;
     popover.behavior = NSPopoverBehaviorTransient;
@@ -124,7 +137,7 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
 }
 
 - (IBAction)onTouchUpInsideExtension:(id)sender {
-    StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+    StringSetting* projectSetting = [self getSetting];
     NSPopover* popover = [[NSPopover alloc] init];
     popover.delegate = self;
     popover.behavior = NSPopoverBehaviorTransient;
@@ -134,8 +147,14 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     [popover showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];
 }
 
+- (IBAction)langaugeAction:(id)sender {
+    StringSetting* projectSetting = [self getSetting];
+    NSPopUpButton *popUp = (NSPopUpButton *)sender;
+    projectSetting.language = popUp.indexOfSelectedItem;
+}
+
 - (IBAction)onTouchUpInsideEditInclude:(id)sender {
-    StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+    StringSetting* projectSetting = [self getSetting];
     NSPopover* popover = [[NSPopover alloc] init];
     popover.delegate = self;
     popover.behavior = NSPopoverBehaviorTransient;
@@ -146,7 +165,7 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
 }
 
 - (IBAction)onTouchUpInsideEditExclude:(id)sender {
-    StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+    StringSetting* projectSetting = [self getSetting];
     NSPopover* popover = [[NSPopover alloc] init];
     popover.delegate = self;
     popover.behavior = NSPopoverBehaviorTransient;
@@ -167,7 +186,7 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     if ([pathEditViewController isKindOfClass:[PathEditViewController class]] == NO) {
         return;
     }
-    StringSetting* projectSetting = [StringModel projectSettingByProjectName:self.projectName];
+    StringSetting* projectSetting = [self getSetting];
     if (pathEditViewController.pathEditType == PathEditTypeInclude) {
         projectSetting.includeDirs = [pathEditViewController array];
     } else if (pathEditViewController.pathEditType == PathEditTypeExclude) {

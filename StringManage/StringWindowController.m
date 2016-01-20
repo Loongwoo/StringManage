@@ -184,6 +184,9 @@
 }
 
 -(NSString*)valueInRaw:(NSString*)key  identifier:(NSString*)identifier {
+    if([identifier isEqualToString:KEY]) {
+        return key;
+    }
     StringModel *model = [self findStringModelWithIdentifier:identifier];
     if(model){
         NSString *value = model.stringDictionary[key];
@@ -210,6 +213,32 @@
     return nil;
 }
 
+-(StringSetting*)getSetting {
+    return [StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName];
+}
+
+-(BOOL)validateKey:(NSString*)key {
+    if(key.length==0)
+        return NO;
+    if([_keyArray containsObject:key]) {
+        NSAlert *alert = [[NSAlert alloc]init];
+        [alert setMessageText: LocalizedString(@"InputIsExist")];
+        [alert addButtonWithTitle: LocalizedString(@"OK")];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert beginSheetModalForWindow:self.window completionHandler:nil];
+        return NO;
+    }
+    StringSetting *setting = [self getSetting];
+    if (setting.language == 1) {
+        NSString *regex = @"[_a-zA-Z][_a-zA-Z0-9]*";
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
+        return [predicate evaluateWithObject:key];
+    }else{
+        return YES;
+    }
+    return NO;
+}
+
 #pragma mark - Button Action
 - (IBAction)openAbout:(id)sender {
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/Loongwoo/StringManage"]];
@@ -234,8 +263,7 @@
     [self.saveBtn setEnabled:NO];
     
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        StringSetting *projectSetting = [StringModel projectSettingByProjectName:self.projectName];
-        NSArray *lprojDirectorys = [StringModel lprojDirectoriesWithProjectSetting:projectSetting project:self.projectPath];
+        NSArray *lprojDirectorys = [StringModel lprojDirectoriesWithProjectSetting:[self getSetting] project:self.projectPath];
             if (lprojDirectorys.count == 0) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     NSAlert *alert = [[NSAlert alloc]init];
@@ -253,7 +281,7 @@
                 
                 NSMutableSet *keySet = [[NSMutableSet alloc]init];
                 for (NSString *path in lprojDirectorys) {
-                    StringModel *model = [[StringModel alloc]initWithPath:path projectSetting:projectSetting];
+                    StringModel *model = [[StringModel alloc]initWithPath:path projectSetting:[self getSetting]];
                     [_stringArray addObject:model];
                     NSArray *keys = model.stringDictionary.allKeys;
                     NSSet *set = [NSSet setWithArray:keys];
@@ -311,8 +339,7 @@
     [_infoDict removeAllObjects];
     
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        StringSetting *projectSetting = [StringModel projectSettingByProjectName:self.projectName];
-        [StringModel findItemsWithProjectPath:projectSetting projectPath:self.projectPath findStrings:self.keyArray block:^(NSString *key, NSArray *items) {
+        [StringModel findItemsWithProjectPath:[self getSetting] projectPath:self.projectPath findStrings:self.keyArray block:^(NSString *key, NSArray *items) {
             if(key==nil && items==nil) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     self.isChecking=NO;
@@ -339,21 +366,14 @@
     [alert setAlertStyle:NSInformationalAlertStyle];
     [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
         if(returnCode == NSAlertFirstButtonReturn) {
-            if(input.stringValue.length==0)
+            NSString *text = [input.stringValue stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            if(![self validateKey:text])
                 return;
-            if([_keyArray containsObject:input.stringValue]) {
-                NSAlert *alert = [[NSAlert alloc]init];
-                [alert setMessageText: LocalizedString(@"InputIsExist")];
-                [alert addButtonWithTitle: LocalizedString(@"OK")];
-                [alert setAlertStyle:NSWarningAlertStyle];
-                [alert beginSheetModalForWindow:self.window completionHandler:nil];
-            } else {
-                [_keyArray addObject:input.stringValue];
-                [_keyDict setObject:@(KeyTypeAdd) forKey:input.stringValue];
-                [self.searchField setStringValue:@""];
-                [self searchAnswer:nil];
-                [_tableview scrollRowToVisible:_tableview.numberOfRows-1];
-            }
+            [_keyArray addObject:text];
+            [_keyDict setObject:@(KeyTypeAdd) forKey:text];
+            [self.searchField setStringValue:@""];
+            [self searchAnswer:nil];
+            [_tableview scrollRowToVisible:_tableview.numberOfRows-1];
         }
     }];
 }
@@ -362,12 +382,24 @@
     [self.window makeFirstResponder:nil];
     if(_actionArray.count==0)
         return;
+    StringSetting *setting = [self getSetting];
     for (StringModel *model in _stringArray) {
-        [model doAction:_actionArray];
+        NSArray *arr = [self arrayWithIdentifier:model.identifier];
+        [model doAction:arr projectSetting:setting];
     }
     [_actionArray removeAllObjects];
     
     [self refresh:nil];
+}
+
+-(NSArray*)arrayWithIdentifier:(NSString*)identifier {
+    NSMutableArray *tmp = [NSMutableArray array];
+    for (ActionModel *model in self.actionArray) {
+        if([model.identifier isEqualToString:identifier]) {
+            [tmp addObject:model];
+        }
+    }
+    return tmp;
 }
 
 -(void)cellClicked:(id)sender {
@@ -545,7 +577,6 @@
         return nil;
     NSString *identifier=[tableColumn identifier];
     NSString *key = self.showArray[row];
-    NSInteger status = [_keyDict[key] integerValue];
     if([identifier isEqualToString:@"remove"]){
         NSButton *aView = [tableView makeViewWithIdentifier:identifier owner:self];
         if(!aView) {
@@ -554,6 +585,7 @@
             [aView setTarget:self];
             [aView setState:1];
         }
+        NSInteger status = [_keyDict[key] integerValue];
         if(status == KeyTypeRemove){
             NSAttributedString *title = [[NSAttributedString alloc]initWithString:LocalizedString(@"Revoke")];
             [aView setAttributedTitle:title];
@@ -580,31 +612,28 @@
         [aView setTitle:[@(items.count) stringValue]];
         return aView;
     }else {
-        NSString *rawTitle = [self valueInRaw:key identifier:identifier];
-        NSString *title = [self titleWithKey:key identifier:identifier];
         ActionModel *action = [self findActionWith:key identify:identifier];
         NSTextField *aView = [tableView makeViewWithIdentifier:@"MYCell" owner:self];
         if(!aView) {
             aView = [[NSTextField alloc]initWithFrame:NSZeroRect];
             [aView setTarget:self];
         }
-        if(status == KeyTypeRemove){
+        NSInteger status = [_keyDict[key] integerValue];
+        if(status == KeyTypeRemove || (action && action.actionType == ActionTypeRemove)){
             [aView setTextColor:[NSColor redColor]];
+            [aView setStringValue:[self valueInRaw:key identifier:identifier]];
         }else if (status == KeyTypeAdd) {
             [aView setTextColor: [NSColor colorWithRed:0 green:0.8 blue:0 alpha:1.0]];
+            [aView setStringValue:[self titleWithKey:key identifier:identifier]];
+        }else if(action && action.actionType == ActionTypeAdd){
+            [aView setTextColor: [NSColor blueColor]];
+            [aView setStringValue:[self titleWithKey:key identifier:identifier]];
         }else{
-            if(action && action.actionType == ActionTypeAdd){
-                [aView setTextColor: [NSColor blueColor]];
-            }else if (action && action.actionType == ActionTypeRemove){
-                [aView setTextColor:[NSColor redColor]];
-            }else{
-                [aView setTextColor: [NSColor darkGrayColor]];
-            }
+            [aView setTextColor: [NSColor darkGrayColor]];
+            [aView setStringValue:[self valueInRaw:key identifier:identifier]];
         }
         [aView setTag:row];
         [aView setIdentifier:identifier];
-        [aView setPlaceholderString:rawTitle];
-        [aView setStringValue:title];
         return aView;
     }
 }
