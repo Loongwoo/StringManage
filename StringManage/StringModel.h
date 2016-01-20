@@ -137,7 +137,7 @@
 @property (nonatomic, copy) NSString* content;
 @end
 
-typedef void (^onFoundBlock)(NSString* key, NSArray *items);
+typedef void (^onFoundBlock)(NSString* key, NSArray *items, float progress);
 
 @class ActionModel;
 @interface StringModel : NSObject

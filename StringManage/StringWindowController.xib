@@ -9,7 +9,7 @@
             <connections>
                 <outlet property="CheckBtn" destination="mxn-nE-3Fy" id="r2b-Xf-ELz"/>
                 <outlet property="addBtn" destination="dZd-QA-tK3" id="N8L-iu-Shm"/>
-                <outlet property="checkIndicator" destination="KYw-cr-tWr" id="mFw-lZ-TjJ"/>
+                <outlet property="checkIndicator" destination="pKF-Oh-0CL" id="kHz-x0-L2f"/>
                 <outlet property="progressIndicator" destination="5uT-PR-2fe" id="ihM-7D-qal"/>
                 <outlet property="recordLabel" destination="of1-0h-X5c" id="tRP-vN-EEb"/>
                 <outlet property="refreshBtn" destination="51u-NQ-dAe" id="zJE-9L-OZM"/>
@@ -153,10 +153,6 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" id="KYw-cr-tWr">
-                        <rect key="frame" x="817" y="40" width="16" height="16"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                    </progressIndicator>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Rgz-Ey-KJf">
                         <rect key="frame" x="8" y="6" width="874" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -166,6 +162,10 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" bezeled="NO" controlSize="small" style="spinning" id="pKF-Oh-0CL">
+                        <rect key="frame" x="817" y="40" width="16" height="16"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                    </progressIndicator>
                 </subviews>
             </view>
             <toolbar key="toolbar" implicitIdentifier="FE022600-8BEC-4CD9-9E13-4B6746454E02" autosavesConfiguration="NO" displayMode="iconOnly" sizeMode="small" id="rEi-SS-K4T">
@@ -184,7 +184,7 @@
                             <action selector="showPreferencesPanel:" target="-2" id="84t-NJ-PJu"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="CF06CAF3-C5E1-4B0C-950B-860F1522CBA8" label="Custom View" paletteLabel="Custom View" image="8BE44947-04D5-4ECA-B672-227344EDB1E9" id="4mU-Dw-vRj">
+                    <toolbarItem implicitItemIdentifier="CF06CAF3-C5E1-4B0C-950B-860F1522CBA8" label="Custom View" paletteLabel="Custom View" image="FDBF556A-1A66-4683-A145-DADB2361CEB5" id="4mU-Dw-vRj">
                         <nil key="toolTip"/>
                         <size key="minSize" width="61" height="18"/>
                         <size key="maxSize" width="332" height="18"/>
@@ -216,7 +216,7 @@
         <userDefaultsController representsSharedInstance="YES" id="rsX-lH-UUS"/>
     </objects>
     <resources>
-        <image name="8BE44947-04D5-4ECA-B672-227344EDB1E9" width="18" height="18">
+        <image name="FDBF556A-1A66-4683-A145-DADB2361CEB5" width="18" height="18">
             <mutableData key="keyedArchiveRepresentation">
 YnBsaXN0MDDUAQIDBAUGW1xYJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3ASAAGGoK8QFwcI
 ERYbHCc0NTY3ODk6O0JDRElMT1VYVSRudWxs1AkKCwwNDg8QViRjbGFzc1xOU0ltYWdlRmxhZ3NWTlNS

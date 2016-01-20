@@ -56,8 +56,7 @@
 }
 
 #pragma mark - Private
-- (IBAction)onTouchUpInsideDelete:(id)sender
-{
+- (IBAction)onTouchUpInsideDelete:(id)sender{
     NSInteger selectedRow = [self.tableView selectedRow];
     if (selectedRow == -1) {
         return;
@@ -77,8 +76,7 @@
     }
 }
 
-- (IBAction)onTouchUpInsideInsert:(id)sender
-{
+- (IBAction)onTouchUpInsideInsert:(id)sender{
     [self.tableView beginUpdates];
     if(_pathEditType != PathEditTypeExtension){
         [self.array addObject:[StringModel rootPathMacro]];
@@ -92,19 +90,16 @@
 }
 
 #pragma mark - NSTableView
-- (NSInteger)numberOfRowsInTableView:(NSTableView*)tableView
-{
+- (NSInteger)numberOfRowsInTableView:(NSTableView*)tableView{
     return [self.array count];
 }
 
-- (id)tableView:(NSTableView*)aTableView objectValueForTableColumn:(NSTableColumn*)aTableColumn row:(NSInteger)rowIndex
-{
+- (id)tableView:(NSTableView*)aTableView objectValueForTableColumn:(NSTableColumn*)aTableColumn row:(NSInteger)rowIndex{
     return [self.array objectAtIndex:rowIndex];
 }
 
 #pragma mark - Notify
-- (void)editingDidEnd:(NSNotification*)notification
-{
+- (void)editingDidEnd:(NSNotification*)notification{
     if ([notification object] != self.tableView) {
         return;
     }

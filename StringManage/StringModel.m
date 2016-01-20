@@ -355,7 +355,9 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
         return;
     }
     
-    for (NSString *findString in findStrings) {
+    NSInteger sum = findStrings.count;
+    for (int i=0;i<findStrings.count;i++) {
+        NSString *findString = findStrings[i];
         if (findString.length==0)
             continue;
         NSFileHandle* inputFileHandle = [NSFileHandle fileHandleForReadingAtPath:tempFilePath];
@@ -384,11 +386,12 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
             }
         }
         if(block){
-            block(findString, results);
+            float progress = 100*i/sum;
+            block(findString, results, progress);
         }
     }
     if(block){
-        block(nil, nil);
+        block(nil, nil, 100);
     }
 }
 

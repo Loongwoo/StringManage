@@ -242,8 +242,19 @@
     }
 }
 
+-(NSArray*)arrayWithIdentifier:(NSString*)identifier {
+    NSMutableArray *tmp = [NSMutableArray array];
+    for (ActionModel *model in self.actionArray) {
+        if([model.identifier isEqualToString:identifier]) {
+            [tmp addObject:model];
+        }
+    }
+    return tmp;
+}
+
 #pragma mark - Button Action
 - (IBAction)onlyShowAction:(id)sender{
+    [self.window makeFirstResponder:nil];
     self.onlyShowModified = ! self.onlyShowModified;
     [self searchAnswer:nil];
 }
@@ -273,47 +284,47 @@
     StringSetting *setting = [self getSetting];
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         NSArray *lprojDirectorys = [StringModel lprojDirectoriesWithProjectSetting:setting project:self.projectPath];
-            if (lprojDirectorys.count == 0) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    NSAlert *alert = [[NSAlert alloc]init];
-                    [alert setMessageText: LocalizedString(@"NoLocalizedFiles")];
-                    [alert addButtonWithTitle: LocalizedString(@"OK")];
-                    [alert setAlertStyle:NSWarningAlertStyle];
-                    [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
-                        self.isRefreshing = NO;
-                    }];
-                });
-            } else {
-                [_stringArray removeAllObjects];
-                [_keyArray removeAllObjects];
-                [_keyDict removeAllObjects];
-                
-                NSMutableSet *keySet = [[NSMutableSet alloc]init];
-                for (NSString *path in lprojDirectorys) {
-                    StringModel *model = [[StringModel alloc]initWithPath:path projectSetting:setting];
-                    [_stringArray addObject:model];
-                    NSArray *keys = model.stringDictionary.allKeys;
-                    NSSet *set = [NSSet setWithArray:keys];
-                    [keySet unionSet:set];
-                }
-                
-                NSArray *tmp = [[NSArray alloc]initWithArray:keySet.allObjects];
-                NSArray *sortedArray = [tmp sortedArrayUsingSelector:@selector(compare:)];
-                [_keyArray addObjectsFromArray:sortedArray];
-                self.rawKeyArray = sortedArray;
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self refreshTableView];
+        if (lprojDirectorys.count == 0) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSAlert *alert = [[NSAlert alloc]init];
+                [alert setMessageText: LocalizedString(@"NoLocalizedFiles")];
+                [alert addButtonWithTitle: LocalizedString(@"OK")];
+                [alert setAlertStyle:NSWarningAlertStyle];
+                [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
                     self.isRefreshing = NO;
-                });
+                }];
+            });
+        } else {
+            [_stringArray removeAllObjects];
+            [_keyArray removeAllObjects];
+            [_keyDict removeAllObjects];
+            
+            NSMutableSet *keySet = [[NSMutableSet alloc]init];
+            for (NSString *path in lprojDirectorys) {
+                StringModel *model = [[StringModel alloc]initWithPath:path projectSetting:setting];
+                [_stringArray addObject:model];
+                NSArray *keys = model.stringDictionary.allKeys;
+                NSSet *set = [NSSet setWithArray:keys];
+                [keySet unionSet:set];
             }
+            
+            NSArray *tmp = [[NSArray alloc]initWithArray:keySet.allObjects];
+            NSArray *sortedArray = [tmp sortedArrayUsingSelector:@selector(compare:)];
+            [_keyArray addObjectsFromArray:sortedArray];
+            self.rawKeyArray = sortedArray;
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self refreshTableView];
+                self.isRefreshing = NO;
+            });
+        }
     });
 }
 
 - (IBAction)searchAnswer:(id)sender {
     NSString *searchString = _searchField.stringValue;
+    NSMutableArray *tmp = [NSMutableArray array];
     if(_onlyShowModified){
-        NSMutableArray *tmp = [NSMutableArray array];
         for (ActionModel *model in _actionArray) {
             if([tmp containsObject:model.key])
                 continue;
@@ -323,41 +334,36 @@
                 [tmp addObject:model.key];
             }
         }
-        self.showArray = [tmp sortedArrayUsingSelector:@selector(compare:)];
     }else{
         if(searchString.length==0){
-            self.showArray = _keyArray;
+            tmp = _keyArray;
         }else{
-            NSMutableArray *tmp = [NSMutableArray array];
             for (NSString *key in _keyArray) {
-                if([key containsString:searchString]){
+                if([key contain:searchString]){
                     [tmp addObject:key];
-                }else{
-                    BOOL found = NO;
-                    for (ActionModel *model in _actionArray) {
-                        if([model.key isEqualToString:key]){
-                            if([model.value contain:searchString]){
-                                found = YES;
-                                [tmp addObject:key];
-                                break;
-                            }
-                        }
-                    }
-                    if (!found) {
-                        for (StringModel *model in _stringArray) {
-                            NSString *value = [model.stringDictionary objectForKey:key];
-                            if([value contain:searchString]){
-                                [tmp addObject:key];
-                                break;
-                            }
-                        }
+                }
+            }
+            for (ActionModel *model in _actionArray) {
+                if([tmp containsObject:model.key])
+                    continue;
+                if([model.value contain:searchString]){
+                    [tmp addObject:model.key];
+                }
+            }
+            for (NSString *key in _keyArray) {
+                if([tmp containsObject:key])
+                    continue;
+                for (StringModel *model in _stringArray) {
+                    NSString *value = [model.stringDictionary objectForKey:key];
+                    if([value contain:searchString]){
+                        [tmp addObject:key];
+                        break;
                     }
                 }
             }
-            self.showArray = [tmp sortedArrayUsingSelector:@selector(compare:)];
         }
     }
-//    NSLog(@"self.showArray %@",self.showArray);
+    self.showArray = [tmp sortedArrayUsingSelector:@selector(compare:)];
     self.recordLabel.stringValue = [NSString stringWithFormat:LocalizedString(@"RecordNumMsg"),self.showArray.count];
     [self.saveBtn setEnabled:(_actionArray.count>0)];
     [self.tableview reloadData];
@@ -371,8 +377,9 @@
     [_infoDict removeAllObjects];
     
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        [StringModel findItemsWithProjectPath:[self getSetting] projectPath:self.projectPath findStrings:self.keyArray block:^(NSString *key, NSArray *items) {
-            if(key==nil && items==nil) {
+        [StringModel findItemsWithProjectPath:[self getSetting] projectPath:self.projectPath findStrings:self.keyArray block:^(NSString *key, NSArray *items, float progress) {
+            NSLog(@"progress %f",progress);
+            if(progress ==100.0) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     self.isChecking=NO;
                 });
@@ -382,6 +389,7 @@
                 }
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self searchAnswer:nil];
+                    self.checkIndicator.doubleValue = progress;
                 });
             }
         }];
@@ -432,16 +440,6 @@
     [_actionArray removeAllObjects];
     
     [self refresh:nil];
-}
-
--(NSArray*)arrayWithIdentifier:(NSString*)identifier {
-    NSMutableArray *tmp = [NSMutableArray array];
-    for (ActionModel *model in self.actionArray) {
-        if([model.identifier isEqualToString:identifier]) {
-            [tmp addObject:model];
-        }
-    }
-    return tmp;
 }
 
 -(void)cellClicked:(id)sender {
