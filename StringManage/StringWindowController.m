@@ -32,6 +32,10 @@
 @property (weak) IBOutlet NSButton *CheckBtn;
 @property (weak) IBOutlet NSProgressIndicator *checkIndicator;
 @property (weak) IBOutlet NSButton *showOnlyBtn;
+@property (weak) IBOutlet NSTextField *keyLabel;
+@property (weak) IBOutlet NSTextField *languageLabel;
+@property (weak) IBOutlet NSTextField *keyTextField;
+@property (weak) IBOutlet NSTextField *valueTextField;
 
 @property (nonatomic, strong) NSMutableArray *stringArray;
 @property (nonatomic, strong) NSMutableArray *keyArray;
@@ -52,6 +56,7 @@
 - (IBAction)searchAnswer:(id)sender;
 - (IBAction)checkAction:(id)sender;
 - (IBAction)onlyShowAction:(id)sender;
+
 @end
 
 @implementation StringWindowController
@@ -92,8 +97,11 @@
     [self.CheckBtn setTitle:LocalizedString(@"Check")];
     [self.tipsLabel setStringValue:LocalizedString(@"UseTips")];
     [self.checkIndicator setHidden:YES];
+    [self.keyLabel setStringValue:LocalizedString(@"Key")];
+    [self.languageLabel setStringValue:LocalizedString(@"Language")];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(changeEditingAction:) name:NSControlTextDidChangeNotification object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(projectSettingChanged:)  name:kNotifyProjectSettingChanged object:nil];
 }
@@ -250,6 +258,38 @@
         }
     }
     return tmp;
+}
+
+-(void)changeWithKey:(NSString*)key identifier:(NSString*)identifier newValue:(NSString*)newValue {
+    NSString *rawValue = [self valueInRaw:key identifier:identifier];
+    NSString *oldValue = [self titleWithKey:key identifier:identifier];
+    if([oldValue isEqualToString:newValue])
+        return;
+    
+    ActionModel *action = [self findActionWith:key identify:identifier];
+    if(action){
+        if([rawValue isEqualToString:newValue]){
+            [_actionArray removeObject:action];
+        }else{
+            action.actionType = (newValue.length==0) ? ActionTypeRemove:ActionTypeAdd;
+            action.value = newValue;
+        }
+    } else {
+        ActionModel *action = [[ActionModel alloc]init];
+        action.actionType = (newValue.length==0) ? ActionTypeRemove:ActionTypeAdd;
+        action.identifier = identifier;
+        action.key = key;
+        action.value = newValue;
+        [_actionArray addObject:action];
+    }
+    [self searchAnswer:nil];
+}
+
+-(void)setEdit:(NSString*)key idendifier:(NSString*)identifier{
+    [self.keyTextField setStringValue:key];
+    [self.languageLabel setStringValue:identifier];
+    NSString *title = [self titleWithKey:key identifier:identifier];
+    [self.valueTextField setStringValue:title];
 }
 
 #pragma mark - Button Action
@@ -422,7 +462,8 @@
             
             [self.searchField setStringValue:@""];
             [self searchAnswer:nil];
-            [_tableview scrollRowToVisible:_tableview.numberOfRows-1];
+            
+            [_tableview scrollRowToVisible:[_showArray indexOfObject:text]];
         }
     }];
 }
@@ -452,6 +493,10 @@
     NSInteger status = [_keyDict[key] integerValue];
     if(status != KeyTypeRemove) {
         [_tableview editColumn:column row:row withEvent:nil select:YES];
+        StringModel *model = _stringArray[column-1];
+        if(model){
+            [self setEdit:key idendifier:model.identifier];
+        }
     }
 }
 
@@ -477,6 +522,7 @@
             [_actionArray removeObject:action];
             [self searchAnswer:nil];
         }
+        [self setEdit:key idendifier:identifier];
         
         NSString *value = [self titleWithKey:key identifier:identifier];
         NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
@@ -530,36 +576,34 @@
 }
 
 #pragma mark - Notification
+-(void)changeEditingAction:(NSNotification*)notification{
+    NSTextField *textField = notification.object;
+    if(textField != self.valueTextField){
+        NSString *key1 = _showArray[textField.tag];
+        NSString *identifier1 = textField.identifier;
+        NSString *key2 = self.keyTextField.stringValue;
+        NSString *identifier2 = self.languageLabel.stringValue;
+        if([key1 isEqualToString:key2] && [identifier1 isEqualToString:identifier2]){
+            [self.valueTextField setStringValue:textField.stringValue];
+        }
+    }
+}
+
 -(void)endEditingAction:(NSNotification*)notification {
     NSTextField *textField = notification.object;
-    NSString *identifier = textField.identifier;
-    if(identifier.length==0 || textField.tag >= _showArray.count)
-        return;
-    
-    NSString *key = _showArray[textField.tag];
-    NSString *rawValue = [self valueInRaw:key identifier:identifier];
-    NSString *oldValue = [self titleWithKey:key identifier:identifier];
-    NSString *newValue = textField.stringValue;
-    if([oldValue isEqualToString:newValue])
-        return;
-    
-    ActionModel *action = [self findActionWith:key identify:identifier];
-    if(action){
-        if([rawValue isEqualToString:newValue]){
-            [_actionArray removeObject:action];
-        }else{
-            action.actionType = (newValue.length==0) ? ActionTypeRemove:ActionTypeAdd;
-            action.value = newValue;
+    if(textField == self.valueTextField){
+        NSString *key = self.keyTextField.stringValue;
+        NSString *identifier = self.languageLabel.stringValue;
+        if(key.length>0 &&identifier.length>0){
+            [self changeWithKey:key identifier:identifier newValue:textField.stringValue];
         }
-    } else {
-        ActionModel *action = [[ActionModel alloc]init];
-        action.actionType = (newValue.length==0) ? ActionTypeRemove:ActionTypeAdd;
-        action.identifier = identifier;
-        action.key = key;
-        action.value = newValue;
-        [_actionArray addObject:action];
+    }else{
+        NSString *identifier = textField.identifier;
+        if(identifier.length==0 || textField.tag >= _showArray.count)
+            return;
+        NSString *key = _showArray[textField.tag];
+        [self changeWithKey:key identifier:identifier newValue:textField.stringValue];
     }
-    [self searchAnswer:nil];
 }
 
 - (void)projectSettingChanged:(NSNotification*)notification {

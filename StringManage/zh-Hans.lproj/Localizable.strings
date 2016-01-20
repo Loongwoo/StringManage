@@ -20,3 +20,4 @@
 "DevLanguageTips"= "默认根据AppDelegate文件的后缀判断";
 "DevLanguage"= "开发语言";
 "OnlyShowModified"="仅显示有改動的条目";
+"Language"="语言";

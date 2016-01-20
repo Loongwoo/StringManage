@@ -20,3 +20,4 @@
 "DevLanguageTips"= "によってファイルの拡張子を黙認AppDelegate";
 "DevLanguage"= "開発言語";
 "OnlyShowModified"="変えたことが表示されている";
+"Language"="言語";

@@ -20,3 +20,4 @@
 "DevLanguageTips"="Default value got from the extension of AppDelegate file";
 "DevLanguage"="Developement Language";
 "OnlyShowModified"="Only show modified items";
+"Language"="Language";
