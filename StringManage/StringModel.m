@@ -390,9 +390,6 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
             block(findString, results, progress);
         }
     }
-    if(block){
-        block(nil, nil, 100);
-    }
 }
 
 + (StringItem*)itemFromLine:(NSString*)line{

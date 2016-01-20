@@ -19,4 +19,4 @@
 "UseTips"= "红色：删除；绿色：添加；蓝色：修改；单击：编辑；双击：撤销并拷贝到剪切板";
 "DevLanguageTips"= "默认根据AppDelegate文件的后缀判断";
 "DevLanguage"= "开发语言";
-"OnlyShowModified"="仅显示改动过的";
+"OnlyShowModified"="仅显示有改動的条目";

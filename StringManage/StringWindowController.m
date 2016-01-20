@@ -377,22 +377,21 @@
     [_infoDict removeAllObjects];
     
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        [StringModel findItemsWithProjectPath:[self getSetting] projectPath:self.projectPath findStrings:self.keyArray block:^(NSString *key, NSArray *items, float progress) {
-            NSLog(@"progress %f",progress);
-            if(progress ==100.0) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    self.isChecking=NO;
-                });
-            }else{
-                if(items.count>0){
-                    [_infoDict setObject:items forKey:key];
-                }
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self searchAnswer:nil];
-                    self.checkIndicator.doubleValue = progress;
-                });
+        [StringModel findItemsWithProjectPath:[self getSetting]
+                                  projectPath:self.projectPath
+                                  findStrings:self.keyArray
+                                        block:^(NSString *key, NSArray *items, float progress) {
+            if(items.count>0){
+                [_infoDict setObject:items forKey:key];
             }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self searchAnswer:nil];
+                self.checkIndicator.doubleValue = progress;
+            });
         }];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.isChecking=NO;
+        });
     });
 }
 
