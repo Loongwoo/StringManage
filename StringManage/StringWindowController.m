@@ -13,6 +13,7 @@
 #import "StringSetting.h"
 #import "StringInfoViewController.h"
 #import "NSButton+Extension.h"
+#import "NSString+Extension.h"
 
 #define KEY @"key"
 #define REMOVE @"remove"
@@ -30,6 +31,7 @@
 @property (weak) IBOutlet NSButton *addBtn;
 @property (weak) IBOutlet NSButton *CheckBtn;
 @property (weak) IBOutlet NSProgressIndicator *checkIndicator;
+@property (weak) IBOutlet NSButton *showOnlyBtn;
 
 @property (nonatomic, strong) NSMutableArray *stringArray;
 @property (nonatomic, strong) NSMutableArray *keyArray;
@@ -43,11 +45,13 @@
 @property (nonatomic, copy) NSArray *rawKeyArray;
 @property (nonatomic, strong) NSMutableDictionary* keyDict;
 @property (nonatomic, assign) BOOL isChecking;
+@property (nonatomic, assign) BOOL onlyShowModified;
 
 - (IBAction)addAction:(id)sender;
 - (IBAction)saveAction:(id)sender;
 - (IBAction)searchAnswer:(id)sender;
 - (IBAction)checkAction:(id)sender;
+- (IBAction)onlyShowAction:(id)sender;
 @end
 
 @implementation StringWindowController
@@ -63,7 +67,6 @@
 
 - (void)windowDidLoad {
     [super windowDidLoad];
-    
     self.actionArray=[[NSMutableArray alloc]init];
     self.stringArray = [[NSMutableArray alloc]init];
     self.keyArray = [[NSMutableArray alloc]init];
@@ -73,6 +76,9 @@
     self.window.level = NSFloatingWindowLevel;
     self.window.hidesOnDeactivate = YES;
     [self.window setTitle:LocalizedString(@"StringManage")];
+    
+    [self.showOnlyBtn setTitle:LocalizedString(@"OnlyShowModified")];
+    self.onlyShowModified=NO;
     
     self.tableview.delegate=self;
     self.tableview.dataSource = self;
@@ -134,13 +140,11 @@
 
 -(void)refreshTableView {
     NSArray *columns = [[NSArray alloc]initWithArray:self.tableview.tableColumns];
-    [columns enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        NSTableColumn *column = (NSTableColumn*)obj;
+    for (NSTableColumn *column in columns) {
         [self.tableview removeTableColumn:column];
-    }];
+    }
     
-    float width = self.tableview.bounds.size.width;
-    float columnWidth = (width - 160.0)/(_stringArray.count+1);
+    float columnWidth = (self.tableview.bounds.size.width - 160.0)/(_stringArray.count+1);
     
     NSTableColumn * column = [[NSTableColumn alloc] initWithIdentifier:KEY];
     [column setTitle:KEY];
@@ -239,6 +243,11 @@
 }
 
 #pragma mark - Button Action
+- (IBAction)onlyShowAction:(id)sender{
+    self.onlyShowModified = ! self.onlyShowModified;
+    [self searchAnswer:nil];
+}
+
 - (IBAction)openAbout:(id)sender {
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/Loongwoo/StringManage"]];
 }
@@ -289,9 +298,7 @@
                 }
                 
                 NSArray *tmp = [[NSArray alloc]initWithArray:keySet.allObjects];
-                NSArray *sortedArray = [tmp sortedArrayUsingComparator:^NSComparisonResult(NSString * obj1, NSString * obj2) {
-                    return [obj1 compare:obj2 options:NSNumericSearch];
-                }];
+                NSArray *sortedArray = [tmp sortedArrayUsingSelector:@selector(compare:)];
                 [_keyArray addObjectsFromArray:sortedArray];
                 self.rawKeyArray = sortedArray;
                 
@@ -305,40 +312,52 @@
 
 - (IBAction)searchAnswer:(id)sender {
     NSString *searchString = _searchField.stringValue;
-    if(searchString.length==0){
-        self.showArray = _keyArray;
-    }else{
+    if(_onlyShowModified){
         NSMutableArray *tmp = [NSMutableArray array];
-        for (NSString *key in _keyArray) {
-            NSRange range = [key rangeOfString:searchString options:NSCaseInsensitiveSearch];
-            if(range.length>0){
-                [tmp addObject:key];
-            }else{
-                BOOL found = NO;
-                for (ActionModel *model in _actionArray) {
-                    if([model.key isEqualToString:key]){
-                        NSRange range = [model.value rangeOfString:searchString options:NSCaseInsensitiveSearch];
-                        if(range.length>0){
-                            found = YES;
-                            [tmp addObject:key];
-                            break;
+        for (ActionModel *model in _actionArray) {
+            if([tmp containsObject:model.key])
+                continue;
+            if(searchString.length==0) {
+                [tmp addObject:model.key];
+            } else if([model.key contain:searchString] || [model.value contain:searchString]){
+                [tmp addObject:model.key];
+            }
+        }
+        self.showArray = [tmp sortedArrayUsingSelector:@selector(compare:)];
+    }else{
+        if(searchString.length==0){
+            self.showArray = _keyArray;
+        }else{
+            NSMutableArray *tmp = [NSMutableArray array];
+            for (NSString *key in _keyArray) {
+                if([key containsString:searchString]){
+                    [tmp addObject:key];
+                }else{
+                    BOOL found = NO;
+                    for (ActionModel *model in _actionArray) {
+                        if([model.key isEqualToString:key]){
+                            if([model.value contain:searchString]){
+                                found = YES;
+                                [tmp addObject:key];
+                                break;
+                            }
                         }
                     }
-                }
-                if (!found) {
-                    for (StringModel *model in _stringArray) {
-                        NSString *value = [model.stringDictionary objectForKey:key];
-                        NSRange range1 = [value rangeOfString:searchString options:NSCaseInsensitiveSearch];
-                        if(range1.length>0){
-                            [tmp addObject:key];
-                            break;
+                    if (!found) {
+                        for (StringModel *model in _stringArray) {
+                            NSString *value = [model.stringDictionary objectForKey:key];
+                            if([value contain:searchString]){
+                                [tmp addObject:key];
+                                break;
+                            }
                         }
                     }
                 }
             }
+            self.showArray = [tmp sortedArrayUsingSelector:@selector(compare:)];
         }
-        self.showArray = tmp;
     }
+//    NSLog(@"self.showArray %@",self.showArray);
     self.recordLabel.stringValue = [NSString stringWithFormat:LocalizedString(@"RecordNumMsg"),self.showArray.count];
     [self.saveBtn setEnabled:(_actionArray.count>0)];
     [self.tableview reloadData];
@@ -384,6 +403,16 @@
                 return;
             [_keyArray addObject:text];
             [_keyDict setObject:@(KeyTypeAdd) forKey:text];
+            
+            for (StringModel *model in _stringArray) {
+                ActionModel *action = [[ActionModel alloc]init];
+                action.actionType = ActionTypeRemove;
+                action.identifier = model.identifier;
+                action.key = text;
+                action.value = @"";
+                [_actionArray addObject:action];
+            }
+            
             [self.searchField setStringValue:@""];
             [self searchAnswer:nil];
             [_tableview scrollRowToVisible:_tableview.numberOfRows-1];
@@ -446,13 +475,11 @@
     }
     NSInteger status = [_keyDict[key] integerValue];
     if(status != KeyTypeRemove) {
-        [_actionArray enumerateObjectsUsingBlock:^(ActionModel *obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            if([obj.key isEqual:key] && [obj.identifier isEqualToString:identifier]){
-                [_actionArray removeObject:obj];
-                [self searchAnswer:nil];
-                *stop=NO;
-            }
-        }];
+        ActionModel *action = [self findActionWith:key identify:identifier];
+        if(action){
+            [_actionArray removeObject:action];
+            [self searchAnswer:nil];
+        }
         
         NSString *value = [self titleWithKey:key identifier:identifier];
         NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
@@ -465,14 +492,12 @@
     NSButton *button = (NSButton*)sender;
     NSString *key=button.identifier;
     NSInteger status = [_keyDict[key] integerValue];
-    if(status == KeyTypeRemove || status == KeyTypeAdd) {
-        for (StringModel *model in _stringArray) {
-            [_actionArray enumerateObjectsUsingBlock:^(ActionModel * obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                if ([obj.key isEqualToString:key] && [obj.identifier isEqualToString:model.identifier]) {
-                    [_actionArray removeObject:obj];
-                }
-            }];
+    for (ActionModel *action in [_actionArray copy]) {
+        if ([action.key isEqualToString:key]) {
+            [_actionArray removeObject:action];
         }
+    }
+    if(status == KeyTypeRemove || status == KeyTypeAdd) {
         [_keyDict removeObjectForKey:key];
         if(status == KeyTypeAdd){
             [_keyArray removeObject:key];
@@ -489,7 +514,6 @@
         }
         [_keyDict setObject:@(KeyTypeRemove) forKey:key];
     }
-    
     [self searchAnswer:nil];
 }
 
@@ -522,52 +546,22 @@
     if([oldValue isEqualToString:newValue])
         return;
     
-    StringModel *model = [self findStringModelWithIdentifier:identifier];
-    if(model==nil)
-        return;
-    
-    __block BOOL found = NO;
-    [_actionArray enumerateObjectsUsingBlock:^(ActionModel * obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        if ([obj.key isEqualToString:key] && [obj.identifier isEqualToString:model.identifier]) {
-            found = YES;
-            if([rawValue isEqualToString:newValue]){
-                [_actionArray removeObject:obj];
-                *stop = YES;
-            }
-            if(obj.actionType == ActionTypeRemove){
-                if(newValue.length>0) {
-                    obj.actionType = ActionTypeAdd;
-                    obj.value = newValue;
-                }
-            }else if(obj.actionType == ActionTypeAdd){
-                if(newValue.length==0) {
-                    obj.actionType = ActionTypeRemove;
-                    obj.value = newValue;
-                }else{
-                    obj.value = newValue;
-                }
-            }
-            *stop = YES;
-        }
-    }];
-    if(!found) {
-        if(newValue.length==0) {
-            ActionModel *action = [[ActionModel alloc]init];
-            action.actionType = ActionTypeRemove;
-            action.identifier = model.identifier;
-            action.key = key;
-            action.value=newValue;
-            [_actionArray addObject:action];
+    ActionModel *action = [self findActionWith:key identify:identifier];
+    if(action){
+        if([rawValue isEqualToString:newValue]){
+            [_actionArray removeObject:action];
         }else{
-            ActionModel *action = [[ActionModel alloc]init];
-            action.actionType = ActionTypeAdd;
-            action.identifier = model.identifier;
-            action.key = key;
+            action.actionType = (newValue.length==0) ? ActionTypeRemove:ActionTypeAdd;
             action.value = newValue;
-            [_actionArray addObject:action];
         }
+    } else {
+        ActionModel *action = [[ActionModel alloc]init];
+        action.actionType = (newValue.length==0) ? ActionTypeRemove:ActionTypeAdd;
+        action.identifier = identifier;
+        action.key = key;
+        action.value = newValue;
+        [_actionArray addObject:action];
     }
-    
     [self searchAnswer:nil];
 }
 

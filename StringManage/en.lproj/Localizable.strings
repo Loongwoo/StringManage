@@ -19,3 +19,4 @@
 "UseTips"="Red: remove; Green: Add; Blue: modify; Single click: edit; Double click: revoke or copy to pasteboard.";
 "DevLanguageTips"="Default value got from the extension of AppDelegate file";
 "DevLanguage"="Developement Language";
+"OnlyShowModified"="Only show modified";
