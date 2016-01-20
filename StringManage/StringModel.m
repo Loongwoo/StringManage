@@ -63,15 +63,12 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
 
 -(void)doAction:(NSArray*)actions projectSetting:(StringSetting*)projectSetting{
     NSString *string = [NSString stringWithContentsOfFile:self.filePath usedEncoding:nil error:nil];
-    
     NSMutableString *mutableString = [[NSMutableString alloc]initWithString:string];
-    
     NSRegularExpression *regularExpression = [NSRegularExpression regularExpressionWithPattern:kRegularExpressionPattern options:0 error:nil];
-    
     for (ActionModel *action in actions) {
-        if(![action.identifier isEqualToString:_identifier]) {
+        if(![action.identifier isEqualToString:_identifier])
             continue;
-        }
+        
         __block NSInteger lineOffset = 0;
         __block BOOL found = NO;
         [mutableString enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
@@ -497,8 +494,7 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
         @try {
             projectSetting = [NSKeyedUnarchiver unarchiveObjectWithFile:fullPath];
         }
-        @catch (NSException* exception)
-        {
+        @catch (NSException* exception) {
             NSLog(@"读取失败 exception %@",exception);
             projectSetting = nil;
         }
@@ -526,8 +522,7 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
         [NSKeyedArchiver archiveRootObject:projectSetting toFile:filePath];
         filePath = nil;
     }
-    @catch (NSException* exception)
-    {
+    @catch (NSException* exception) {
          NSLog(@"saveProjectSetting:exception:%@", exception);
     }
 }
@@ -544,8 +539,7 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
 
 @implementation StringItem
 
--(NSString *)description
-{
+-(NSString *)description{
     return [NSString stringWithFormat:@"%@:%ld:%@",self.filePath,self.lineNumber,self.content];
 }
 

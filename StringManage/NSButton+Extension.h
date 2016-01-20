@@ -9,5 +9,6 @@
 #import <Cocoa/Cocoa.h>
 
 @interface NSButton(Extension)
-- (void)setTextColor:(NSColor *)textColor;
+- (void)setTitle:(NSString *)title textColor:(NSColor *)textColor;
+- (void)setAlternateTitle:(NSString *)alternateTitle textColor:(NSColor *)textColor;
 @end

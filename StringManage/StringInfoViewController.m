@@ -107,7 +107,10 @@
 - (void)tableViewSelectionDidChange:(NSNotification *)notification {
     NSTableView* tableview = notification.object;
     NSInteger row = [tableview selectedRow];
+    if(row<0 || row>=self.array.count)
+        return;
     StringItem *item = self.array[row];
     [StringModel openItem:item];
+    [tableview deselectRow:row];
 }
 @end

@@ -89,7 +89,7 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_onNotifyProjectSettingChanged:)  name:kNotifyProjectSettingChanged object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(projectSettingChanged:)  name:kNotifyProjectSettingChanged object:nil];
 }
 
 #pragma mark - Private
@@ -236,7 +236,6 @@
     }else{
         return YES;
     }
-    return NO;
 }
 
 #pragma mark - Button Action
@@ -262,8 +261,9 @@
     [_actionArray removeAllObjects];
     [self.saveBtn setEnabled:NO];
     
+    StringSetting *setting = [self getSetting];
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        NSArray *lprojDirectorys = [StringModel lprojDirectoriesWithProjectSetting:[self getSetting] project:self.projectPath];
+        NSArray *lprojDirectorys = [StringModel lprojDirectoriesWithProjectSetting:setting project:self.projectPath];
             if (lprojDirectorys.count == 0) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     NSAlert *alert = [[NSAlert alloc]init];
@@ -281,7 +281,7 @@
                 
                 NSMutableSet *keySet = [[NSMutableSet alloc]init];
                 for (NSString *path in lprojDirectorys) {
-                    StringModel *model = [[StringModel alloc]initWithPath:path projectSetting:[self getSetting]];
+                    StringModel *model = [[StringModel alloc]initWithPath:path projectSetting:setting];
                     [_stringArray addObject:model];
                     NSArray *keys = model.stringDictionary.allKeys;
                     NSSet *set = [NSSet setWithArray:keys];
@@ -314,12 +314,25 @@
             if(range.length>0){
                 [tmp addObject:key];
             }else{
-                for (StringModel *model in _stringArray) {
-                    NSString *value = [model.stringDictionary objectForKey:key];
-                    NSRange range1 = [value rangeOfString:searchString options:NSCaseInsensitiveSearch];
-                    if(range1.length>0){
-                        [tmp addObject:key];
-                        break;
+                BOOL found = NO;
+                for (ActionModel *model in _actionArray) {
+                    if([model.key isEqualToString:key]){
+                        NSRange range = [model.value rangeOfString:searchString options:NSCaseInsensitiveSearch];
+                        if(range.length>0){
+                            found = YES;
+                            [tmp addObject:key];
+                            break;
+                        }
+                    }
+                }
+                if (!found) {
+                    for (StringModel *model in _stringArray) {
+                        NSString *value = [model.stringDictionary objectForKey:key];
+                        NSRange range1 = [value rangeOfString:searchString options:NSCaseInsensitiveSearch];
+                        if(range1.length>0){
+                            [tmp addObject:key];
+                            break;
+                        }
                     }
                 }
             }
@@ -558,7 +571,7 @@
     [self searchAnswer:nil];
 }
 
-- (void)_onNotifyProjectSettingChanged:(NSNotification*)notification {
+- (void)projectSettingChanged:(NSNotification*)notification {
     [_infoDict removeAllObjects];
     [self refresh:nil];
 }
@@ -581,20 +594,14 @@
         NSButton *aView = [tableView makeViewWithIdentifier:identifier owner:self];
         if(!aView) {
             aView = [[NSButton alloc]initWithFrame:NSZeroRect];
+            [aView setButtonType:NSToggleButton];
+            [aView setTitle:LocalizedString(@"Remove") textColor:[NSColor blackColor]];
+            [aView setAlternateTitle:LocalizedString(@"Revoke") textColor:[NSColor redColor]];
             [aView setAction:@selector(removeAction:)];
             [aView setTarget:self];
-            [aView setState:1];
         }
         NSInteger status = [_keyDict[key] integerValue];
-        if(status == KeyTypeRemove){
-            NSAttributedString *title = [[NSAttributedString alloc]initWithString:LocalizedString(@"Revoke")];
-            [aView setAttributedTitle:title];
-            [aView setTextColor:[NSColor redColor]];
-        }else{
-            NSAttributedString *title = [[NSAttributedString alloc]initWithString:LocalizedString(@"Remove")];
-            [aView setAttributedTitle:title];
-            [aView setTextColor:[NSColor blackColor]];
-        }
+        [aView setHighlighted:status];
         [aView setTag:row];
         [aView setIdentifier:key];
         return aView;
@@ -616,6 +623,8 @@
         NSTextField *aView = [tableView makeViewWithIdentifier:@"MYCell" owner:self];
         if(!aView) {
             aView = [[NSTextField alloc]initWithFrame:NSZeroRect];
+            [aView setBackgroundColor:[NSColor clearColor]];
+            [aView setBordered:NO];
             [aView setTarget:self];
         }
         NSInteger status = [_keyDict[key] integerValue];
