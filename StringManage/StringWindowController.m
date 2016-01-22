@@ -49,7 +49,6 @@
 @property (nonatomic, copy) NSArray *rawKeyArray;
 @property (nonatomic, strong) NSMutableDictionary* keyDict;
 @property (nonatomic, assign) BOOL isChecking;
-@property (nonatomic, assign) BOOL onlyShowModified;
 
 - (IBAction)addAction:(id)sender;
 - (IBAction)saveAction:(id)sender;
@@ -83,7 +82,6 @@
     [self.window setTitle:LocalizedString(@"StringManage")];
     
     [self.showOnlyBtn setTitle:LocalizedString(@"OnlyShowModified")];
-    self.onlyShowModified=NO;
     
     self.tableview.delegate=self;
     self.tableview.dataSource = self;
@@ -295,7 +293,6 @@
 #pragma mark - Button Action
 - (IBAction)onlyShowAction:(id)sender{
     [self.window makeFirstResponder:nil];
-    self.onlyShowModified = ! self.onlyShowModified;
     [self searchAnswer:nil];
 }
 
@@ -364,7 +361,7 @@
 - (IBAction)searchAnswer:(id)sender {
     NSString *searchString = _searchField.stringValue;
     NSMutableArray *tmp = [NSMutableArray array];
-    if(_onlyShowModified){
+    if(self.showOnlyBtn.state){
         for (ActionModel *model in _actionArray) {
             if([tmp containsObject:model.key])
                 continue;
