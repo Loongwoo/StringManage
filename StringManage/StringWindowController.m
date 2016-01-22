@@ -405,7 +405,7 @@
     }
     self.showArray = [tmp sortedArrayUsingSelector:@selector(compare:)];
     self.recordLabel.stringValue = [NSString stringWithFormat:LocalizedString(@"RecordNumMsg"),self.showArray.count];
-    [self.saveBtn setEnabled:(_actionArray.count>0)];
+    [self.saveBtn setEnabled:(_actionArray.count>0 && !self.isChecking)];
     [self.tableview reloadData];
 }
 
@@ -483,6 +483,9 @@
 }
 
 -(void)cellClicked:(id)sender {
+    if (self.isChecking) {
+        return;
+    }
     NSInteger column = _tableview.clickedColumn;
     NSInteger row = _tableview.clickedRow;
     if(column<=0 || column > self.tableview.numberOfColumns-2)
@@ -501,6 +504,9 @@
 }
 
 -(void)doubleAction:(id)sender {
+    if (self.isChecking) {
+        return;
+    }
     NSInteger column = _tableview.clickedColumn;
     NSInteger row = _tableview.clickedRow;
     if(column<0 || column > self.tableview.numberOfColumns-2)
@@ -532,6 +538,9 @@
 }
 
 -(void)removeAction:(id)sender {
+    if (self.isChecking) {
+        return;
+    }
     NSButton *button = (NSButton*)sender;
     NSString *key=button.identifier;
     NSInteger status = [_keyDict[key] integerValue];
@@ -561,6 +570,9 @@
 }
 
 -(void)infoAction:(id)sender {
+    if (self.isChecking) {
+        return;
+    }
     NSButton *button = (NSButton*)sender;
     NSString *key=button.identifier;
     if(self.infoDict && key.length>0){
@@ -578,6 +590,9 @@
 #pragma mark - Notification
 -(void)changeEditingAction:(NSNotification*)notification{
     NSTextField *textField = notification.object;
+    if ([textField isKindOfClass:[NSSearchField class]]) {
+        return;
+    }
     if(textField != self.valueTextField){
         NSString *key1 = _showArray[textField.tag];
         NSString *identifier1 = textField.identifier;
@@ -591,6 +606,9 @@
 
 -(void)endEditingAction:(NSNotification*)notification {
     NSTextField *textField = notification.object;
+    if ([textField isKindOfClass:[NSSearchField class]]) {
+        return;
+    }
     if(textField == self.valueTextField){
         NSString *key = self.keyTextField.stringValue;
         NSString *identifier = self.languageLabel.stringValue;
