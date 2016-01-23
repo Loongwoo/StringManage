@@ -19,5 +19,7 @@
 "UseTips"= "红色：删除；绿色：添加；蓝色：修改；单击：编辑；双击：撤销并拷贝到剪切板";
 "DevLanguageTips"= "默認根據AppDelegate文件的後綴獲取";
 "DevLanguage"= "開發語言";
-"OnlyShowModified"="僅顯示有改動的條目";
+"OnlyShowModified"="改動的";
 "Language"="語言";
+"Untranslated"="未翻译";
+"Unused"="未使用";

@@ -13,7 +13,6 @@
 		111BA6931C46554C00AA9E80 /* StringManage.xcscheme in Resources */ = {isa = PBXBuildFile; fileRef = 111BA6921C46554C00AA9E80 /* StringManage.xcscheme */; };
 		111BA6961C46554C00AA9E80 /* StringManage.m in Sources */ = {isa = PBXBuildFile; fileRef = 111BA6951C46554C00AA9E80 /* StringManage.m */; };
 		1144DF161C4FAB1700B4E3F0 /* NSString+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = 1144DF151C4FAB1700B4E3F0 /* NSString+Extension.m */; };
-		1147CC3A1C4BE9FA00C44F66 /* DVTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1147CC391C4BE9FA00C44F66 /* DVTKit.framework */; };
 		1147CC3E1C4BF03000C44F66 /* StringInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1147CC3C1C4BF03000C44F66 /* StringInfoViewController.m */; };
 		1162985F1C4DEB8C007537AD /* NSButton+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = 1162985E1C4DEB8C007537AD /* NSButton+Extension.m */; };
 		1166BD821C47C86600AC94F7 /* PreferencesWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1166BD801C47C86600AC94F7 /* PreferencesWindowController.m */; };
@@ -42,7 +41,6 @@
 		111BA69A1C46554C00AA9E80 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1144DF141C4FAB1700B4E3F0 /* NSString+Extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Extension.h"; sourceTree = "<group>"; };
 		1144DF151C4FAB1700B4E3F0 /* NSString+Extension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Extension.m"; sourceTree = "<group>"; };
-		1147CC391C4BE9FA00C44F66 /* DVTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = DVTKit.framework; sourceTree = "<group>"; };
 		1147CC3B1C4BF03000C44F66 /* StringInfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringInfoViewController.h; sourceTree = "<group>"; };
 		1147CC3C1C4BF03000C44F66 /* StringInfoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringInfoViewController.m; sourceTree = "<group>"; };
 		1162985D1C4DEB8C007537AD /* NSButton+Extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSButton+Extension.h"; sourceTree = "<group>"; };
@@ -72,7 +70,6 @@
 			files = (
 				111BA68D1C46554C00AA9E80 /* AppKit.framework in Frameworks */,
 				111BA68F1C46554C00AA9E80 /* Foundation.framework in Frameworks */,
-				1147CC3A1C4BE9FA00C44F66 /* DVTKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,7 +96,6 @@
 		111BA68B1C46554C00AA9E80 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				1147CC391C4BE9FA00C44F66 /* DVTKit.framework */,
 				111BA68C1C46554C00AA9E80 /* AppKit.framework */,
 				111BA68E1C46554C00AA9E80 /* Foundation.framework */,
 			);

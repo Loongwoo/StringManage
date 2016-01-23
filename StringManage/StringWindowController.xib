@@ -14,13 +14,15 @@
                 <outlet property="keyTextField" destination="VVA-AS-KwM" id="hGJ-gN-spt"/>
                 <outlet property="languageLabel" destination="6UH-ml-mjg" id="slt-cB-hDh"/>
                 <outlet property="progressIndicator" destination="5uT-PR-2fe" id="ihM-7D-qal"/>
-                <outlet property="recordLabel" destination="oql-YE-h9B" id="FYW-vA-INz"/>
+                <outlet property="recordLabel" destination="BZv-nw-cuW" id="XVL-I7-8LD"/>
                 <outlet property="refreshBtn" destination="51u-NQ-dAe" id="zJE-9L-OZM"/>
                 <outlet property="saveBtn" destination="I4O-1U-Rjs" id="77R-hv-hZK"/>
                 <outlet property="searchField" destination="mDh-8w-vmB" id="C4z-r1-2n2"/>
                 <outlet property="showOnlyBtn" destination="IAX-S9-VGn" id="zke-3A-7Pu"/>
                 <outlet property="tableview" destination="8Bz-xn-9ZO" id="xDf-bO-Rpn"/>
                 <outlet property="tipsLabel" destination="Rgz-Ey-KJf" id="7l4-gl-IxA"/>
+                <outlet property="untranslatedBtn" destination="4vR-Tl-loV" id="TVg-2u-TLU"/>
+                <outlet property="unusedBtn" destination="tqc-Zr-0QD" id="TmQ-Jj-lDe"/>
                 <outlet property="valueTextField" destination="Khp-4H-1f6" id="09p-Rc-pe4"/>
                 <outlet property="window" destination="1" id="3"/>
             </connections>
@@ -215,14 +217,14 @@
                             <action selector="showPreferencesPanel:" target="-2" id="84t-NJ-PJu"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="CF06CAF3-C5E1-4B0C-950B-860F1522CBA8" label="onlyShowModified" paletteLabel="onlyShowModified" image="A5FC02C9-8AA0-4079-950C-0C19CE94202B" id="4mU-Dw-vRj">
+                    <toolbarItem implicitItemIdentifier="CF06CAF3-C5E1-4B0C-950B-860F1522CBA8" label="onlyShowModified" paletteLabel="onlyShowModified" image="AC0EA575-7062-44FD-87B8-F8F8E7475C0A" id="4mU-Dw-vRj">
                         <nil key="toolTip"/>
                         <size key="minSize" width="61" height="18"/>
-                        <size key="maxSize" width="332" height="18"/>
+                        <size key="maxSize" width="104" height="18"/>
                         <button key="view" id="IAX-S9-VGn">
-                            <rect key="frame" x="0.0" y="14" width="230" height="18"/>
+                            <rect key="frame" x="2" y="14" width="100" height="18"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            <buttonCell key="cell" type="bevel" title="Check" bezelStyle="regularSquare" image="A5FC02C9-8AA0-4079-950C-0C19CE94202B" imagePosition="left" inset="2" id="n7u-4s-h8b">
+                            <buttonCell key="cell" type="bevel" title="Check" bezelStyle="regularSquare" image="AC0EA575-7062-44FD-87B8-F8F8E7475C0A" imagePosition="left" inset="2" id="n7u-4s-h8b">
                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
@@ -231,32 +233,62 @@
                             <action selector="onlyShowAction:" target="-2" id="MzI-6t-qfa"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="EA96825A-0017-4F59-8CBB-C6166D986DD8" label="recordLabel" paletteLabel="recordLabel" id="e80-Yx-JhR">
+                    <toolbarItem implicitItemIdentifier="C1F0D4FC-0984-4E0D-8384-9886F54DB8BF" label="Untranslated" paletteLabel="Untranslated" image="28AF0B30-6855-4A6B-8C06-6843F3E44036" id="BEr-km-d67">
+                        <nil key="toolTip"/>
+                        <size key="minSize" width="61" height="18"/>
+                        <size key="maxSize" width="104" height="18"/>
+                        <button key="view" id="4vR-Tl-loV">
+                            <rect key="frame" x="0.0" y="14" width="104" height="18"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="left" inset="2" id="r0R-Qv-fec">
+                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="untranslatedAction:" target="-2" id="4Jx-P8-udJ"/>
+                            </connections>
+                        </button>
+                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="F2065C06-32C4-40FF-9A8E-F74E308C6C4B" label="Unused" paletteLabel="Unused" image="28AF0B30-6855-4A6B-8C06-6843F3E44036" id="F1z-iu-b0o">
+                        <nil key="toolTip"/>
+                        <size key="minSize" width="61" height="18"/>
+                        <size key="maxSize" width="104" height="18"/>
+                        <button key="view" id="tqc-Zr-0QD">
+                            <rect key="frame" x="0.0" y="14" width="104" height="18"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="left" inset="2" id="SKH-UR-CDy">
+                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="unusedAction:" target="-2" id="uFM-JH-qb8"/>
+                            </connections>
+                        </button>
+                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="1A2E2B1B-7F59-4494-9B34-0B06549D582D" label="Record" paletteLabel="Record" id="ycV-u6-a5C">
                         <nil key="toolTip"/>
                         <size key="minSize" width="38" height="17"/>
-                        <size key="maxSize" width="160" height="17"/>
-                        <textField key="view" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="oql-YE-h9B">
-                            <rect key="frame" x="0.0" y="14" width="152" height="17"/>
-                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" baseWritingDirection="rightToLeft" title="Label" id="M9X-zV-3Dx">
+                        <size key="maxSize" width="139" height="17"/>
+                        <textField key="view" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="BZv-nw-cuW">
+                            <rect key="frame" x="0.0" y="14" width="139" height="17"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" baseWritingDirection="rightToLeft" title="Label" id="0lE-45-o0g">
                                 <font key="font" metaFont="system"/>
                                 <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                <connections>
-                                    <binding destination="-2" name="displayPatternValue1" keyPath="self.recordLabel" id="Vxh-7h-xga">
-                                        <dictionary key="options">
-                                            <string key="NSDisplayPattern">%{value1}@</string>
-                                        </dictionary>
-                                    </binding>
-                                </connections>
                             </textFieldCell>
                         </textField>
                     </toolbarItem>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
                     <toolbarItem reference="4mU-Dw-vRj"/>
-                    <toolbarItem reference="Hlr-zW-dBx"/>
-                    <toolbarItem reference="e80-Yx-JhR"/>
                     <toolbarItem reference="ZhF-7h-yzz"/>
+                    <toolbarItem reference="BEr-km-d67"/>
+                    <toolbarItem reference="ZhF-7h-yzz"/>
+                    <toolbarItem reference="F1z-iu-b0o"/>
+                    <toolbarItem reference="Hlr-zW-dBx"/>
+                    <toolbarItem reference="ZhF-7h-yzz"/>
+                    <toolbarItem reference="ycV-u6-a5C"/>
                     <toolbarItem reference="s7c-lS-Xl6"/>
                     <toolbarItem reference="Zmk-AM-sMt"/>
                 </defaultToolbarItems>
@@ -269,7 +301,26 @@
         <userDefaultsController representsSharedInstance="YES" id="rsX-lH-UUS"/>
     </objects>
     <resources>
-        <image name="A5FC02C9-8AA0-4079-950C-0C19CE94202B" width="18" height="18">
+        <image name="28AF0B30-6855-4A6B-8C06-6843F3E44036" width="18" height="18">
+            <mutableData key="keyedArchiveRepresentation">
+YnBsaXN0MDDUAQIDBAUGW1xYJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3ASAAGGoK8QFwcI
+ERYbHCc0NTY3ODk6O0JDRElMT1VYVSRudWxs1AkKCwwNDg8QViRjbGFzc1xOU0ltYWdlRmxhZ3NWTlNS
+ZXBzV05TQ29sb3KAFhIAwwAAgAKAFNISCRMVWk5TLm9iamVjdHOhFIADgBPSEgkXGqIYGYAEgAWAEhAA
+1h0eHwkgISIbIyQlJlZOU1NpemVfEA9OU0JpdHNQZXJTYW1wbGVfEBBOU0NvbG9yU3BhY2VOYW1lWk5T
+SGFzQWxwaGFfEBROU0NvcmVVSUltYWdlT3B0aW9uc4APgBCAEQmABtMoEgkpLjNXTlMua2V5c6QqKywt
+gAeACIAJgAqkLxgxMoALgASADIANgA5Uc2l6ZVV2YWx1ZVVzdGF0ZVZ3aWRnZXRXcmVndWxhclZub3Jt
+YWxYY2hlY2tib3jSPD0+P1okY2xhc3NuYW1lWCRjbGFzc2VzXxATTlNNdXRhYmxlRGljdGlvbmFyeaM+
+QEFcTlNEaWN0aW9uYXJ5WE5TT2JqZWN0WHsxOCwgMTh9XxAZTlNDYWxpYnJhdGVkUkdCQ29sb3JTcGFj
+ZdI8PUVGXxAQTlNDb3JlVUlJbWFnZVJlcKNHSEFfEBBOU0NvcmVVSUltYWdlUmVwWk5TSW1hZ2VSZXDS
+PD1KS1dOU0FycmF5okpB0jw9TU5eTlNNdXRhYmxlQXJyYXmjTUpB01BRCVJTVFdOU1doaXRlXE5TQ29s
+b3JTcGFjZUQwIDAAEAOAFdI8PVZXV05TQ29sb3KiVkHSPD1ZWldOU0ltYWdlollBXxAPTlNLZXllZEFy
+Y2hpdmVy0V1eVHJvb3SAAQAIABEAGgAjAC0AMgA3AFEAVwBgAGcAdAB7AIMAhQCKAIwAjgCTAJ4AoACi
+AKQAqQCsAK4AsACyALQAwQDIANoA7QD4AQ8BEQETARUBFgEYAR8BJwEsAS4BMAEyATQBOQE7AT0BPwFB
+AUMBSAFOAVQBWwFjAWoBcwF4AYMBjAGiAaYBswG8AcUB4QHmAfkB/QIQAhsCIAIoAisCMAI/AkMCSgJS
+Al8CZAJmAmgCbQJ1AngCfQKFAogCmgKdAqIAAAAAAAACAQAAAAAAAABfAAAAAAAAAAAAAAAAAAACpA
+</mutableData>
+        </image>
+        <image name="AC0EA575-7062-44FD-87B8-F8F8E7475C0A" width="18" height="18">
             <mutableData key="keyedArchiveRepresentation">
 YnBsaXN0MDDUAQIDBAUGW1xYJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3ASAAGGoK8QFwcI
 ERYbHCc0NTY3ODk6O0JDRElMT1VYVSRudWxs1AkKCwwNDg8QViRjbGFzc1xOU0ltYWdlRmxhZ3NWTlNS

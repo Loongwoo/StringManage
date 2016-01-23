@@ -36,6 +36,8 @@
 @property (weak) IBOutlet NSTextField *languageLabel;
 @property (weak) IBOutlet NSTextField *keyTextField;
 @property (weak) IBOutlet NSTextField *valueTextField;
+@property (weak) IBOutlet NSButton *untranslatedBtn;
+@property (weak) IBOutlet NSButton *unusedBtn;
 
 @property (nonatomic, strong) NSMutableArray *stringArray;
 @property (nonatomic, strong) NSMutableArray *keyArray;
@@ -55,6 +57,8 @@
 - (IBAction)searchAnswer:(id)sender;
 - (IBAction)checkAction:(id)sender;
 - (IBAction)onlyShowAction:(id)sender;
+- (IBAction)untranslatedAction:(id)sender;
+- (IBAction)unusedAction:(id)sender;
 
 @end
 
@@ -81,22 +85,24 @@
     self.window.hidesOnDeactivate = YES;
     [self.window setTitle:LocalizedString(@"StringManage")];
     
-    [self.showOnlyBtn setTitle:LocalizedString(@"OnlyShowModified")];
-    
     self.tableview.delegate=self;
     self.tableview.dataSource = self;
     self.tableview.action = @selector(cellClicked:);//点击编辑
     self.tableview.doubleAction = @selector(doubleAction:);//双击撤销修改
     [self.window makeFirstResponder:self.tableview];
     
+    [self.showOnlyBtn setTitle:LocalizedString(@"OnlyShowModified")];
+    [self.untranslatedBtn setTitle:LocalizedString(@"Untranslated")];
+    [self.unusedBtn setTitle:LocalizedString(@"Unused")];
     [self.searchField setPlaceholderString:LocalizedString(@"Search")];
     [self.saveBtn setTitle:LocalizedString(@"Save")];
     [self.refreshBtn setTitle:LocalizedString(@"Refresh")];
     [self.CheckBtn setTitle:LocalizedString(@"Check")];
     [self.tipsLabel setStringValue:LocalizedString(@"UseTips")];
-    [self.checkIndicator setHidden:YES];
     [self.keyLabel setStringValue:LocalizedString(@"Key")];
     [self.languageLabel setStringValue:LocalizedString(@"Language")];
+    
+    [self.checkIndicator setHidden:YES];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(changeEditingAction:) name:NSControlTextDidChangeNotification object:nil];
@@ -296,6 +302,16 @@
     [self searchAnswer:nil];
 }
 
+- (IBAction)untranslatedAction:(id)sender {
+    [self.window makeFirstResponder:nil];
+    [self searchAnswer:nil];
+}
+
+- (IBAction)unusedAction:(id)sender {
+    [self.window makeFirstResponder:nil];
+    [self searchAnswer:nil];
+}
+
 - (IBAction)openAbout:(id)sender {
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/Loongwoo/StringManage"]];
 }
@@ -360,34 +376,56 @@
 
 - (IBAction)searchAnswer:(id)sender {
     NSString *searchString = _searchField.stringValue;
+    NSMutableArray *tmp2 = [NSMutableArray array];
+    if(self.untranslatedBtn.state){
+        for (NSString *string in _keyArray) {
+            for (StringModel *model in _stringArray) {
+                NSString *str2 = model.stringDictionary[string];
+                if (str2.length==0) {
+                    [tmp2 addObject:string];
+                    break;
+                }
+            }
+        }
+    }else{
+        [tmp2 addObjectsFromArray:_keyArray];
+    }
+    
+    NSMutableArray *tmp3 = [NSMutableArray array];
+    if(self.unusedBtn.state){
+        for (NSString *string in tmp2) {
+            NSArray *arr = _infoDict[string];
+            if (arr.count==0) {
+                [tmp3 addObject:string];
+            }
+        }
+    }else{
+        [tmp3 addObjectsFromArray:tmp2];
+    }
+    
     NSMutableArray *tmp = [NSMutableArray array];
     if(self.showOnlyBtn.state){
         for (ActionModel *model in _actionArray) {
-            if([tmp containsObject:model.key])
+            if([tmp containsObject:model.key] || ![tmp3 containsObject:model.key])
                 continue;
-            if(searchString.length==0) {
-                [tmp addObject:model.key];
-            } else if([model.key contain:searchString] || [model.value contain:searchString]){
+            if(searchString.length==0 || [model.key contain:searchString] || [model.value contain:searchString]){
                 [tmp addObject:model.key];
             }
         }
     }else{
         if(searchString.length==0){
-            tmp = _keyArray;
+            [tmp addObjectsFromArray:tmp3];
         }else{
-            for (NSString *key in _keyArray) {
+            for (NSString *key in tmp3) {
                 if([key contain:searchString]){
                     [tmp addObject:key];
                 }
             }
             for (ActionModel *model in _actionArray) {
-                if([tmp containsObject:model.key])
-                    continue;
-                if([model.value contain:searchString]){
+                if(! [tmp containsObject:model.key] && [tmp3 containsObject:model.key] && [model.value contain:searchString])
                     [tmp addObject:model.key];
-                }
             }
-            for (NSString *key in _keyArray) {
+            for (NSString *key in tmp3) {
                 if([tmp containsObject:key])
                     continue;
                 for (StringModel *model in _stringArray) {
@@ -400,6 +438,7 @@
             }
         }
     }
+    
     self.showArray = [tmp sortedArrayUsingSelector:@selector(compare:)];
     self.recordLabel.stringValue = [NSString stringWithFormat:LocalizedString(@"RecordNumMsg"),self.showArray.count];
     [self.saveBtn setEnabled:(_actionArray.count>0 && !self.isChecking)];
@@ -673,22 +712,22 @@
         NSTextField *aView = [tableView makeViewWithIdentifier:@"MYCell" owner:self];
         if(!aView) {
             aView = [[NSTextField alloc]initWithFrame:NSZeroRect];
-            [aView setBackgroundColor:[NSColor clearColor]];
+            [aView setTextColor:[NSColor blackColor]];
             [aView setBordered:NO];
             [aView setTarget:self];
         }
         NSInteger status = [_keyDict[key] integerValue];
         if(status == KeyTypeRemove || (action && action.actionType == ActionTypeRemove)){
-            [aView setTextColor:[NSColor redColor]];
+            [aView setBackgroundColor:[NSColor redColor]];
             [aView setStringValue:[self valueInRaw:key identifier:identifier]];
         }else if (status == KeyTypeAdd) {
-            [aView setTextColor: [NSColor colorWithRed:0 green:0.8 blue:0 alpha:1.0]];
+            [aView setBackgroundColor: [NSColor colorWithRed:0 green:0.8 blue:0 alpha:1.0]];
             [aView setStringValue:[self titleWithKey:key identifier:identifier]];
         }else if(action && action.actionType == ActionTypeAdd){
-            [aView setTextColor: [NSColor blueColor]];
+            [aView setBackgroundColor: [NSColor blueColor]];
             [aView setStringValue:[self titleWithKey:key identifier:identifier]];
         }else{
-            [aView setTextColor: [NSColor darkGrayColor]];
+            [aView setBackgroundColor: [NSColor clearColor]];
             [aView setStringValue:[self valueInRaw:key identifier:identifier]];
         }
         [aView setTag:row];

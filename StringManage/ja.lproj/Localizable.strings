@@ -19,5 +19,7 @@
 "UseTips"= "赤：削除；緑：添加；ブルー：改正；クリック：編集;撤回をダブルクリック：コピーせん断板";
 "DevLanguageTips"= "によってファイルの拡張子を黙認AppDelegate";
 "DevLanguage"= "開発言語";
-"OnlyShowModified"="変えたことが表示されている";
+"OnlyShowModified"="改正の";
 "Language"="言語";
+"Untranslated"="通訳なし";
+"Unused"="未使用";
