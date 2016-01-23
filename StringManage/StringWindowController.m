@@ -524,7 +524,7 @@
     }
     NSInteger column = _tableview.clickedColumn;
     NSInteger row = _tableview.clickedRow;
-    if(column<=0 || column > self.tableview.numberOfColumns-2)
+    if(column<=0 || column >= self.tableview.numberOfColumns-2)
         return;
     if(row < 0 || row >= self.tableview.numberOfRows)
         return;
@@ -545,7 +545,7 @@
     }
     NSInteger column = _tableview.clickedColumn;
     NSInteger row = _tableview.clickedRow;
-    if(column<0 || column > self.tableview.numberOfColumns-2)
+    if(column<0 || column >= self.tableview.numberOfColumns-2)
         return;
     if(row < 0 || row >= self.tableview.numberOfRows)
         return;
