@@ -14,3 +14,8 @@ clone this repo, Build the project and it's done!
 ### Usage
 
 Open any project and use <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>s</kbd> to trigger the StringManage Window on/off
+
+![image](screenshots/2.png)
+
+
+
