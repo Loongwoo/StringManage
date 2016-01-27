@@ -1,5 +1,7 @@
 ## StringManage -- Xcode plugin
 
+A Xcode plugin for managing strings in your projects
+
 ![image](screenshots/1.png)
 
 ### What can StringManage to?
