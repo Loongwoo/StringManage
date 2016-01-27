@@ -217,14 +217,14 @@
                             <action selector="showPreferencesPanel:" target="-2" id="84t-NJ-PJu"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="CF06CAF3-C5E1-4B0C-950B-860F1522CBA8" label="onlyShowModified" paletteLabel="onlyShowModified" image="AC0EA575-7062-44FD-87B8-F8F8E7475C0A" id="4mU-Dw-vRj">
+                    <toolbarItem implicitItemIdentifier="CF06CAF3-C5E1-4B0C-950B-860F1522CBA8" label="onlyShowModified" paletteLabel="onlyShowModified" image="28443874-6D6C-4D93-8992-07E7741E46E9" id="4mU-Dw-vRj">
                         <nil key="toolTip"/>
                         <size key="minSize" width="61" height="18"/>
                         <size key="maxSize" width="104" height="18"/>
                         <button key="view" id="IAX-S9-VGn">
                             <rect key="frame" x="2" y="14" width="100" height="18"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            <buttonCell key="cell" type="bevel" title="Check" bezelStyle="regularSquare" image="AC0EA575-7062-44FD-87B8-F8F8E7475C0A" imagePosition="left" inset="2" id="n7u-4s-h8b">
+                            <buttonCell key="cell" type="bevel" title="Check" bezelStyle="regularSquare" image="28443874-6D6C-4D93-8992-07E7741E46E9" imagePosition="left" inset="2" id="n7u-4s-h8b">
                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
@@ -233,14 +233,14 @@
                             <action selector="onlyShowAction:" target="-2" id="MzI-6t-qfa"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="C1F0D4FC-0984-4E0D-8384-9886F54DB8BF" label="Untranslated" paletteLabel="Untranslated" image="28AF0B30-6855-4A6B-8C06-6843F3E44036" id="BEr-km-d67">
+                    <toolbarItem implicitItemIdentifier="C1F0D4FC-0984-4E0D-8384-9886F54DB8BF" label="Untranslated" paletteLabel="Untranslated" image="F3002DC9-3C2E-4FC9-A291-7904913A1780" id="BEr-km-d67">
                         <nil key="toolTip"/>
                         <size key="minSize" width="61" height="18"/>
                         <size key="maxSize" width="104" height="18"/>
                         <button key="view" id="4vR-Tl-loV">
                             <rect key="frame" x="0.0" y="14" width="104" height="18"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="left" inset="2" id="r0R-Qv-fec">
+                            <buttonCell key="cell" type="bevel" title="Check" bezelStyle="regularSquare" image="F3002DC9-3C2E-4FC9-A291-7904913A1780" imagePosition="left" inset="2" id="r0R-Qv-fec">
                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
@@ -249,14 +249,14 @@
                             </connections>
                         </button>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="F2065C06-32C4-40FF-9A8E-F74E308C6C4B" label="Unused" paletteLabel="Unused" image="28AF0B30-6855-4A6B-8C06-6843F3E44036" id="F1z-iu-b0o">
+                    <toolbarItem implicitItemIdentifier="F2065C06-32C4-40FF-9A8E-F74E308C6C4B" label="Unused" paletteLabel="Unused" image="F3002DC9-3C2E-4FC9-A291-7904913A1780" id="F1z-iu-b0o">
                         <nil key="toolTip"/>
                         <size key="minSize" width="61" height="18"/>
                         <size key="maxSize" width="104" height="18"/>
                         <button key="view" id="tqc-Zr-0QD">
                             <rect key="frame" x="0.0" y="14" width="104" height="18"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="left" inset="2" id="SKH-UR-CDy">
+                            <buttonCell key="cell" type="bevel" title="Check" bezelStyle="regularSquare" image="F3002DC9-3C2E-4FC9-A291-7904913A1780" imagePosition="left" inset="2" id="SKH-UR-CDy">
                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
@@ -272,7 +272,7 @@
                         <textField key="view" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="BZv-nw-cuW">
                             <rect key="frame" x="0.0" y="14" width="139" height="17"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" baseWritingDirection="rightToLeft" title="Label" id="0lE-45-o0g">
+                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" baseWritingDirection="rightToLeft" id="0lE-45-o0g">
                                 <font key="font" metaFont="system"/>
                                 <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -301,7 +301,7 @@
         <userDefaultsController representsSharedInstance="YES" id="rsX-lH-UUS"/>
     </objects>
     <resources>
-        <image name="28AF0B30-6855-4A6B-8C06-6843F3E44036" width="18" height="18">
+        <image name="28443874-6D6C-4D93-8992-07E7741E46E9" width="18" height="18">
             <mutableData key="keyedArchiveRepresentation">
 YnBsaXN0MDDUAQIDBAUGW1xYJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3ASAAGGoK8QFwcI
 ERYbHCc0NTY3ODk6O0JDRElMT1VYVSRudWxs1AkKCwwNDg8QViRjbGFzc1xOU0ltYWdlRmxhZ3NWTlNS
@@ -320,7 +320,7 @@ AUMBSAFOAVQBWwFjAWoBcwF4AYMBjAGiAaYBswG8AcUB4QHmAfkB/QIQAhsCIAIoAisCMAI/AkMCSgJS
 Al8CZAJmAmgCbQJ1AngCfQKFAogCmgKdAqIAAAAAAAACAQAAAAAAAABfAAAAAAAAAAAAAAAAAAACpA
 </mutableData>
         </image>
-        <image name="AC0EA575-7062-44FD-87B8-F8F8E7475C0A" width="18" height="18">
+        <image name="F3002DC9-3C2E-4FC9-A291-7904913A1780" width="18" height="18">
             <mutableData key="keyedArchiveRepresentation">
 YnBsaXN0MDDUAQIDBAUGW1xYJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3ASAAGGoK8QFwcI
 ERYbHCc0NTY3ODk6O0JDRElMT1VYVSRudWxs1AkKCwwNDg8QViRjbGFzc1xOU0ltYWdlRmxhZ3NWTlNS
