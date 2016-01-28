@@ -83,11 +83,7 @@
     
     self.window.level = NSFloatingWindowLevel;
     self.window.hidesOnDeactivate = YES;
-    
-    NSDictionary *infoDictionary = [[StringManage sharedPlugin].bundle infoDictionary];
-    NSString *app_build = [infoDictionary objectForKey:@"CFBundleVersion"];
-    NSString *title = [NSString stringWithFormat:@"%@(v%@)",LocalizedString(@"StringManage"),app_build];
-    [self.window setTitle:title];
+    [self.window setTitle:LocalizedString(@"StringManage")];
     
     self.tableview.delegate=self;
     self.tableview.dataSource = self;
