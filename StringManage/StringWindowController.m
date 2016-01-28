@@ -83,7 +83,11 @@
     
     self.window.level = NSFloatingWindowLevel;
     self.window.hidesOnDeactivate = YES;
-    [self.window setTitle:LocalizedString(@"StringManage")];
+    
+    NSDictionary *infoDictionary = [[StringManage sharedPlugin].bundle infoDictionary];
+    NSString *app_build = [infoDictionary objectForKey:@"CFBundleVersion"];
+    NSString *title = [NSString stringWithFormat:@"%@(v%@)",LocalizedString(@"StringManage"),app_build];
+    [self.window setTitle:title];
     
     self.tableview.delegate=self;
     self.tableview.dataSource = self;
@@ -565,7 +569,7 @@
         }
         [self setEdit:key idendifier:identifier];
         
-        NSString *value = [self titleWithKey:key identifier:identifier];
+        NSString *value = [self valueInRaw:key identifier:identifier];
         NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
         [pasteboard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:self];
         [pasteboard setString:value forType:NSStringPboardType];
@@ -706,7 +710,6 @@
         [aView setTitle:[@(items.count) stringValue]];
         return aView;
     }else {
-        ActionModel *action = [self findActionWith:key identify:identifier];
         NSTextField *aView = [tableView makeViewWithIdentifier:@"MYCell" owner:self];
         if(!aView) {
             aView = [[NSTextField alloc]initWithFrame:NSZeroRect];
@@ -714,19 +717,34 @@
             [aView setBordered:NO];
             [aView setTarget:self];
         }
-        NSInteger status = [_keyDict[key] integerValue];
-        if(status == KeyTypeRemove || (action && action.actionType == ActionTypeRemove)){
-            [aView setBackgroundColor:[NSColor redColor]];
-            [aView setStringValue:[self valueInRaw:key identifier:identifier]];
-        }else if (status == KeyTypeAdd) {
-            [aView setBackgroundColor: [NSColor colorWithRed:0 green:0.8 blue:0 alpha:1.0]];
-            [aView setStringValue:[self titleWithKey:key identifier:identifier]];
-        }else if(action && action.actionType == ActionTypeAdd){
-            [aView setBackgroundColor: [NSColor blueColor]];
-            [aView setStringValue:[self titleWithKey:key identifier:identifier]];
+        if([identifier isEqualToString:KEY]){
+            NSInteger status = [_keyDict[key] integerValue];
+            if(status == KeyTypeRemove){
+                [aView setBackgroundColor:[NSColor redColor]];
+            }else if (status == KeyTypeAdd) {
+                [aView setBackgroundColor: [NSColor colorWithRed:0 green:0.8 blue:0 alpha:1.0]];
+            }else{
+                [aView setBackgroundColor: [NSColor clearColor]];
+            }
+            [aView setStringValue:_showArray[row]];
         }else{
-            [aView setBackgroundColor: [NSColor clearColor]];
-            [aView setStringValue:[self valueInRaw:key identifier:identifier]];
+            ActionModel *action = [self findActionWith:key identify:identifier];
+            NSString *rawValue = [self valueInRaw:key identifier:identifier];
+            if (action) {
+                if(action.actionType == ActionTypeRemove){
+                    [aView setBackgroundColor:[NSColor redColor]];
+                }else{
+                    if (rawValue.length==0) {
+                        [aView setBackgroundColor: [NSColor colorWithRed:0 green:0.8 blue:0 alpha:1.0]];
+                    }else{
+                        [aView setBackgroundColor: [NSColor blueColor]];
+                    }
+                }
+                [aView setStringValue:action.value];
+            }else{
+                [aView setBackgroundColor: [NSColor clearColor]];
+                [aView setStringValue:rawValue];
+            }
         }
         [aView setTag:row];
         [aView setIdentifier:identifier];
