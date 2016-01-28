@@ -269,21 +269,20 @@
     NSString *oldValue = [self titleWithKey:key identifier:identifier];
     if([oldValue isEqualToString:newValue])
         return;
-    
     ActionModel *action = [self findActionWith:key identify:identifier];
     if(action){
         if([rawValue isEqualToString:newValue]){
             [_actionArray removeObject:action];
         }else{
             action.actionType = (newValue.length==0) ? ActionTypeRemove:ActionTypeAdd;
-            action.value = newValue;
+            action.value = (newValue.length==0) ? rawValue : newValue;
         }
     } else {
         ActionModel *action = [[ActionModel alloc]init];
         action.actionType = (newValue.length==0) ? ActionTypeRemove:ActionTypeAdd;
         action.identifier = identifier;
         action.key = key;
-        action.value = newValue;
+        action.value =  (newValue.length==0) ? rawValue : newValue;
         [_actionArray addObject:action];
     }
     [self searchAnswer:nil];
@@ -489,7 +488,7 @@
             
             for (StringModel *model in _stringArray) {
                 ActionModel *action = [[ActionModel alloc]init];
-                action.actionType = ActionTypeRemove;
+                action.actionType = ActionTypeAdd;
                 action.identifier = model.identifier;
                 action.key = text;
                 action.value = @"";
@@ -592,12 +591,11 @@
         }
     } else {
         for (StringModel *model in _stringArray) {
-            NSString *value = [self titleWithKey:key identifier:model.identifier];
             ActionModel *action = [[ActionModel alloc]init];
             action.actionType = ActionTypeRemove;
             action.identifier = model.identifier;
             action.key = key;
-            action.value = value;
+            action.value = [self valueInRaw:key identifier:model.identifier];
             [_actionArray addObject:action];
         }
         [_keyDict setObject:@(KeyTypeRemove) forKey:key];
