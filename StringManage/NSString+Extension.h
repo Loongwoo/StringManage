@@ -10,4 +10,5 @@
 
 @interface NSString(Extension)
 -(BOOL)contain:(NSString*)str;
+-(CGRect)sizeWithWidth:(CGFloat)width font:(NSFont*)font;
 @end

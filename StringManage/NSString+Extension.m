@@ -7,6 +7,7 @@
 //
 
 #import "NSString+Extension.h"
+#import <AppKit/AppKit.h>
 
 @implementation NSString(Extension)
 
@@ -15,4 +16,11 @@
     return range.length>0;
 }
 
+-(CGRect)sizeWithWidth:(CGFloat)width font:(NSFont*)font{
+    NSDictionary *attribute = @{NSFontAttributeName:font};
+    return [self boundingRectWithSize:CGSizeMake(width, 2000)
+                                        options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading
+                                     attributes:attribute
+                                        context:nil];
+}
 @end

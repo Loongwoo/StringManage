@@ -38,6 +38,7 @@
 @property (weak) IBOutlet NSTextField *valueTextField;
 @property (weak) IBOutlet NSButton *untranslatedBtn;
 @property (weak) IBOutlet NSButton *unusedBtn;
+@property (weak) IBOutlet NSTextField *toastLabel;
 
 @property (nonatomic, strong) NSMutableArray *stringArray;
 @property (nonatomic, strong) NSMutableArray *keyArray;
@@ -563,13 +564,37 @@
             [_actionArray removeObject:action];
             [self searchAnswer:nil];
         }
-        [self setEdit:key idendifier:identifier];
+        if(column>0){
+            [self setEdit:key idendifier:identifier];
+        }
         
         NSString *value = [self valueInRaw:key identifier:identifier];
         NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
         [pasteboard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:self];
         [pasteboard setString:value forType:NSStringPboardType];
+        
+        [self makeToast:value];
     }
+}
+
+-(void)makeToast:(NSString *)string{
+    [[NSObject class] cancelPreviousPerformRequestsWithTarget:self selector:@selector(hideToast) object:nil];
+    
+    NSString *tmp = [NSString stringWithFormat:LocalizedString(@"CopyToPasteboard"),string];
+    CGFloat width = self.window.frame.size.width-100;
+    NSFont *font =[NSFont systemFontOfSize:24.0];
+    CGRect rect = [tmp sizeWithWidth:width font:font];
+    rect.size.width += 15.0f;
+    rect.size.height += 5.0f;
+    rect.origin = CGPointMake(CGRectGetMidX(self.window.contentView.bounds) - CGRectGetMidX(rect), 230.0f);
+    self.toastLabel.frame = rect;
+    self.toastLabel.stringValue = tmp;
+    self.toastLabel.hidden = NO;
+    [self performSelector:@selector(hideToast) withObject:nil afterDelay:2];
+}
+
+-(void)hideToast{
+    self.toastLabel.hidden = YES;
 }
 
 -(void)removeAction:(id)sender {
