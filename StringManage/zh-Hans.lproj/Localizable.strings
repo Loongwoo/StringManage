@@ -20,8 +20,8 @@
 "DevLanguageTips"= "默认根据AppDelegate文件的后缀判断";
 "DevLanguage"= "开发语言";
 "OnlyShowModified"="修改的";
-"Language"="语言";
 "Untranslated"="未翻译";
 "Unused"="未使用";
-"Test"="测试";
 "CopyToPasteboard"="'%@' => 剪切板";
+"add test string"="初三的月亮如同剑锋一样白得耀眼 \n隐约能听见流水声 \n还有带着夜露的草木的窃窃私语 \n闭上眼睛 \n不能看见的生命的活动 \n觉得感同身受 ";
+"Test"="静夜思\n床前明月光，\n疑是地上霜。\n举头望明月，\n疑是地上霜。\n       —李白";

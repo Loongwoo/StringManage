@@ -14,9 +14,17 @@ typedef enum : NSUInteger {
     KeyTypeRemove,
 } KeyType;
 
-@interface StringWindowController : NSWindowController<NSPopoverDelegate,NSTableViewDelegate,NSTableViewDataSource,NSTextFieldDelegate,NSSearchFieldDelegate>
+@interface StringWindowController : NSWindowController
+<
+NSPopoverDelegate,
+NSTableViewDelegate,
+NSTableViewDataSource,
+NSTextFieldDelegate,
+NSSearchFieldDelegate
+>
 
-- (void)setSearchRootDir:(NSString*)searchRootDir projectName:(NSString*)projectName;
+- (void)setSearchRootDir:(NSString*)searchRootDir
+             projectName:(NSString*)projectName;
 
 - (IBAction)refresh:(id)sender;
 

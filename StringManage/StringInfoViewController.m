@@ -15,31 +15,29 @@
 - (id)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        self.titleField = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 20, frame.size.width - 20, 15)];
-        self.titleField.font = [NSFont systemFontOfSize:10];
-        self.titleField.textColor = [NSColor grayColor];
-        [self.titleField setAutoresizingMask:NSViewWidthSizable];
-        [[self.titleField cell] setLineBreakMode:NSLineBreakByTruncatingTail];
-        [self addSubview:self.titleField];
-        self.titleField = self.titleField;
+        NSTextField *titleField = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 20, frame.size.width, 15)];
+        titleField.font = [NSFont systemFontOfSize:10];
+        titleField.textColor = [NSColor darkGrayColor];
+        [titleField setAutoresizingMask:NSViewWidthSizable];
+        [[titleField cell] setLineBreakMode:NSLineBreakByTruncatingTail];
+        [titleField setBezeled:NO];
+        [titleField setDrawsBackground:NO];
+        [titleField setEditable:NO];
+        [titleField setSelectable:NO];
+        [self addSubview:titleField];
+        self.titleField = titleField;
         
-        self.fileField = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 0, frame.size.width - 20, 20)];
-        self.fileField.font = [NSFont systemFontOfSize:12];
-        self.fileField.textColor = [NSColor darkGrayColor];
-        [self.fileField setAutoresizingMask:NSViewWidthSizable];
-        [[self.fileField cell] setLineBreakMode:NSLineBreakByTruncatingTail];
-        [self addSubview:self.fileField];
-        self.fileField = self.fileField;
-        
-        [self.titleField setBezeled:NO];
-        [self.titleField setDrawsBackground:NO];
-        [self.titleField setEditable:NO];
-        [self.titleField setSelectable:NO];
-        
-        [self.fileField setBezeled:NO];
-        [self.fileField setDrawsBackground:NO];
-        [self.fileField setEditable:NO];
-        [self.fileField setSelectable:NO];
+        NSTextField *fileField = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, frame.size.width, 20)];
+        fileField.font = [NSFont systemFontOfSize:12];
+        fileField.textColor = [NSColor colorWithWhite:0.2 alpha:0.9];
+        [fileField setAutoresizingMask:NSViewWidthSizable];
+        [[fileField cell] setLineBreakMode:NSLineBreakByTruncatingTail];
+        [fileField setBezeled:NO];
+        [fileField setDrawsBackground:NO];
+        [fileField setEditable:NO];
+        [fileField setSelectable:NO];
+        [self addSubview:fileField];
+        self.fileField = fileField;
     }
     return self;
 }
@@ -65,18 +63,18 @@
 }
 
 -(void)loadView {
-    float height = MIN(10+_array.count*35, 360);
+    float height = MIN(10+_array.count*37, 360);
     self.view = [[NSView alloc]initWithFrame:NSMakeRect(0,0,600, height)];
     NSScrollView * tableContainer = [[NSScrollView alloc] initWithFrame:NSInsetRect(self.view.bounds, 5, 5)];
     NSTableView * tableView = [[NSTableView alloc] initWithFrame:tableContainer.bounds];
-    NSTableColumn * column1 = [[NSTableColumn alloc] initWithIdentifier:@"mycell"];
+    NSTableColumn * column1 = [[NSTableColumn alloc] initWithIdentifier:@"mycolumn"];
     [column1 setWidth:tableView.bounds.size.width];
     [tableView addTableColumn:column1];
-    
     [tableView setDelegate:self];
     [tableView setDataSource:self];
     [tableView setHeaderView:nil];
     [tableView setGridStyleMask:NSTableViewSolidHorizontalGridLineMask];
+    [tableView setUsesAlternatingRowBackgroundColors:YES];
     [tableView reloadData];
     [tableContainer setDocumentView:tableView];
     [tableContainer setHasVerticalScroller:YES];
@@ -93,10 +91,11 @@
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    StringCellView* cellView = [tableView makeViewWithIdentifier:@"mycell" owner:self];
+    static NSString *identifier = @"mycell";
+    StringCellView* cellView = [tableView makeViewWithIdentifier:identifier owner:self];
     if (cellView == nil) {
         cellView = [[StringCellView alloc] initWithFrame:NSMakeRect(0, 0, tableView.bounds.size.width, 35)];
-        cellView.identifier = @"mycell";
+        cellView.identifier = identifier;
     }
     StringItem *item = [self.array objectAtIndex:row];
     cellView.titleField.stringValue =[NSString stringWithFormat:@"File : %@", item.filePath];

@@ -14,10 +14,13 @@
 #import "StringInfoViewController.h"
 #import "NSButton+Extension.h"
 #import "NSString+Extension.h"
+#import "StringEditViewController.h"
 
 #define KEY @"key"
 #define REMOVE @"remove"
 #define kInfo @"info"
+
+#define kFont [NSFont systemFontOfSize:11]
 
 @interface StringWindowController()
 
@@ -32,10 +35,6 @@
 @property (weak) IBOutlet NSButton *CheckBtn;
 @property (weak) IBOutlet NSProgressIndicator *checkIndicator;
 @property (weak) IBOutlet NSButton *showOnlyBtn;
-@property (weak) IBOutlet NSTextField *keyLabel;
-@property (weak) IBOutlet NSTextField *languageLabel;
-@property (weak) IBOutlet NSTextField *keyTextField;
-@property (weak) IBOutlet NSTextField *valueTextField;
 @property (weak) IBOutlet NSButton *untranslatedBtn;
 @property (weak) IBOutlet NSButton *unusedBtn;
 @property (weak) IBOutlet NSTextField *toastLabel;
@@ -63,7 +62,9 @@
 
 @end
 
-@implementation StringWindowController
+@implementation StringWindowController{
+    float columnWidth;
+}
 
 #pragma mark - override
 -(void)dealloc {
@@ -100,15 +101,9 @@
     [self.refreshBtn setTitle:LocalizedString(@"Refresh")];
     [self.CheckBtn setTitle:LocalizedString(@"Check")];
     [self.tipsLabel setStringValue:LocalizedString(@"UseTips")];
-    [self.keyLabel setStringValue:LocalizedString(@"Key")];
-    [self.languageLabel setStringValue:LocalizedString(@"Language")];
-    
-    [self.checkIndicator setHidden:YES];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(changeEditingAction:) name:NSControlTextDidChangeNotification object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(projectSettingChanged:)  name:kNotifyProjectSettingChanged object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowDidResize:) name:NSWindowDidResizeNotification object:self];
 }
 
 #pragma mark - Private
@@ -157,7 +152,7 @@
         [self.tableview removeTableColumn:column];
     }
     
-    float columnWidth = (self.tableview.bounds.size.width - 160.0)/(_stringArray.count+1);
+    columnWidth = (self.tableview.bounds.size.width - 160.0)/(_stringArray.count+1);
     
     NSTableColumn * column = [[NSTableColumn alloc] initWithIdentifier:KEY];
     [column setTitle:KEY];
@@ -287,13 +282,6 @@
         [_actionArray addObject:action];
     }
     [self searchAnswer:nil];
-}
-
--(void)setEdit:(NSString*)key idendifier:(NSString*)identifier{
-    [self.keyTextField setStringValue:key];
-    [self.languageLabel setStringValue:identifier];
-    NSString *title = [self titleWithKey:key identifier:identifier];
-    [self.valueTextField setStringValue:title];
 }
 
 #pragma mark - Button Action
@@ -531,10 +519,19 @@
     NSString *key = _showArray[row];
     NSInteger status = [_keyDict[key] integerValue];
     if(status != KeyTypeRemove) {
-        [_tableview editColumn:column row:row withEvent:nil select:YES];
         StringModel *model = _stringArray[column-1];
         if(model){
-            [self setEdit:key idendifier:model.identifier];
+            NSString *identifier = model.identifier;
+            NSString *title =[self titleWithKey:key identifier:identifier];
+            CGRect rect = [_tableview frameOfCellAtColumn:column row:row];
+            NSPopover* popover = [[NSPopover alloc] init];
+            popover.delegate = self;
+            popover.behavior = NSPopoverBehaviorSemitransient;
+            StringEditViewController* viewController = [[StringEditViewController alloc] initWithKey:key
+                                                                                          identifier:identifier
+                                                                                               value:title];
+            [popover setContentViewController:viewController];
+            [popover showRelativeToRect:rect ofView:_tableview preferredEdge:NSRectEdgeMinY];
         }
     }
 }
@@ -564,9 +561,6 @@
             [_actionArray removeObject:action];
             [self searchAnswer:nil];
         }
-        if(column>0){
-            [self setEdit:key idendifier:identifier];
-        }
         
         NSString *value = [self valueInRaw:key identifier:identifier];
         NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
@@ -581,12 +575,12 @@
     [[NSObject class] cancelPreviousPerformRequestsWithTarget:self selector:@selector(hideToast) object:nil];
     
     NSString *tmp = [NSString stringWithFormat:LocalizedString(@"CopyToPasteboard"),string];
-    CGFloat width = self.window.frame.size.width-100;
+    CGFloat width = self.window.contentView.frame.size.width-100;
     NSFont *font =[NSFont systemFontOfSize:24.0];
     CGRect rect = [tmp sizeWithWidth:width font:font];
     rect.size.width += 15.0f;
     rect.size.height += 5.0f;
-    rect.origin = CGPointMake(CGRectGetMidX(self.window.contentView.bounds) - CGRectGetMidX(rect), 230.0f);
+    rect.origin = CGPointMake(CGRectGetMidX(self.window.contentView.bounds) - CGRectGetMidX(rect), 70.0f);
     self.toastLabel.frame = rect;
     self.toastLabel.stringValue = tmp;
     self.toastLabel.hidden = NO;
@@ -647,45 +641,30 @@
 }
 
 #pragma mark - Notification
--(void)changeEditingAction:(NSNotification*)notification{
-    NSTextField *textField = notification.object;
-    if ([textField isKindOfClass:[NSSearchField class]]) {
-        return;
-    }
-    if(textField != self.valueTextField){
-        NSString *key1 = _showArray[textField.tag];
-        NSString *identifier1 = textField.identifier;
-        NSString *key2 = self.keyTextField.stringValue;
-        NSString *identifier2 = self.languageLabel.stringValue;
-        if([key1 isEqualToString:key2] && [identifier1 isEqualToString:identifier2]){
-            [self.valueTextField setStringValue:textField.stringValue];
-        }
-    }
-}
-
--(void)endEditingAction:(NSNotification*)notification {
-    NSTextField *textField = notification.object;
-    if ([textField isKindOfClass:[NSSearchField class]]) {
-        return;
-    }
-    if(textField == self.valueTextField){
-        NSString *key = self.keyTextField.stringValue;
-        NSString *identifier = self.languageLabel.stringValue;
-        if(key.length>0 &&identifier.length>0){
-            [self changeWithKey:key identifier:identifier newValue:textField.stringValue];
-        }
-    }else{
-        NSString *identifier = textField.identifier;
-        if(identifier.length==0 || textField.tag >= _showArray.count)
-            return;
-        NSString *key = _showArray[textField.tag];
-        [self changeWithKey:key identifier:identifier newValue:textField.stringValue];
-    }
-}
-
 - (void)projectSettingChanged:(NSNotification*)notification {
     [_infoDict removeAllObjects];
     [self refresh:nil];
+}
+
+- (void)windowDidResize:(NSNotification *)notification {
+    [self refreshTableView];
+}
+
+#pragma mark - NSPopoverDelegate
+- (void)popoverDidClose:(NSNotification*)notification {
+    NSPopover* popOver = [notification object];
+    if ([popOver isKindOfClass:[NSPopover class]] == NO) {
+        return;
+    }
+    id controller = [popOver contentViewController];
+    NSLog(@"controller %@",controller);
+    if ([controller isKindOfClass:[StringEditViewController class]] == NO) {
+        return;
+    }
+    StringEditViewController* editViewController = (StringEditViewController*)controller;
+    NSString *string1 = editViewController.textView.string;
+    NSString *string2 = [string1 stringByReplacingOccurrencesOfString:@"\n" withString:@"\\n"];
+    [self changeWithKey:editViewController.key identifier:editViewController.identifier newValue:string2];
 }
 
 #pragma mark - NSTableViewDelegate & NSTableViewDataSource
@@ -694,7 +673,8 @@
 }
 
 -(CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row {
-    return 20.0;
+    float height = [self cellHeightWith:row];
+    return MAX(17, height);
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
@@ -702,7 +682,7 @@
         return nil;
     NSString *identifier=[tableColumn identifier];
     NSString *key = self.showArray[row];
-    if([identifier isEqualToString:@"remove"]){
+    if([identifier isEqualToString:REMOVE]){
         NSButton *aView = [tableView makeViewWithIdentifier:identifier owner:self];
         if(!aView) {
             aView = [[NSButton alloc]initWithFrame:NSZeroRect];
@@ -736,7 +716,9 @@
             aView = [[NSTextField alloc]initWithFrame:NSZeroRect];
             [aView setTextColor:[NSColor blackColor]];
             [aView setBordered:NO];
-            [aView setTarget:self];
+            [aView setFont:kFont];
+            [aView setEditable:NO];
+            [aView setLineBreakMode:NSLineBreakByWordWrapping];
         }
         if([identifier isEqualToString:KEY]){
             NSInteger status = [_keyDict[key] integerValue];
@@ -771,5 +753,29 @@
         [aView setIdentifier:identifier];
         return aView;
     }
+}
+
+-(float)cellHeightWith:(NSInteger)row{
+    if(row>=_showArray.count)
+        return 0;
+    NSString *key = _showArray[row];
+    NSString *string = key;
+    NSInteger maxLength = key.length;
+    for (ActionModel *model in _actionArray) {
+        if ([model.key isEqualToString:key]) {
+            if (model.value.length>maxLength) {
+                string = model.value;
+                maxLength = model.value.length;
+            }
+        }
+    }
+    for (StringModel *model in _stringArray) {
+        NSString *tmp = model.stringDictionary[key];
+        if (tmp.length>maxLength) {
+            string = tmp;
+            maxLength=tmp.length;
+        }
+    }
+    return ceilf([string sizeWithWidth:columnWidth font:kFont].size.height);
 }
 @end
