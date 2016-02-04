@@ -62,9 +62,7 @@
 
 @end
 
-@implementation StringWindowController{
-    float columnWidth;
-}
+@implementation StringWindowController
 
 #pragma mark - override
 -(void)dealloc {
@@ -152,7 +150,7 @@
         [self.tableview removeTableColumn:column];
     }
     
-    columnWidth = (self.tableview.bounds.size.width - 160.0)/(_stringArray.count+1);
+    float columnWidth = (self.tableview.bounds.size.width - 160.0)/(_stringArray.count+1);
     
     NSTableColumn * column = [[NSTableColumn alloc] initWithIdentifier:KEY];
     [column setTitle:KEY];
@@ -522,7 +520,14 @@
         StringModel *model = _stringArray[column-1];
         if(model){
             NSString *identifier = model.identifier;
-            NSString *title =[self titleWithKey:key identifier:identifier];
+            NSString *title = nil;
+            ActionModel *action = [self findActionWith:key identify:identifier];
+            if(action){
+                title = action.actionType==ActionTypeRemove ? @"" : action.value;
+            }
+            if(title==nil){
+                title = [self valueInRaw:key identifier:identifier];
+            }
             CGRect rect = [_tableview frameOfCellAtColumn:column row:row];
             NSPopover* popover = [[NSPopover alloc] init];
             popover.delegate = self;
@@ -647,7 +652,7 @@
 }
 
 - (void)windowDidResize:(NSNotification *)notification {
-    [self refreshTableView];
+    [_tableview reloadData];
 }
 
 #pragma mark - NSPopoverDelegate
@@ -657,8 +662,12 @@
         return;
     }
     id controller = [popOver contentViewController];
-    NSLog(@"controller %@",controller);
     if ([controller isKindOfClass:[StringEditViewController class]] == NO) {
+        return;
+    }
+    NSLog(@"popOver.isShown %d",popOver.isShown);
+    if (popOver.isShown) {
+        [popOver close];
         return;
     }
     StringEditViewController* editViewController = (StringEditViewController*)controller;
@@ -672,9 +681,27 @@
     return self.showArray.count;
 }
 
+- (void)tableViewColumnDidResize:(NSNotification *)notification{
+    [_tableview reloadData];
+}
+
 -(CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row {
-    float height = [self cellHeightWith:row];
-    return MAX(17, height);
+    float height = 17;
+    NSString *key = _showArray[row];
+    for (ActionModel *model in _actionArray) {
+        if ([model.key isEqualToString:key]) {
+            NSTableColumn *column = [_tableview tableColumnWithIdentifier:model.identifier];
+            float tmpHeight = ceilf([model.value sizeWithWidth:column.width font:kFont].size.height);
+            height = MAX(height, tmpHeight);
+        }
+    }
+    for (StringModel *model in _stringArray) {
+        NSString *tmp = model.stringDictionary[key];
+        NSTableColumn *column = [_tableview tableColumnWithIdentifier:model.identifier];
+        float tmpHeight = ceilf([tmp sizeWithWidth:column.width font:kFont].size.height);
+        height = MAX(height, tmpHeight);
+    }
+    return height;
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
@@ -753,29 +780,5 @@
         [aView setIdentifier:identifier];
         return aView;
     }
-}
-
--(float)cellHeightWith:(NSInteger)row{
-    if(row>=_showArray.count)
-        return 0;
-    NSString *key = _showArray[row];
-    NSString *string = key;
-    NSInteger maxLength = key.length;
-    for (ActionModel *model in _actionArray) {
-        if ([model.key isEqualToString:key]) {
-            if (model.value.length>maxLength) {
-                string = model.value;
-                maxLength = model.value.length;
-            }
-        }
-    }
-    for (StringModel *model in _stringArray) {
-        NSString *tmp = model.stringDictionary[key];
-        if (tmp.length>maxLength) {
-            string = tmp;
-            maxLength=tmp.length;
-        }
-    }
-    return ceilf([string sizeWithWidth:columnWidth font:kFont].size.height);
 }
 @end
