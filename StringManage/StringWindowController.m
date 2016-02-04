@@ -51,6 +51,8 @@
 @property (nonatomic, copy) NSArray *rawKeyArray;
 @property (nonatomic, strong) NSMutableDictionary* keyDict;
 @property (nonatomic, assign) BOOL isChecking;
+@property (nonatomic, retain) NSPopover* editPopOver;
+@property (nonatomic, retain) NSPopover* infoPopOver;
 
 - (IBAction)addAction:(id)sender;
 - (IBAction)saveAction:(id)sender;
@@ -520,25 +522,46 @@
         StringModel *model = _stringArray[column-1];
         if(model){
             NSString *identifier = model.identifier;
-            NSString *title = nil;
-            ActionModel *action = [self findActionWith:key identify:identifier];
-            if(action){
-                title = action.actionType==ActionTypeRemove ? @"" : action.value;
+            if (self.infoPopOver && self.infoPopOver.isShown) {
+                [self.infoPopOver close],self.infoPopOver = nil;
             }
-            if(title==nil){
-                title = [self valueInRaw:key identifier:identifier];
+            if (self.editPopOver && self.editPopOver.isShown) {
+                StringEditViewController *editVC = (StringEditViewController*)[self.editPopOver contentViewController];
+                if ([key isEqualToString:editVC.key] && [identifier isEqualToString:editVC.identifier]) {
+                    [self.editPopOver close],self.editPopOver = nil;
+                    return;
+                }
+                [self.editPopOver close],self.editPopOver = nil;
             }
-            CGRect rect = [_tableview frameOfCellAtColumn:column row:row];
-            NSPopover* popover = [[NSPopover alloc] init];
-            popover.delegate = self;
-            popover.behavior = NSPopoverBehaviorSemitransient;
-            StringEditViewController* viewController = [[StringEditViewController alloc] initWithKey:key
-                                                                                          identifier:identifier
-                                                                                               value:title];
-            [popover setContentViewController:viewController];
-            [popover showRelativeToRect:rect ofView:_tableview preferredEdge:NSRectEdgeMinY];
+            NSDictionary *dict = @{@"Key":key, @"Identifier":identifier};
+            [self performSelector:@selector(startEditWithDict:) withObject:dict afterDelay:0.3];
         }
     }
+    
+}
+
+-(void)startEditWithDict:(NSDictionary*)dict{
+    NSString *key = dict[@"Key"];
+    NSString *identifier = dict[@"Identifier"];
+    NSInteger column = [_tableview columnWithIdentifier:identifier];
+    NSInteger row = [_showArray indexOfObject:key];
+    NSString *title = nil;
+    ActionModel *action = [self findActionWith:key identify:identifier];
+    if(action){
+        title = action.actionType==ActionTypeRemove ? @"" : action.value;
+    }
+    if(title==nil){
+        title = [self valueInRaw:key identifier:identifier];
+    }
+    CGRect rect = [_tableview frameOfCellAtColumn:column row:row];
+    StringEditViewController* viewController = [[StringEditViewController alloc] initWithKey:key
+                                                                                  identifier:identifier
+                                                                                value:title];
+    self.editPopOver = [[NSPopover alloc] init];
+    self.editPopOver.delegate = self;
+    self.editPopOver.behavior = NSPopoverBehaviorSemitransient;
+    [self.editPopOver setContentViewController:viewController];
+    [self.editPopOver showRelativeToRect:rect ofView:_tableview preferredEdge:NSRectEdgeMinY];
 }
 
 -(void)doubleAction:(id)sender {
@@ -551,6 +574,7 @@
         return;
     if(row < 0 || row >= self.tableview.numberOfRows)
         return;
+    [[NSObject class] cancelPreviousPerformRequestsWithTarget:self];
     NSString *key = _showArray[row];
     NSString *identifier = nil;
     if(column==0){
@@ -634,14 +658,27 @@
     NSButton *button = (NSButton*)sender;
     NSString *key=button.identifier;
     if(self.infoDict && key.length>0){
+        if (self.editPopOver && self.editPopOver.isShown) {
+            [self.editPopOver close],self.editPopOver = nil;
+        }
+        if (self.infoPopOver && self.infoPopOver.isShown) {
+            StringInfoViewController *infoVC = (StringInfoViewController*)[self.infoPopOver contentViewController];
+            if ([key isEqualToString:infoVC.key]) {
+                [self.infoPopOver close], self.infoPopOver = nil;
+                return;
+            }
+            [self.infoPopOver close],self.infoPopOver = nil;
+        }
         NSArray *infos = self.infoDict[key];
         if(infos.count==0)
             return;
-        NSPopover* popover = [[NSPopover alloc] init];
-        popover.behavior = NSPopoverBehaviorSemitransient;
         StringInfoViewController* viewController = [[StringInfoViewController alloc] initWithArray:infos];
-        [popover setContentViewController:viewController];
-        [popover showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];
+        viewController.key = key;
+        
+        self.infoPopOver = [[NSPopover alloc] init];
+        self.infoPopOver.behavior = NSPopoverBehaviorSemitransient;
+        [self.infoPopOver setContentViewController:viewController];
+        [self.infoPopOver showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];
     }
 }
 
@@ -663,11 +700,6 @@
     }
     id controller = [popOver contentViewController];
     if ([controller isKindOfClass:[StringEditViewController class]] == NO) {
-        return;
-    }
-    NSLog(@"popOver.isShown %d",popOver.isShown);
-    if (popOver.isShown) {
-        [popOver close];
         return;
     }
     StringEditViewController* editViewController = (StringEditViewController*)controller;

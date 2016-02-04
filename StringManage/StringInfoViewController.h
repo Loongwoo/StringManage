@@ -14,5 +14,6 @@
 @end
 
 @interface StringInfoViewController : NSViewController <NSTableViewDataSource,NSTableViewDelegate>
+@property (nonatomic, copy) NSString *key;
 - (id)initWithArray:(NSArray*)array;
 @end
