@@ -363,69 +363,38 @@
 - (IBAction)searchAnswer:(id)sender {
     NSString *searchString = _searchField.stringValue;
     NSMutableArray *tmp2 = [NSMutableArray array];
-    if(self.untranslatedBtn.state){
-        for (NSString *string in _keyArray) {
-            for (StringModel *model in _stringArray) {
-                NSString *str2 = model.stringDictionary[string];
-                if (str2.length==0) {
-                    [tmp2 addObject:string];
-                    break;
-                }
+    if(self.showOnlyBtn.state){
+        for (ActionModel *model in _actionArray) {
+            if (![tmp2 containsObject:model.key]) {
+                [tmp2 addObject:model.key];
             }
         }
     }else{
         [tmp2 addObjectsFromArray:_keyArray];
     }
     
-    NSMutableArray *tmp3 = [NSMutableArray array];
-    if(self.unusedBtn.state){
-        for (NSString *string in tmp2) {
+    for (NSString *string in [tmp2 copy]) {
+        if(self.unusedBtn.state){
             NSArray *arr = _infoDict[string];
-            if (arr.count==0) {
-                [tmp3 addObject:string];
+            if (arr.count > 0) {
+                [tmp2 removeObject:string];
             }
         }
-    }else{
-        [tmp3 addObjectsFromArray:tmp2];
-    }
-    
-    NSMutableArray *tmp = [NSMutableArray array];
-    if(self.showOnlyBtn.state){
-        for (ActionModel *model in _actionArray) {
-            if([tmp containsObject:model.key] || ![tmp3 containsObject:model.key])
-                continue;
-            if(searchString.length==0 || [model.key contain:searchString] || [model.value contain:searchString]){
-                [tmp addObject:model.key];
-            }
+        
+        BOOL exist = YES;
+        BOOL found = searchString.length==0 || [string contain:searchString];
+        for (StringModel *model in _stringArray) {
+            NSString *str2 = model.stringDictionary[string];
+            ActionModel *action = [self findActionWith:string identify:model.identifier];
+            exist = exist && (str2.length || (action && action.value.length));
+            found = found || ([str2 contain:searchString] || (action && [action.value contain:searchString]));
         }
-    }else{
-        if(searchString.length==0){
-            [tmp addObjectsFromArray:tmp3];
-        }else{
-            for (NSString *key in tmp3) {
-                if([key contain:searchString]){
-                    [tmp addObject:key];
-                }
-            }
-            for (ActionModel *model in _actionArray) {
-                if(! [tmp containsObject:model.key] && [tmp3 containsObject:model.key] && [model.value contain:searchString])
-                    [tmp addObject:model.key];
-            }
-            for (NSString *key in tmp3) {
-                if([tmp containsObject:key])
-                    continue;
-                for (StringModel *model in _stringArray) {
-                    NSString *value = [model.stringDictionary objectForKey:key];
-                    if([value contain:searchString]){
-                        [tmp addObject:key];
-                        break;
-                    }
-                }
-            }
+        if (!found || (found && (self.untranslatedBtn.state && exist))) {
+            [tmp2 removeObject:string];
         }
     }
     
-    self.showArray = [tmp sortedArrayUsingSelector:@selector(compare:)];
+    self.showArray = [tmp2 sortedArrayUsingSelector:@selector(compare:)];
     self.recordLabel.stringValue = [NSString stringWithFormat:LocalizedString(@"RecordNumMsg"),self.showArray.count];
     [self.saveBtn setEnabled:(_actionArray.count>0 && !self.isChecking)];
     [self.tableview reloadData];
