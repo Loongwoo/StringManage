@@ -66,7 +66,7 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
     NSMutableString *mutableString = [[NSMutableString alloc]initWithString:string];
     NSRegularExpression *regularExpression = [NSRegularExpression regularExpressionWithPattern:kRegularExpressionPattern options:0 error:nil];
     for (ActionModel *action in actions) {
-        if(![action.identifier isEqualToString:_identifier])
+        if(![action.identifier isEqualToString:_identifier] || action.key.length == 0)
             continue;
         
         __block NSInteger lineOffset = 0;
@@ -93,7 +93,8 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
             if (key && value) {
                 if([key isEqualToString:action.key]) {
                     found = YES;
-                    if(action.actionType == ActionTypeRemove) {
+                    if(action.actionType == ActionTypeRemove
+                       || (action.actionType == ActionTypeAdd && action.value.length == 0)) {
                         [mutableString deleteCharactersInRange:lineRange];
                     } else {
                         valueRange.location += lineOffset;
@@ -103,10 +104,9 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
                     *stop = YES;
                 }
             }
-            
             lineOffset += lineRange.length;
         }];
-        if(!found && action.actionType == ActionTypeAdd) {
+        if(!found && action.actionType == ActionTypeAdd && action.value.length > 0) {
             if(![mutableString hasSuffix:@"\n"])
                 [mutableString appendFormat:@"\n"];
             if(projectSetting.language==1) {

@@ -117,12 +117,10 @@
 -(void)setIsRefreshing:(BOOL)isRefreshing {
     _isRefreshing = isRefreshing;
     if(isRefreshing) {
-        [self.progressIndicator setHidden:NO];
         [self.progressIndicator startAnimation:nil];
         [self.refreshBtn setEnabled:NO];
         [self.addBtn setEnabled:NO];
     }else{
-        [self.progressIndicator setHidden:YES];
         [self.progressIndicator stopAnimation:nil];
         [self.refreshBtn setEnabled:YES];
         [self.addBtn setEnabled:YES];
@@ -527,11 +525,10 @@
             }
             if (self.editPopOver && self.editPopOver.isShown) {
                 StringEditViewController *editVC = (StringEditViewController*)[self.editPopOver contentViewController];
+                [self.editPopOver close],self.editPopOver = nil;
                 if ([key isEqualToString:editVC.key] && [identifier isEqualToString:editVC.identifier]) {
-                    [self.editPopOver close],self.editPopOver = nil;
                     return;
                 }
-                [self.editPopOver close],self.editPopOver = nil;
             }
             NSDictionary *dict = @{@"Key":key, @"Identifier":identifier};
             [self performSelector:@selector(startEditWithDict:) withObject:dict afterDelay:0.3];
@@ -663,11 +660,10 @@
         }
         if (self.infoPopOver && self.infoPopOver.isShown) {
             StringInfoViewController *infoVC = (StringInfoViewController*)[self.infoPopOver contentViewController];
+            [self.infoPopOver close], self.infoPopOver = nil;
             if ([key isEqualToString:infoVC.key]) {
-                [self.infoPopOver close], self.infoPopOver = nil;
                 return;
             }
-            [self.infoPopOver close],self.infoPopOver = nil;
         }
         NSArray *infos = self.infoDict[key];
         if(infos.count==0)
