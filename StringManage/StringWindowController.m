@@ -58,10 +58,6 @@
 - (IBAction)saveAction:(id)sender;
 - (IBAction)searchAnswer:(id)sender;
 - (IBAction)checkAction:(id)sender;
-- (IBAction)onlyShowAction:(id)sender;
-- (IBAction)untranslatedAction:(id)sender;
-- (IBAction)unusedAction:(id)sender;
-
 @end
 
 @implementation StringWindowController
@@ -283,21 +279,6 @@
 }
 
 #pragma mark - Button Action
-- (IBAction)onlyShowAction:(id)sender{
-    [self.window makeFirstResponder:nil];
-    [self searchAnswer:nil];
-}
-
-- (IBAction)untranslatedAction:(id)sender {
-    [self.window makeFirstResponder:nil];
-    [self searchAnswer:nil];
-}
-
-- (IBAction)unusedAction:(id)sender {
-    [self.window makeFirstResponder:nil];
-    [self searchAnswer:nil];
-}
-
 - (IBAction)openAbout:(id)sender {
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/Loongwoo/StringManage"]];
 }
@@ -460,7 +441,6 @@
 }
 
 - (IBAction)saveAction:(id)sender {
-    [self.window makeFirstResponder:nil];
     if(_actionArray.count==0)
         return;
     StringSetting *setting = [self getSetting];
