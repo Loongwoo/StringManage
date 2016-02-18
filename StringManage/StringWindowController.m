@@ -244,16 +244,6 @@
     }
 }
 
--(NSArray*)arrayWithIdentifier:(NSString*)identifier {
-    NSMutableArray *tmp = [NSMutableArray array];
-    for (ActionModel *model in self.actionArray) {
-        if([model.identifier isEqualToString:identifier]) {
-            [tmp addObject:model];
-        }
-    }
-    return tmp;
-}
-
 -(void)changeWithKey:(NSString*)key identifier:(NSString*)identifier newValue:(NSString*)newValue {
     NSString *rawValue = [self valueInRaw:key identifier:identifier];
     NSString *oldValue = [self titleWithKey:key identifier:identifier];
@@ -445,7 +435,8 @@
         return;
     StringSetting *setting = [self getSetting];
     for (StringModel *model in _stringArray) {
-        NSArray *arr = [self arrayWithIdentifier:model.identifier];
+        NSPredicate *predicte = [NSPredicate predicateWithFormat:@"identifier == %@",model.identifier];
+        NSArray *arr = [self.actionArray filteredArrayUsingPredicate:predicte];
         [model doAction:arr projectSetting:setting];
     }
     [_actionArray removeAllObjects];
