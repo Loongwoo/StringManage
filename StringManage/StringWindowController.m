@@ -309,12 +309,11 @@
             [_keyArray removeAllObjects];
             [_keyDict removeAllObjects];
             
-            NSMutableSet *keySet = [[NSMutableSet alloc]init];
+            NSMutableSet *keySet = [NSMutableSet set];
             for (NSString *path in lprojDirectorys) {
                 StringModel *model = [[StringModel alloc]initWithPath:path projectSetting:setting];
                 [_stringArray addObject:model];
-                NSArray *keys = model.stringDictionary.allKeys;
-                NSSet *set = [NSSet setWithArray:keys];
+                NSSet *set = [NSSet setWithArray:model.stringDictionary.allKeys];
                 [keySet unionSet:set];
             }
             
@@ -529,6 +528,14 @@
         }
         
         NSString *value = [self valueInRaw:key identifier:identifier];
+        if (column == 0) {
+            StringSetting *setting = [self getSetting];
+            if (setting.language == 1) {
+                value = [NSString stringWithFormat:@"NSLocalizedString(\"%@\", comment: "")",value];
+            }else{
+                value = [NSString stringWithFormat:@"NSLocalizedString(@\"%@\", nil)",value];
+            }
+        }
         NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
         [pasteboard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:self];
         [pasteboard setString:value forType:NSStringPboardType];
