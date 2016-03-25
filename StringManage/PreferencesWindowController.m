@@ -28,6 +28,7 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
 @property (weak) IBOutlet NSTextField *wrapperTextField;
 @property (weak) IBOutlet NSTextField *tipsTextFiled;
 @property (weak) IBOutlet NSTextField *wrapperTitleField;
+@property (weak) IBOutlet NSTextField *wrapperTipsField;
 
 - (IBAction)onTouchUpInsideLocalizable:(id)sender;
 - (IBAction)onTouchUpInsideExtension:(id)sender;
@@ -55,6 +56,7 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     [self.languageLabel setStringValue:LocalizedString(@"DevLanguage")];
     [self.languageTipsLabel setStringValue:LocalizedString(@"DevLanguageTips")];
     [self.wrapperTitleField setStringValue:LocalizedString(@"Wrapper")];
+    [self.wrapperTipsField setStringValue:LocalizedString(@"WrapperTips")];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
     
