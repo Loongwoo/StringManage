@@ -528,12 +528,24 @@
         }
         
         NSString *value = [self valueInRaw:key identifier:identifier];
+        
         if (column == 0) {
             StringSetting *setting = [self getSetting];
-            if (setting.language == 1) {
-                value = [NSString stringWithFormat:@"NSLocalizedString(\"%@\", comment: "")",value];
+            if (setting.language == StringLanguageSwift) {
+                value = [NSString stringWithFormat:@"\"%@\"",value];
             }else{
-                value = [NSString stringWithFormat:@"NSLocalizedString(@\"%@\", nil)",value];
+                value = [NSString stringWithFormat:@"@\"%@\"",value];
+            }
+            NSString *wrapper = [NSString stringWithString:setting.doubleClickWrapper];
+            NSRange start = [wrapper rangeOfString:@"("];
+            NSRange end = [wrapper rangeOfString:@")"];
+            if (start.location != NSNotFound && end.location > start.location) {
+                NSRange keyRange = [wrapper rangeOfString:@"KEY"
+                                                  options:NSCaseInsensitiveSearch
+                                                    range:NSMakeRange(start.location, end.location-start.location)];
+                if (keyRange.location != NSNotFound) {
+                    value = [wrapper stringByReplacingCharactersInRange:keyRange withString:value];
+                }
             }
         }
         NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];

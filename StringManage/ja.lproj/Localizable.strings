@@ -22,6 +22,6 @@
 "OnlyShowModified"="改正の";
 "Untranslated"="通訳なし";
 "Unused"="未使用";
-"CopyToPasteboard"="'%@' => pasteboard.";
+"CopyToPasteboard"="%@ => pasteboard.";
 "add test string"="三日月がまるで剣の先のように白く辉いています。 \n微かに闻こえる水の流れ \n夜露を含んだ草木たちのざわめき \n目を闭じて \n见えるはずのない命の営みを \nこの身で感じています吧";
 "Test"="What’s your name?\nWhere are you?\nHow old are you?";

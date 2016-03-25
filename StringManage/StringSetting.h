@@ -8,9 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
+typedef enum : NSUInteger {
+    StringLanguageObjC,
+    StringLanguageSwift,
+} StringLanguage;
+
 @interface StringSetting : NSObject<NSCoding>
 @property (nonatomic , copy) NSString* searchDirectory;
 @property (nonatomic , copy) NSString* searchTableName;
+@property (nonatomic , copy) NSString* doubleClickWrapper;
 @property (nonatomic , copy) NSArray* searchTypes;
 @property (nonatomic , copy) NSArray* includeDirs;
 @property (nonatomic , copy) NSArray* excludeDirs;

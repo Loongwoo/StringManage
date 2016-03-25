@@ -25,6 +25,10 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
 @property (weak) IBOutlet NSPopUpButton *languagePopUpBtn;
 @property (weak) IBOutlet NSTextField *languageLabel;
 @property (weak) IBOutlet NSTextField *languageTipsLabel;
+@property (weak) IBOutlet NSTextField *wrapperTextField;
+@property (weak) IBOutlet NSTextField *tipsTextFiled;
+@property (weak) IBOutlet NSTextField *wrapperTitleField;
+
 - (IBAction)onTouchUpInsideLocalizable:(id)sender;
 - (IBAction)onTouchUpInsideExtension:(id)sender;
 - (IBAction)onTouchUpInsideEditInclude:(id)sender;
@@ -50,6 +54,7 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     [self.tableTitleTextField setStringValue:LocalizedString(@"SearchTableName")];
     [self.languageLabel setStringValue:LocalizedString(@"DevLanguage")];
     [self.languageTipsLabel setStringValue:LocalizedString(@"DevLanguageTips")];
+    [self.wrapperTitleField setStringValue:LocalizedString(@"Wrapper")];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
     
@@ -78,6 +83,8 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     }else{
         [self.languagePopUpBtn selectItemAtIndex:0];
     }
+    
+    self.wrapperTextField.stringValue = projectSetting.doubleClickWrapper;
     
     self.searchFilesTextField.stringValue = [[projectSetting searchTypes] componentsJoinedByString:@","];
     [self.searchFilesTextField setSelectable:YES];
@@ -113,6 +120,10 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
             StringSetting* projectSetting = [self getSetting];
             projectSetting.searchTableName=self.tableNameTextField.stringValue;
         }
+    }
+    else if([notification object] == self.wrapperTextField){
+        StringSetting* projectSetting = [self getSetting];
+        projectSetting.doubleClickWrapper=self.wrapperTextField.stringValue;
     }
 }
 

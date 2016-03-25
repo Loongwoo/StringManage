@@ -8,6 +8,7 @@
 
 #import "StringSetting.h"
 #import "StringModel.h"
+#import "NSString+Extension.h"
 
 @implementation StringSetting
 
@@ -18,8 +19,20 @@
     projectSetting.searchTableName = @"Localizable.strings";
     projectSetting.searchTypes = @[@"h", @"m",@"swift",@"mm",@"pch"];
     projectSetting.includeDirs = @[ [StringModel rootPathMacro] ];
-    projectSetting.excludeDirs = @[ [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"Pods"]], [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"Carthage"]],[StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"DerivedData"]] ];
-    projectSetting.language = [StringModel devLanguageWithProjectPath:projectPath];
+    projectSetting.excludeDirs = @[
+                                   [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"Pods"]],
+                                    [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"Carthage"]],
+                                    [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"DerivedData"]]
+                                   ];
+    NSInteger language = [StringModel devLanguageWithProjectPath:projectPath];
+    projectSetting.language = language;
+    if (language == StringLanguageSwift) {
+        //key will be replace with "value"
+        projectSetting.doubleClickWrapper = @"NSLocalizedString(key, comment: "")";
+    }else{
+        //key will be replace with @"value"
+        projectSetting.doubleClickWrapper = @"NSLocalizedString(key, nil)";
+    }
     return projectSetting;
 }
 
@@ -31,6 +44,7 @@ static NSString *searchTypes = @"searchTypes";
 static NSString *includeDirs = @"includeDirs";
 static NSString *excludeDirs = @"excludeDirs";
 static NSString *language = @"language";
+static NSString *doubleClickWrapper = @"doubleClickWrapper";
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
@@ -42,6 +56,7 @@ static NSString *language = @"language";
         _includeDirs = [aDecoder decodeObjectForKey:includeDirs];
         _excludeDirs = [aDecoder decodeObjectForKey:excludeDirs];
         _language = [aDecoder decodeIntegerForKey:language];
+        _doubleClickWrapper = [aDecoder decodeObjectForKey:doubleClickWrapper];
     }
     return self;
 }
@@ -54,6 +69,19 @@ static NSString *language = @"language";
     [aCoder encodeObject:self.includeDirs ? self.includeDirs : @[] forKey:includeDirs];
     [aCoder encodeObject:self.excludeDirs ? self.excludeDirs : @[] forKey:excludeDirs];
     [aCoder encodeInteger:self.language forKey:language];
+    [aCoder encodeObject:self.doubleClickWrapper ? self.doubleClickWrapper : @"" forKey:doubleClickWrapper];
 }
 
+-(NSString*)doubleClickWrapper{
+    if (!_doubleClickWrapper) {
+        if (_language == StringLanguageSwift) {
+            //key will be replace with "value"
+            _doubleClickWrapper = @"NSLocalizedString(key, comment: "")";
+        }else{
+            //key will be replace with @"value"
+            _doubleClickWrapper = @"NSLocalizedString(key, nil)";
+        }
+    }
+    return _doubleClickWrapper;
+}
 @end

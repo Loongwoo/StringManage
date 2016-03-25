@@ -9,6 +9,11 @@
 #import <Foundation/Foundation.h>
 
 @interface NSString(Extension)
+
 -(BOOL)contain:(NSString*)str;
+
 -(CGRect)sizeWithWidth:(CGFloat)width font:(NSFont*)font;
+
+- (BOOL)isBlank;
+
 @end
