@@ -48,7 +48,6 @@
 @property (nonatomic, copy) NSString* projectName;
 @property (nonatomic, strong) NSMutableDictionary* infoDict;
 @property (nonatomic, assign) BOOL isRefreshing;
-@property (nonatomic, copy) NSArray *rawKeyArray;
 @property (nonatomic, strong) NSMutableDictionary* keyDict;
 @property (nonatomic, assign) BOOL isChecking;
 @property (nonatomic, retain) NSPopover* editPopOver;
@@ -112,30 +111,24 @@
 
 -(void)setIsRefreshing:(BOOL)isRefreshing {
     _isRefreshing = isRefreshing;
+    [self.refreshBtn setEnabled:!isRefreshing];
+    [self.addBtn setEnabled:!isRefreshing];
     if(isRefreshing) {
         [self.progressIndicator startAnimation:nil];
-        [self.refreshBtn setEnabled:NO];
-        [self.addBtn setEnabled:NO];
     }else{
         [self.progressIndicator stopAnimation:nil];
-        [self.refreshBtn setEnabled:YES];
-        [self.addBtn setEnabled:YES];
     }
 }
 
 -(void)setIsChecking:(BOOL)isChecking{
     _isChecking = isChecking;
+    [self.refreshBtn setEnabled:!isChecking];
+    [self.addBtn setEnabled:!isChecking];
+    [self.CheckBtn setEnabled:!isChecking];
+    [self.checkIndicator setHidden:!isChecking];
     if(isChecking){
-        [self.refreshBtn setEnabled:NO];
-        [self.addBtn setEnabled:NO];
-        [self.CheckBtn setEnabled:NO];
-        [self.checkIndicator setHidden:NO];
         [self.checkIndicator startAnimation:nil];
     }else{
-        [self.refreshBtn setEnabled:YES];
-        [self.addBtn setEnabled:YES];
-        [self.CheckBtn setEnabled:YES];
-        [self.checkIndicator setHidden:YES];
         [self.checkIndicator stopAnimation:nil];
     }
 }
@@ -219,10 +212,6 @@
     return nil;
 }
 
--(StringSetting*)getSetting {
-    return [StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName];
-}
-
 -(BOOL)validateKey:(NSString*)key {
     if(key.length==0)
         return NO;
@@ -234,7 +223,7 @@
         [alert beginSheetModalForWindow:self.window completionHandler:nil];
         return NO;
     }
-    StringSetting *setting = [self getSetting];
+    StringSetting *setting = [StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName];
     if (setting.language == 1) {
         NSString *regex = @"[_a-zA-Z][_a-zA-Z0-9]*";
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
@@ -291,7 +280,7 @@
     [_actionArray removeAllObjects];
     [self.saveBtn setEnabled:NO];
     
-    StringSetting *setting = [self getSetting];
+    StringSetting *setting = [StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName];
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         NSArray *lprojDirectorys = [StringModel lprojDirectoriesWithProjectSetting:setting project:self.projectPath];
         if (lprojDirectorys.count == 0) {
@@ -312,15 +301,16 @@
             NSMutableSet *keySet = [NSMutableSet set];
             for (NSString *path in lprojDirectorys) {
                 StringModel *model = [[StringModel alloc]initWithPath:path projectSetting:setting];
-                [_stringArray addObject:model];
-                NSSet *set = [NSSet setWithArray:model.stringDictionary.allKeys];
-                [keySet unionSet:set];
+                if (model) {
+                    [_stringArray addObject:model];
+                    NSSet *set = [NSSet setWithArray:model.stringDictionary.allKeys];
+                    [keySet unionSet:set];
+                }
             }
             
             NSArray *tmp = [[NSArray alloc]initWithArray:keySet.allObjects];
             NSArray *sortedArray = [tmp sortedArrayUsingSelector:@selector(compare:)];
             [_keyArray addObjectsFromArray:sortedArray];
-            self.rawKeyArray = sortedArray;
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self refreshTableView];
@@ -378,11 +368,11 @@
     [_infoDict removeAllObjects];
     
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        [StringModel findItemsWithProjectPath:[self getSetting]
+        [StringModel findItemsWithProjectPath:[StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName]
                                   projectPath:self.projectPath
                                   findStrings:self.keyArray
                                         block:^(NSString *key, NSArray *items, float progress) {
-            if(items.count>0){
+            if(! key.isBlank && items.count>0){
                 [_infoDict setObject:items forKey:key];
             }
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -432,7 +422,7 @@
 - (IBAction)saveAction:(id)sender {
     if(_actionArray.count==0)
         return;
-    StringSetting *setting = [self getSetting];
+    StringSetting *setting = [StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName];
     for (StringModel *model in _stringArray) {
         NSPredicate *predicte = [NSPredicate predicateWithFormat:@"identifier == %@",model.identifier];
         NSArray *arr = [self.actionArray filteredArrayUsingPredicate:predicte];
@@ -444,9 +434,9 @@
 }
 
 -(void)cellClicked:(id)sender {
-    if (self.isChecking) {
+    if (self.isChecking)
         return;
-    }
+    
     NSInteger column = _tableview.clickedColumn;
     NSInteger row = _tableview.clickedRow;
     if(column<=0 || column >= self.tableview.numberOfColumns-2)
@@ -501,9 +491,9 @@
 }
 
 -(void)doubleAction:(id)sender {
-    if (self.isChecking) {
+    if (self.isChecking)
         return;
-    }
+    
     NSInteger column = _tableview.clickedColumn;
     NSInteger row = _tableview.clickedRow;
     if(column<0 || column >= self.tableview.numberOfColumns-2)
@@ -530,7 +520,7 @@
         NSString *value = [self valueInRaw:key identifier:identifier];
         
         if (column == 0) {
-            StringSetting *setting = [self getSetting];
+            StringSetting *setting = [StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName];
             if (setting.language == StringLanguageSwift) {
                 value = [NSString stringWithFormat:@"\"%@\"",value];
             }else{
@@ -577,9 +567,9 @@
 }
 
 -(void)removeAction:(id)sender {
-    if (self.isChecking) {
+    if (self.isChecking)
         return;
-    }
+    
     NSButton *button = (NSButton*)sender;
     NSString *key=button.identifier;
     NSInteger status = [_keyDict[key] integerValue];
@@ -608,9 +598,9 @@
 }
 
 -(void)infoAction:(id)sender {
-    if (self.isChecking) {
+    if (self.isChecking)
         return;
-    }
+    
     NSButton *button = (NSButton*)sender;
     NSString *key=button.identifier;
     if(self.infoDict && key.length>0){
@@ -629,7 +619,6 @@
             return;
         StringInfoViewController* viewController = [[StringInfoViewController alloc] initWithArray:infos];
         viewController.key = key;
-        
         self.infoPopOver = [[NSPopover alloc] init];
         self.infoPopOver.behavior = NSPopoverBehaviorSemitransient;
         [self.infoPopOver setContentViewController:viewController];

@@ -142,10 +142,10 @@ typedef void (^onFoundBlock)(NSString* key, NSArray *items, float progress);
 @class ActionModel;
 @interface StringModel : NSObject
 
-@property (nonatomic, strong) NSString *path;//lproj路径
+@property (nonatomic, strong) NSString *path;//lproj directory
 @property (nonatomic, strong) NSString *filePath;
-@property (nonatomic, strong) NSString *identifier;//国家
-@property (nonatomic, strong) NSMutableDictionary *stringDictionary;//字符串字典
+@property (nonatomic, strong) NSString *identifier;//country code
+@property (nonatomic, strong) NSMutableDictionary *stringDictionary;//dictionary for all strings
 
 -(void)doAction:(NSArray*)actions projectSetting:(StringSetting*)projectSetting;
 - (instancetype)initWithPath:(NSString*)path projectSetting:(StringSetting*)projectSetting;

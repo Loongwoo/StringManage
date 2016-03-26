@@ -386,8 +386,7 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
             }
         }
         if(block){
-            float progress = 100*i/sum;
-            block(findString, results, progress);
+            block(findString, results, 100*i/sum);
         }
     }
 }
