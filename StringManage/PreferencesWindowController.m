@@ -44,6 +44,8 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
 }
 
 - (id)init {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
+    
     return [self initWithWindowNibName:@"PreferencesWindowController"];
 }
 
@@ -57,8 +59,6 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     [self.languageTipsLabel setStringValue:LocalizedString(@"DevLanguageTips")];
     [self.wrapperTitleField setStringValue:LocalizedString(@"Wrapper")];
     [self.wrapperTipsField setStringValue:LocalizedString(@"WrapperTips")];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endEditingAction:) name:NSControlTextDidEndEditingNotification object:nil];
     
     [self _updateDirsUI];
     

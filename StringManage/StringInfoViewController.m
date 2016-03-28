@@ -51,7 +51,6 @@
 
 #pragma mark - override
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (instancetype)initWithArray:(NSArray*)array {

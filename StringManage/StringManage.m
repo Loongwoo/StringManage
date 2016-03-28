@@ -58,15 +58,14 @@
 - (void)doMenuAction {
     NSString* filePath = [[StringModel currentWorkspaceDocument].workspace.representingFilePath.fileURL path];
     if (filePath) {
-        NSString* projectDir = [filePath stringByDeletingLastPathComponent];
-        NSString *projectName = [filePath lastPathComponent];
         if (self.windowController.window.isVisible) {
             [self.windowController.window close];
         } else {
             if (self.windowController == nil) {
-                StringWindowController* wc = [[StringWindowController alloc] initWithWindowNibName:@"StringWindowController"];
-                self.windowController = wc;
+                self.windowController = [[StringWindowController alloc] initWithWindowNibName:@"StringWindowController"];
             }
+            NSString* projectDir = [filePath stringByDeletingLastPathComponent];
+            NSString *projectName = [filePath lastPathComponent];
             [self.windowController.window makeKeyAndOrderFront:nil];
             [self.windowController setSearchRootDir:projectDir projectName:projectName];
             [self.windowController refresh:nil];
