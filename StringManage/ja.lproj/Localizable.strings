@@ -24,6 +24,7 @@
 "Unused"="未使用";
 "CopyToPasteboard"="%@ => pasteboard.";
 "add test string"="三日月がまるで剣の先のように白く辉いています。 \n微かに闻こえる水の流れ \n夜露を含んだ草木たちのざわめき \n目を闭じて \n见えるはずのない命の営みを \nこの身で感じています吧";
-"Test"="What’s your name?\nWhere are you?\nHow old are you?";
+"Test"="What’s your name?\nWhere are you?\nHow old are you?\nI love you~~\nI miss you";
 "Wrapper"="Double Click Wrapper (e.g. XXXLocalizedString(key))";
 "WrapperTips"="Replace ‘key’ in the brackets with the item double clicked.";
+"Finish"="OK";

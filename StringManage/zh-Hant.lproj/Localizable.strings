@@ -27,3 +27,4 @@
 "add test string"="初三的月亮如同剑锋一样白得耀眼 \n隐约能听见流水声 \n还有带着夜露的草木的窃窃私语 \n闭上眼睛 \n不能看见的生命的活动 \n觉得感同身受 ";
 "Wrapper"="雙擊自動添加 (e.g. XXXLocalizedString(key))";
 "WrapperTips"="用雙擊的項替換括號中的‘key’";
+"Finish"="完成";

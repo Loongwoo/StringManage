@@ -26,3 +26,4 @@
 "CopyToPasteboard"="%@ => pasteboard";
 "Wrapper"="Double Click Wrapper (e.g. XXXLocalizedString(key))";
 "WrapperTips"="Replace ‘key’ in the brackets with the item double clicked.";
+"Finish"="OK";

@@ -27,6 +27,7 @@
 		11CE6C7D1C4660AC00A05A3D /* StringWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 11CE6C7C1C4660AC00A05A3D /* StringWindowController.xib */; };
 		11CE6C801C46620F00A05A3D /* StringWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 11CE6C7F1C46620F00A05A3D /* StringWindowController.m */; };
 		11E4C7E11C4BBE9E00D4BEA9 /* StringSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 11E4C7E01C4BBE9E00D4BEA9 /* StringSetting.m */; };
+		11F3B9CF1CA8DD8400350851 /* NSArray+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = 11F3B9CE1CA8DD8400350851 /* NSArray+Extension.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -66,6 +67,8 @@
 		11CE6C7F1C46620F00A05A3D /* StringWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringWindowController.m; sourceTree = "<group>"; };
 		11E4C7DF1C4BBE9E00D4BEA9 /* StringSetting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringSetting.h; sourceTree = "<group>"; };
 		11E4C7E01C4BBE9E00D4BEA9 /* StringSetting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringSetting.m; sourceTree = "<group>"; };
+		11F3B9CD1CA8DD8400350851 /* NSArray+Extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+Extension.h"; sourceTree = "<group>"; };
+		11F3B9CE1CA8DD8400350851 /* NSArray+Extension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Extension.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +140,8 @@
 				11967F9F1C605E5C005FE185 /* StringEditViewController.h */,
 				11967FA01C605E5C005FE185 /* StringEditViewController.m */,
 				11967FA11C605E5C005FE185 /* StringEditViewController.xib */,
+				11F3B9CD1CA8DD8400350851 /* NSArray+Extension.h */,
+				11F3B9CE1CA8DD8400350851 /* NSArray+Extension.m */,
 			);
 			path = StringManage;
 			sourceTree = "<group>";
@@ -234,6 +239,7 @@
 				1162985F1C4DEB8C007537AD /* NSButton+Extension.m in Sources */,
 				11C27BA31C4A263800AB8F97 /* PathEditViewController.m in Sources */,
 				1144DF161C4FAB1700B4E3F0 /* NSString+Extension.m in Sources */,
+				11F3B9CF1CA8DD8400350851 /* NSArray+Extension.m in Sources */,
 				11CE6C801C46620F00A05A3D /* StringWindowController.m in Sources */,
 				11E4C7E11C4BBE9E00D4BEA9 /* StringSetting.m in Sources */,
 				11C3646F1C467D550090E172 /* StringModel.m in Sources */,

@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 #import "StringSetting.h"
+#import "NSString+Extension.h"
+#import "NSArray+Extension.h"
 
 @interface DVTChoice : NSObject
 - (id)initWithTitle:(id)arg1 toolTip:(id)arg2 image:(id)arg3 representedObject:(id)arg4;

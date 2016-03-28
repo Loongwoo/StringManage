@@ -24,12 +24,12 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
         self.filePath = [path stringByAppendingPathComponent:projectSetting.searchTableName];
         self.identifier = [[path lastPathComponent] stringByDeletingPathExtension];
         
-        self.stringDictionary = [NSMutableDictionary dictionary];
         NSString *string = [NSString stringWithContentsOfFile:self.filePath usedEncoding:nil error:nil];
         
         NSRegularExpression *regularExpression = [NSRegularExpression regularExpressionWithPattern:kRegularExpressionPattern options:0 error:nil];
         
         __block NSInteger lineOffset = 0;
+        __block NSMutableDictionary *dict = [NSMutableDictionary dictionary];
         [string enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
             NSRange keyRange;
             NSRange valueRange;
@@ -38,10 +38,10 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
             
             // Find definition
             NSTextCheckingResult *result = [regularExpression firstMatchInString:line options:0 range:NSMakeRange(0, line.length)];
-            
             if (result.range.location != NSNotFound && result.numberOfRanges == 5) {
                 keyRange = [result rangeAtIndex:2];
-                if (keyRange.location == NSNotFound) keyRange = [result rangeAtIndex:3];
+                if (keyRange.location == NSNotFound)
+                    keyRange = [result rangeAtIndex:3];
                 
                 valueRange = [result rangeAtIndex:4];
                 
@@ -50,13 +50,14 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
             }
             
             if (key && value) {
-                [_stringDictionary setObject:value forKey:key];
+                [dict setObject:value forKey:key];
             }
             
             // Move offset
             NSRange lineRange = [string lineRangeForRange:NSMakeRange(lineOffset, 0)];
             lineOffset += lineRange.length;
         }];
+        self.stringDictionary = [NSMutableDictionary dictionaryWithDictionary:dict];
     }
     return self;
 }
@@ -64,42 +65,33 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
 -(void)doAction:(NSArray*)actions projectSetting:(StringSetting*)projectSetting{
     NSString *string = [NSString stringWithContentsOfFile:self.filePath usedEncoding:nil error:nil];
     NSMutableString *mutableString = [[NSMutableString alloc]initWithString:string];
-    NSRegularExpression *regularExpression = [NSRegularExpression regularExpressionWithPattern:kRegularExpressionPattern options:0 error:nil];
     for (ActionModel *action in actions) {
         if(![action.identifier isEqualToString:_identifier] || action.key.length == 0)
             continue;
         
+        NSString *pattern = nil;
+        if (projectSetting.language == StringLanguageSwift)
+            pattern = [NSString stringWithFormat:@"%@\\s*=\\s*\"(.*)\";$",action.key];
+        else
+            pattern = [NSString stringWithFormat:@"\"%@\"\\s*=\\s*\"(.*)\";$",action.key];
+        
+        NSRegularExpression *regExp = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
+        
         __block NSInteger lineOffset = 0;
         __block BOOL found = NO;
         [mutableString enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
-            NSRange keyRange;
-            NSRange valueRange;
-            NSString *key = nil;
-            NSString *value = nil;
-            
             NSRange lineRange = [mutableString lineRangeForRange:NSMakeRange(lineOffset, 0)];
-            NSTextCheckingResult *result = [regularExpression firstMatchInString:line options:0 range:NSMakeRange(0, line.length)];
-            if (result.range.location != NSNotFound && result.numberOfRanges == 5) {
-                keyRange = [result rangeAtIndex:2];
-                
-                if (keyRange.location == NSNotFound) {
-                    keyRange = [result rangeAtIndex:3];
-                }
-                valueRange = [result rangeAtIndex:4];
-                key = [line substringWithRange:keyRange];
-                value = [line substringWithRange:valueRange];
-            }
-            
-            if (key && value) {
-                if([key isEqualToString:action.key]) {
+            NSTextCheckingResult *result = [regExp firstMatchInString:line options:0 range:NSMakeRange(0, line.length)];
+            if (result.range.location != NSNotFound && result.numberOfRanges == 2) {
+                NSLog(@"line %@",line);
+                NSRange valueRange = [result rangeAtIndex:1];
+                if(valueRange.location != NSNotFound){
                     found = YES;
-                    if(action.actionType == ActionTypeRemove
-                       || (action.actionType == ActionTypeAdd && action.value.length == 0)) {
+                    if(action.actionType == ActionTypeRemove || (action.actionType == ActionTypeAdd && action.value.length == 0)) {
                         [mutableString deleteCharactersInRange:lineRange];
                     } else {
                         valueRange.location += lineOffset;
-                        [mutableString deleteCharactersInRange:valueRange];
-                        [mutableString insertString:action.value atIndex:valueRange.location];
+                        [mutableString replaceCharactersInRange:valueRange withString:action.value];
                     }
                     *stop = YES;
                 }
@@ -109,11 +101,10 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
         if(!found && action.actionType == ActionTypeAdd && action.value.length > 0) {
             if(![mutableString hasSuffix:@"\n"])
                 [mutableString appendFormat:@"\n"];
-            if(projectSetting.language==1) {
+            if(projectSetting.language == StringLanguageSwift)
                 [mutableString appendFormat:@"%@=\"%@\";",action.key, action.value];
-            }else{
+            else
                 [mutableString appendFormat:@"\"%@\"=\"%@\";",action.key, action.value];
-            }
         }
     }
     //write to filepath
@@ -338,7 +329,8 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
                            fileTypes:(NSSet*)fileTypes
                         tempFilePath:(NSString*)tempFilePath
              findStrings:(NSArray*)findStrings
-                                    block:(onFoundBlock)block{
+                                    block:(onFoundBlock)block
+{
     NSArray* filePaths = [StringModel findFileNameWithProjectPath:projectPath
                                                      includeDirs:includeDirs
                                                      excludeDirs:excludeDirs
@@ -370,9 +362,9 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
         [task setArguments:@[shellPath, findString]];
         [task setStandardInput:inputFileHandle];
         [task setStandardOutput:[NSPipe pipe]];
-        NSFileHandle* readHandle = [[task standardOutput] fileHandleForReading];
         [task launch];
         
+        NSFileHandle* readHandle = [[task standardOutput] fileHandleForReading];
         NSData* data = [readHandle readDataToEndOfFile];
         [inputFileHandle closeFile];
         
@@ -380,9 +372,11 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
         NSMutableArray* results = [NSMutableArray arrayWithCapacity:[dataArray count]];
         for (NSData* dataItem in dataArray) {
             NSString* string = [[NSString alloc] initWithData:dataItem encoding:NSUTF8StringEncoding];
-            if (string != nil && string.length>0) {
+            if (! [string isBlank]) {
                 StringItem *item = [StringModel itemFromLine:string];
-                [results addObject:item];
+                if (item) {
+                    [results addObject:item];
+                }
             }
         }
         if(block){

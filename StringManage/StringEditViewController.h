@@ -12,6 +12,7 @@
 
 @property (nonatomic, copy) NSString *key;
 @property (nonatomic, copy) NSString *value;
+@property (nonatomic, copy) void (^finishBlock)(void);
 
 @property (unsafe_unretained) IBOutlet NSTextView *textView;
 

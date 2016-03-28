@@ -27,3 +27,4 @@
 "Test"="静夜思\n床前明月光，\n疑是地上霜。\n举头望明月，\n疑是地上霜。\n       —李白";
 "Wrapper"="双击自动添加 (e.g. XXXLocalizedString(key))";
 "WrapperTips"="用双击的项替换掉括号中的‘key’";
+"Finish"="完成";

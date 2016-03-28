@@ -12,13 +12,16 @@
 
 @interface StringEditViewController ()<NSTextViewDelegate>
 
+@property (weak) IBOutlet NSButton *finishBtn;
+
+- (IBAction)finishAction:(id)sender;
 @end
 
 @implementation StringEditViewController
 
 - (instancetype)initWithKey:(NSString*)key
                  identifier:(NSString*)identifier
-                      value:(NSString*)value{
+                      value:(NSString*)value {
     StringEditViewController *vc = [self initWithNibName:@"StringEditViewController"
                                                   bundle:[StringManage sharedPlugin].bundle];
     vc.key = key;
@@ -29,8 +32,15 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self.finishBtn setTitle:LocalizedString(@"Finish")];
     self.textView.textColor = [NSColor whiteColor];
     NSString *str = [self.value stringByReplacingOccurrencesOfString:@"\\n" withString:@"\n"];
     [self.textView setString:str];
+}
+
+- (IBAction)finishAction:(id)sender {
+    if (self.finishBlock) {
+        self.finishBlock();
+    }
 }
 @end

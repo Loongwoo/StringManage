@@ -113,11 +113,10 @@
     _isRefreshing = isRefreshing;
     [self.refreshBtn setEnabled:!isRefreshing];
     [self.addBtn setEnabled:!isRefreshing];
-    if(isRefreshing) {
+    if(isRefreshing)
         [self.progressIndicator startAnimation:nil];
-    }else{
+    else
         [self.progressIndicator stopAnimation:nil];
-    }
 }
 
 -(void)setIsChecking:(BOOL)isChecking{
@@ -126,11 +125,10 @@
     [self.addBtn setEnabled:!isChecking];
     [self.CheckBtn setEnabled:!isChecking];
     [self.checkIndicator setHidden:!isChecking];
-    if(isChecking){
+    if(isChecking)
         [self.checkIndicator startAnimation:nil];
-    }else{
+    else
         [self.checkIndicator stopAnimation:nil];
-    }
 }
 
 -(void)refreshTableView {
@@ -224,7 +222,7 @@
         return NO;
     }
     StringSetting *setting = [StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName];
-    if (setting.language == 1) {
+    if (setting.language == StringLanguageSwift) {
         NSString *regex = @"[_a-zA-Z][_a-zA-Z0-9]*";
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
         return [predicate evaluateWithObject:key];
@@ -280,8 +278,8 @@
     [_actionArray removeAllObjects];
     [self.saveBtn setEnabled:NO];
     
-    StringSetting *setting = [StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName];
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        StringSetting *setting = [StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName];
         NSArray *lprojDirectorys = [StringModel lprojDirectoriesWithProjectSetting:setting project:self.projectPath];
         if (lprojDirectorys.count == 0) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -294,15 +292,15 @@
                 }];
             });
         } else {
-            [_stringArray removeAllObjects];
-            [_keyArray removeAllObjects];
-            [_keyDict removeAllObjects];
+            [self.stringArray removeAllObjects];
+            [self.keyArray removeAllObjects];
+            [self.keyDict removeAllObjects];
             
             NSMutableSet *keySet = [NSMutableSet set];
             for (NSString *path in lprojDirectorys) {
                 StringModel *model = [[StringModel alloc]initWithPath:path projectSetting:setting];
                 if (model) {
-                    [_stringArray addObject:model];
+                    [self.stringArray addObject:model];
                     NSSet *set = [NSSet setWithArray:model.stringDictionary.allKeys];
                     [keySet unionSet:set];
                 }
@@ -310,7 +308,7 @@
             
             NSArray *tmp = [[NSArray alloc]initWithArray:keySet.allObjects];
             NSArray *sortedArray = [tmp sortedArrayUsingSelector:@selector(compare:)];
-            [_keyArray addObjectsFromArray:sortedArray];
+            [self.keyArray addObjectsFromArray:sortedArray];
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self refreshTableView];
@@ -365,15 +363,15 @@
         return;
     
     self.isChecking = YES;
-    [_infoDict removeAllObjects];
+    [self.infoDict removeAllObjects];
     
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         [StringModel findItemsWithProjectPath:[StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName]
                                   projectPath:self.projectPath
                                   findStrings:self.keyArray
                                         block:^(NSString *key, NSArray *items, float progress) {
-            if(! key.isBlank && items.count>0){
-                [_infoDict setObject:items forKey:key];
+            if(![key isBlank] && ![items isBlank]){
+                [self.infoDict setObject:items forKey:key];
             }
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self searchAnswer:nil];
@@ -480,9 +478,12 @@
         title = [self valueInRaw:key identifier:identifier];
     }
     CGRect rect = [_tableview frameOfCellAtColumn:column row:row];
-    StringEditViewController* viewController = [[StringEditViewController alloc] initWithKey:key
-                                                                                  identifier:identifier
-                                                                                value:title];
+    StringEditViewController* viewController = [[StringEditViewController alloc] initWithKey:key identifier:identifier value:title];
+    [viewController setFinishBlock:^{
+        if (self.editPopOver && self.editPopOver.isShown) {
+            [self.editPopOver close],self.editPopOver = nil;
+        }
+    }];
     self.editPopOver = [[NSPopover alloc] init];
     self.editPopOver.delegate = self;
     self.editPopOver.behavior = NSPopoverBehaviorSemitransient;
@@ -521,21 +522,19 @@
         
         if (column == 0) {
             StringSetting *setting = [StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName];
-            if (setting.language == StringLanguageSwift) {
+            if (setting.language == StringLanguageSwift)
                 value = [NSString stringWithFormat:@"\"%@\"",value];
-            }else{
+            else
                 value = [NSString stringWithFormat:@"@\"%@\"",value];
-            }
-            NSString *wrapper = [NSString stringWithString:setting.doubleClickWrapper];
+
+                NSString *wrapper = [NSString stringWithString:setting.doubleClickWrapper];
             NSRange start = [wrapper rangeOfString:@"("];
             NSRange end = [wrapper rangeOfString:@")"];
-            if (start.location != NSNotFound && end.location > start.location) {
-                NSRange keyRange = [wrapper rangeOfString:@"KEY"
-                                                  options:NSCaseInsensitiveSearch
-                                                    range:NSMakeRange(start.location, end.location-start.location)];
-                if (keyRange.location != NSNotFound) {
+            if (start.location != NSNotFound && end.location != NSNotFound && end.location > start.location) {
+                NSRange range = NSMakeRange(start.location, end.location-start.location);
+                NSRange keyRange = [wrapper rangeOfString:@"KEY" options:NSCaseInsensitiveSearch range:range];
+                if (keyRange.location != NSNotFound)
                     value = [wrapper stringByReplacingCharactersInRange:keyRange withString:value];
-                }
             }
         }
         NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
