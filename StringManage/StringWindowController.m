@@ -333,7 +333,7 @@
     
     for (NSString *string in [tmp2 copy]) {
         if(self.unusedBtn.state){
-            NSArray *arr = _infoDict[string];
+            NSArray *arr = self.infoDict[string];
             if (arr.count > 0) {
                 [tmp2 removeObject:string];
             }
@@ -359,17 +359,18 @@
 }
 
 - (IBAction)checkAction:(id)sender {
-    if(self.keyArray.count==0)
+    if(self.showArray.count==0)
         return;
     
     self.isChecking = YES;
     [self.infoDict removeAllObjects];
+    [self searchAnswer:nil];
     
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        [StringModel findItemsWithProjectPath:[StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName]
-                                  projectPath:self.projectPath
-                                  findStrings:self.keyArray
-                                        block:^(NSString *key, NSArray *items, float progress) {
+        [StringModel findItemsWithProjectSetting:[StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName]
+                                     projectPath:self.projectPath
+                                     findStrings:self.showArray
+                                           block:^(NSString *key, NSArray *items, float progress) {
             if(![key isBlank] && ![items isBlank]){
                 [self.infoDict setObject:items forKey:key];
             }
@@ -627,7 +628,7 @@
 
 #pragma mark - Notification
 - (void)projectSettingChanged:(NSNotification*)notification {
-    [_infoDict removeAllObjects];
+    [self.infoDict removeAllObjects];
     [self refresh:nil];
 }
 
@@ -700,7 +701,7 @@
         [aView setIdentifier:key];
         return aView;
     }else if([identifier isEqualToString:kInfo]){
-        NSArray *items = _infoDict[key];
+        NSArray *items = self.infoDict[key];
         NSButton *aView = [tableView makeViewWithIdentifier:identifier owner:self];
         if(!aView) {
             aView = [[NSButton alloc]initWithFrame:NSZeroRect];

@@ -159,7 +159,7 @@ typedef void (^onFoundBlock)(NSString* key, NSArray *items, float progress);
 + (NSString*)explandRootPathMacro:(NSString*)path projectPath:(NSString*)projectPath;
 + (NSArray*)explandRootPathMacros:(NSArray*)paths projectPath:(NSString*)projectPath;
 +(NSArray*)lprojDirectoriesWithProjectSetting:(StringSetting*)setting project:(NSString*)project;
-+ (void)findItemsWithProjectPath:(StringSetting*)projectSetting projectPath:(NSString*)projectPath findStrings:(NSArray*)findStrings block:(onFoundBlock)block;
++ (void)findItemsWithProjectSetting:(StringSetting*)projectSetting projectPath:(NSString*)projectPath findStrings:(NSArray*)findStrings block:(onFoundBlock)block;
 + (BOOL)openItem:(StringItem*)item;
 + (StringSetting*)projectSettingByProjectPath:(NSString*)projectPath projectName:(NSString*)projectName;
 + (void)saveProjectSetting:(StringSetting*)projectSetting ByProjectName:(NSString*)projectName;

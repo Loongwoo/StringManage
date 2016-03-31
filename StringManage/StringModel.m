@@ -297,7 +297,11 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
     return set;
 }
 
-+ (void)findItemsWithProjectPath:(StringSetting*)projectSetting projectPath:(NSString*)projectPath findStrings:(NSArray*)findStrings block:(onFoundBlock)block{
++ (void)findItemsWithProjectSetting:(StringSetting*)projectSetting
+                        projectPath:(NSString*)projectPath
+                        findStrings:(NSArray*)findStrings
+                              block:(onFoundBlock)block
+{
     if(findStrings.count==0)
         return;
     NSArray* includeDirs = [projectSetting includeDirs];
@@ -308,13 +312,14 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
     NSString* tempFilePath = [[StringModel _tempFileDirectory] stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
     NSSet *set = [NSSet setWithArray:projectSetting.searchTypes];
     @try {
-        [StringModel findItemsWithProjectPath:projectPath
-                                  includeDirs:[projectSetting includeDirs]
-                                  excludeDirs:[projectSetting excludeDirs]
-                                    fileTypes:set
-                                 tempFilePath:tempFilePath
-                                  findStrings:findStrings
-                                        block:block];
+        [StringModel findItemsWithProjectSetting:projectSetting
+                                     projectPath:projectPath
+                                     includeDirs:[projectSetting includeDirs]
+                                     excludeDirs:[projectSetting excludeDirs]
+                                       fileTypes:set
+                                    tempFilePath:tempFilePath
+                                     findStrings:findStrings
+                                           block:block];
     }
     @catch (NSException* exception) {
     }
@@ -323,13 +328,14 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
     }
 }
 
-+ (void)findItemsWithProjectPath:(NSString*)projectPath
-                         includeDirs:(NSArray*)includeDirs
-                         excludeDirs:(NSArray*)excludeDirs
-                           fileTypes:(NSSet*)fileTypes
-                        tempFilePath:(NSString*)tempFilePath
-             findStrings:(NSArray*)findStrings
-                                    block:(onFoundBlock)block
++ (void)findItemsWithProjectSetting:(StringSetting*)projectSetting
+                        projectPath:(NSString*)projectPath
+                        includeDirs:(NSArray*)includeDirs
+                        excludeDirs:(NSArray*)excludeDirs
+                          fileTypes:(NSSet*)fileTypes
+                       tempFilePath:(NSString*)tempFilePath
+                        findStrings:(NSArray*)findStrings
+                              block:(onFoundBlock)block
 {
     NSArray* filePaths = [StringModel findFileNameWithProjectPath:projectPath
                                                      includeDirs:includeDirs
@@ -347,6 +353,60 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
         return;
     }
     
+    NSInteger maxOperationCount = projectSetting.maxOperationCount;
+    
+    NSInteger sum = findStrings.count;
+    NSInteger count = sum/maxOperationCount + ((sum % maxOperationCount)>0 ? 1 : 0);
+
+    for (int i = 0; i<count; i++) {
+        NSOperationQueue *queue = [[NSOperationQueue alloc]init];
+        queue.maxConcurrentOperationCount = maxOperationCount;
+        
+        for (int j=0; j<maxOperationCount; j++) {
+            NSInteger index = j + maxOperationCount * i;
+            if (index >= sum) {
+                break;
+            }
+            NSString *findString = findStrings[index];
+            if (findString.length==0)
+                continue;
+            [queue addOperationWithBlock:^{
+                NSFileHandle* inputFileHandle = [NSFileHandle fileHandleForReadingAtPath:tempFilePath];
+                if (inputFileHandle == nil) {
+                    return;
+                }
+                
+                NSTask* task = [[NSTask alloc] init];
+                [task setLaunchPath:@"/bin/bash"];
+                [task setArguments:@[shellPath, findString]];
+                [task setStandardInput:inputFileHandle];
+                [task setStandardOutput:[NSPipe pipe]];
+                [task launch];
+                
+                NSFileHandle* readHandle = [[task standardOutput] fileHandleForReading];
+                NSData* data = [readHandle readDataToEndOfFile];
+                [inputFileHandle closeFile];
+                
+                NSArray* dataArray = [data componentsSeparatedByByte:'\n'];
+                NSMutableArray* results = [NSMutableArray arrayWithCapacity:[dataArray count]];
+                for (NSData* dataItem in dataArray) {
+                    NSString* string = [[NSString alloc] initWithData:dataItem encoding:NSUTF8StringEncoding];
+                    if (! [string isBlank]) {
+                        StringItem *item = [StringModel itemFromLine:string];
+                        if (item) {
+                            [results addObject:item];
+                        }
+                    }
+                }
+                if(block){
+                    block(findString, results, 100*index/sum);
+                }
+            }];
+        }
+        [queue waitUntilAllOperationsAreFinished];
+    }
+    
+    /*
     NSInteger sum = findStrings.count;
     for (int i=0;i<findStrings.count;i++) {
         NSString *findString = findStrings[i];
@@ -383,6 +443,7 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
             block(findString, results, 100*i/sum);
         }
     }
+    */
 }
 
 + (StringItem*)itemFromLine:(NSString*)line{

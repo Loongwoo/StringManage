@@ -33,6 +33,7 @@
         //key will be replace with @"value"
         projectSetting.doubleClickWrapper = @"NSLocalizedString(key, nil)";
     }
+    projectSetting.maxOperationCount = 5;
     return projectSetting;
 }
 
@@ -45,6 +46,7 @@ static NSString *includeDirs = @"includeDirs";
 static NSString *excludeDirs = @"excludeDirs";
 static NSString *language = @"language";
 static NSString *doubleClickWrapper = @"doubleClickWrapper";
+static NSString *maxOperationCount = @"maxOperationCount";
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
@@ -57,6 +59,7 @@ static NSString *doubleClickWrapper = @"doubleClickWrapper";
         _excludeDirs = [aDecoder decodeObjectForKey:excludeDirs];
         _language = [aDecoder decodeIntegerForKey:language];
         _doubleClickWrapper = [aDecoder decodeObjectForKey:doubleClickWrapper];
+        _maxOperationCount = [aDecoder decodeIntegerForKey:maxOperationCount];
     }
     return self;
 }
@@ -70,6 +73,14 @@ static NSString *doubleClickWrapper = @"doubleClickWrapper";
     [aCoder encodeObject:self.excludeDirs ? self.excludeDirs : @[] forKey:excludeDirs];
     [aCoder encodeInteger:self.language forKey:language];
     [aCoder encodeObject:self.doubleClickWrapper ? self.doubleClickWrapper : @"" forKey:doubleClickWrapper];
+    [aCoder encodeInteger:self.maxOperationCount forKey:maxOperationCount];
+}
+
+-(NSInteger)language{
+    if (_language < 0 || _language > 1) {
+        _language = 0;
+    }
+    return _language;
 }
 
 -(NSString*)doubleClickWrapper{
@@ -83,5 +94,16 @@ static NSString *doubleClickWrapper = @"doubleClickWrapper";
         }
     }
     return _doubleClickWrapper;
+}
+
+-(NSInteger)maxOperationCount{
+    if (_maxOperationCount<=0 || _maxOperationCount>10) {
+        _maxOperationCount = 5;
+    }
+    return _maxOperationCount;
+}
+
+-(NSString*)description{
+    return [NSString stringWithFormat:@"searchDirectory :%@; searchTableName: %@; searchTypes: %@; excludeDirs: %@; language:%d; doubleClickWrapper: %@; maxOperationCount: %d",_searchDirectory,_searchTableName,_searchTypes,_excludeDirs,(int)_language,_doubleClickWrapper, (int)_maxOperationCount];
 }
 @end

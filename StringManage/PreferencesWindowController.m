@@ -26,14 +26,17 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
 @property (weak) IBOutlet NSTextField *languageLabel;
 @property (weak) IBOutlet NSTextField *languageTipsLabel;
 @property (weak) IBOutlet NSTextField *wrapperTextField;
-@property (weak) IBOutlet NSTextField *tipsTextFiled;
 @property (weak) IBOutlet NSTextField *wrapperTitleField;
 @property (weak) IBOutlet NSTextField *wrapperTipsField;
+@property (weak) IBOutlet NSTextField *searchNumberLabel;
+@property (weak) IBOutlet NSPopUpButton *searchNumberPopUpBtn;
 
 - (IBAction)onTouchUpInsideLocalizable:(id)sender;
 - (IBAction)onTouchUpInsideExtension:(id)sender;
 - (IBAction)onTouchUpInsideEditInclude:(id)sender;
 - (IBAction)onTouchUpInsideEditExclude:(id)sender;
+- (IBAction)searchNumberClicked:(id)sender;
+
 @end
 
 @implementation PreferencesWindowController
@@ -59,6 +62,7 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     [self.languageTipsLabel setStringValue:LocalizedString(@"DevLanguageTips")];
     [self.wrapperTitleField setStringValue:LocalizedString(@"Wrapper")];
     [self.wrapperTipsField setStringValue:LocalizedString(@"WrapperTips")];
+    [self.searchNumberLabel setStringValue:LocalizedString(@"SearchNumber")];
     
     [self _updateDirsUI];
     
@@ -80,11 +84,9 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     
     self.tableNameTextField.stringValue = [projectSetting searchTableName];
     
-    if(self.languagePopUpBtn.numberOfItems > projectSetting.language) {
-        [self.languagePopUpBtn selectItemAtIndex:projectSetting.language];
-    }else{
-        [self.languagePopUpBtn selectItemAtIndex:0];
-    }
+    [self.languagePopUpBtn selectItemAtIndex:projectSetting.language];
+    
+    [self.searchNumberPopUpBtn selectItemAtIndex:projectSetting.maxOperationCount-1];
     
     self.wrapperTextField.stringValue = projectSetting.doubleClickWrapper;
     
@@ -164,6 +166,12 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     StringSetting* projectSetting = [self getSetting];
     NSPopUpButton *popUp = (NSPopUpButton *)sender;
     projectSetting.language = popUp.indexOfSelectedItem;
+}
+
+- (IBAction)searchNumberClicked:(id)sender {
+    StringSetting* projectSetting = [self getSetting];
+    NSPopUpButton *popUp = (NSPopUpButton *)sender;
+    projectSetting.maxOperationCount = popUp.indexOfSelectedItem+1;
 }
 
 - (IBAction)onTouchUpInsideEditInclude:(id)sender {

@@ -21,6 +21,7 @@ typedef enum : NSUInteger {
 @property (nonatomic , copy) NSArray* includeDirs;
 @property (nonatomic , copy) NSArray* excludeDirs;
 @property (nonatomic , assign) NSInteger language;
+@property (nonatomic , assign) NSInteger maxOperationCount;
 
 + (StringSetting*)defaultSettingWithProjectPath:(NSString *)projectPath projectName:(NSString*)projectName;
 @end

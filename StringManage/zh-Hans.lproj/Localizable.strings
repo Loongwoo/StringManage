@@ -28,3 +28,4 @@
 "Wrapper"="双击自动添加 (e.g. XXXLocalizedString(key))";
 "WrapperTips"="用双击的项替换掉括号中的‘key’";
 "Finish"="完成";
+"SearchNumber"="搜索线程数";
