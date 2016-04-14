@@ -1,5 +1,5 @@
 //
-//  PathEditViewController
+//  StringPathEditViewController
 //  XToDo
 //
 //  Created by kiwik on 1/16/16.
@@ -14,7 +14,7 @@ typedef NS_ENUM(NSInteger, PathEditType) {
     PathEditTypeExtension,
 };
 
-@interface PathEditViewController : NSViewController <NSTableViewDataSource>
+@interface StringPathEditViewController : NSViewController <NSTableViewDataSource>
 - (id)initWithArray:(NSArray*)array;
 @property NSMutableArray* array;
 @property (nonatomic, assign) PathEditType pathEditType;

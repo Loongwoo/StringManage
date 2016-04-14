@@ -21,8 +21,8 @@
     projectSetting.includeDirs = @[ [StringModel rootPathMacro] ];
     projectSetting.excludeDirs = @[
                                    [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"Pods"]],
-                                    [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"Carthage"]],
-                                    [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"DerivedData"]]
+                                   [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"Carthage"]],
+                                   [StringModel addPathSlash:[[StringModel rootPathMacro] stringByAppendingPathComponent:@"DerivedData"]]
                                    ];
     NSInteger language = [StringModel devLanguageWithProjectPath:projectPath];
     projectSetting.language = language;
@@ -103,7 +103,5 @@ static NSString *maxOperationCount = @"maxOperationCount";
     return _maxOperationCount;
 }
 
--(NSString*)description{
-    return [NSString stringWithFormat:@"searchDirectory :%@; searchTableName: %@; searchTypes: %@; excludeDirs: %@; language:%d; doubleClickWrapper: %@; maxOperationCount: %d",_searchDirectory,_searchTableName,_searchTypes,_excludeDirs,(int)_language,_doubleClickWrapper, (int)_maxOperationCount];
-}
+
 @end

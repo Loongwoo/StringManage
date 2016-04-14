@@ -9,7 +9,7 @@
 #import "PreferencesWindowController.h"
 #import "StringManage.h"
 #import "StringSetting.h"
-#import "PathEditViewController.h"
+#import "StringPathEditViewController.h"
 #import "StringModel.h"
 
 NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChanged";
@@ -145,7 +145,7 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     NSPopover* popover = [[NSPopover alloc] init];
     popover.delegate = self;
     popover.behavior = NSPopoverBehaviorTransient;
-    PathEditViewController* viewController = [[PathEditViewController alloc] initWithArray:@[projectSetting.searchDirectory]];
+    StringPathEditViewController* viewController = [[StringPathEditViewController alloc] initWithArray:@[projectSetting.searchDirectory]];
     [popover setContentViewController:viewController];
     viewController.pathEditType = PathEditTypeLocalizable;
     [popover showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];
@@ -156,7 +156,7 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     NSPopover* popover = [[NSPopover alloc] init];
     popover.delegate = self;
     popover.behavior = NSPopoverBehaviorTransient;
-    PathEditViewController* viewController = [[PathEditViewController alloc] initWithArray:projectSetting.searchTypes];
+    StringPathEditViewController* viewController = [[StringPathEditViewController alloc] initWithArray:projectSetting.searchTypes];
     [popover setContentViewController:viewController];
     viewController.pathEditType = PathEditTypeExtension;
     [popover showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];
@@ -179,7 +179,7 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     NSPopover* popover = [[NSPopover alloc] init];
     popover.delegate = self;
     popover.behavior = NSPopoverBehaviorTransient;
-    PathEditViewController* viewController = [[PathEditViewController alloc] initWithArray:projectSetting.includeDirs];
+    StringPathEditViewController* viewController = [[StringPathEditViewController alloc] initWithArray:projectSetting.includeDirs];
     [popover setContentViewController:viewController];
     viewController.pathEditType = PathEditTypeInclude;
     [popover showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];
@@ -190,7 +190,7 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
     NSPopover* popover = [[NSPopover alloc] init];
     popover.delegate = self;
     popover.behavior = NSPopoverBehaviorTransient;
-    PathEditViewController* viewController = [[PathEditViewController alloc] initWithArray:projectSetting.excludeDirs];
+    StringPathEditViewController* viewController = [[StringPathEditViewController alloc] initWithArray:projectSetting.excludeDirs];
     [popover setContentViewController:viewController];
     viewController.pathEditType = PathEditTypeExclude;
     [popover showRelativeToRect:CGRectMake(0, 0, 400, 400) ofView:sender preferredEdge:NSMinXEdge];
@@ -203,8 +203,8 @@ NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChang
         return;
     }
     
-    PathEditViewController* pathEditViewController = (PathEditViewController*)[popOver contentViewController];
-    if ([pathEditViewController isKindOfClass:[PathEditViewController class]] == NO) {
+    StringPathEditViewController* pathEditViewController = (StringPathEditViewController*)[popOver contentViewController];
+    if ([pathEditViewController isKindOfClass:[StringPathEditViewController class]] == NO) {
         return;
     }
     StringSetting* projectSetting = [self getSetting];

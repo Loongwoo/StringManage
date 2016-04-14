@@ -1,16 +1,16 @@
 //
-//  PathEditViewController
+//  StringPathEditViewController
 //  XToDo
 //
 //  Created by kiwik on 1/16/16.
 //  Copyright © 2016 Kiwik. All rights reserved.
 //
 
-#import "PathEditViewController.h"
+#import "StringPathEditViewController.h"
 #import "StringModel.h"
 #import "StringManage.h"
 
-@interface PathEditViewController ()
+@interface StringPathEditViewController ()
 @property IBOutlet NSTableView* tableView;
 @property (weak) IBOutlet NSButton *InsertBtn;
 @property (weak) IBOutlet NSButton *DeleteBtn;
@@ -18,11 +18,11 @@
 - (IBAction)onTouchUpInsideInsert:(id)sender;
 @end
 
-@implementation PathEditViewController
+@implementation StringPathEditViewController
 
 #pragma mark - override
 - (id)initWithArray:(NSArray*)array {
-    PathEditViewController* pathEditViewController = [self initWithNibName:@"PathEditViewController"
+    StringPathEditViewController* pathEditViewController = [self initWithNibName:@"StringPathEditViewController"
                                                                     bundle:[StringManage sharedPlugin].bundle];
     self.array = [[NSMutableArray alloc] initWithArray:array copyItems:YES];
     return pathEditViewController;

@@ -1,5 +1,5 @@
 //
-//  PathEditViewController
+//  StringInfoViewController
 //  XToDo
 //
 //  Created by kiwik on 1/16/16.

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10116"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="PathEditViewController">
+        <customObject id="-2" userLabel="File's Owner" customClass="StringPathEditViewController">
             <connections>
                 <outlet property="DeleteBtn" destination="I3A-6g-04P" id="Osb-Tj-SpT"/>
                 <outlet property="InsertBtn" destination="2cb-9s-4CC" id="oVX-tB-jvL"/>
@@ -22,11 +22,11 @@
                 <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xkY-1C-P6G">
                     <rect key="frame" x="0.0" y="24" width="480" height="199"/>
                     <clipView key="contentView" ambiguous="YES" id="Huh-80-mPF">
-                        <rect key="frame" x="1.5" y="0.0" width="478" height="183"/>
+                        <rect key="frame" x="1" y="0.0" width="478" height="198"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="ZnI-xG-z7d" id="Imb-la-8r2">
-                                <rect key="frame" x="0.0" y="0.0" width="479" height="175"/>
+                                <rect key="frame" x="0.0" y="0.0" width="478" height="175"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <size key="intercellSpacing" width="3" height="2"/>
                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -46,12 +46,15 @@
                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                     </tableColumn>
                                 </tableColumns>
+                                <connections>
+                                    <binding destination="6HF-lN-h61" name="doubleClickArgument" keyPath="values.tableView" id="m4U-xX-AXe"/>
+                                </connections>
                             </tableView>
                         </subviews>
                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </clipView>
-                    <scroller key="horizontalScroller" verticalHuggingPriority="750" doubleValue="0.5" horizontal="YES" id="k83-gt-UuK">
-                        <rect key="frame" x="1" y="183" width="478" height="15"/>
+                    <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="0.5" horizontal="YES" id="k83-gt-UuK">
+                        <rect key="frame" x="-7" y="8" width="0.0" height="15"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="Iug-gA-1NA">
@@ -59,7 +62,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <tableHeaderView key="headerView" id="ZnI-xG-z7d">
-                        <rect key="frame" x="0.0" y="0.0" width="479" height="23"/>
+                        <rect key="frame" x="0.0" y="0.0" width="478" height="23"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </tableHeaderView>
                 </scrollView>
@@ -85,5 +88,6 @@
                 </button>
             </subviews>
         </customView>
+        <userDefaultsController representsSharedInstance="YES" id="6HF-lN-h61"/>
     </objects>
 </document>
