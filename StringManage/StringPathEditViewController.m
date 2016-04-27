@@ -23,7 +23,7 @@
 #pragma mark - override
 - (id)initWithArray:(NSArray*)array {
     StringPathEditViewController* pathEditViewController = [self initWithNibName:@"StringPathEditViewController"
-                                                                    bundle:[StringManage sharedPlugin].bundle];
+                                                                          bundle:[StringManage sharedPlugin].bundle];
     self.array = [[NSMutableArray alloc] initWithArray:array copyItems:YES];
     return pathEditViewController;
 }
@@ -33,7 +33,7 @@
     [self.tableView setHeaderView:nil];
     self.tableView.dataSource = self;
     [self.tableView reloadData];
-
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(editingDidEnd:)
                                                  name:NSControlTextDidEndEditingNotification
                                                object:nil];
@@ -41,6 +41,7 @@
 
 -(void)loadView{
     [super loadView];
+    self.tableView.enabled = YES;
     
     if(_pathEditType == PathEditTypeLocalizable){
         self.InsertBtn.hidden=YES;
@@ -66,7 +67,7 @@
     [self.tableView removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:selectedRow]
                           withAnimation:NSTableViewAnimationEffectNone];
     [self.tableView endUpdates];
-
+    
     if ([self.array count] > 0) {
         if (selectedRow >= [self.array count]) {
             selectedRow = [self.array count] - 1;
@@ -103,17 +104,17 @@
     if ([notification object] != self.tableView) {
         return;
     }
-
+    
     NSInteger row = [self.tableView editedRow];
     if ((row < 0) || (row >= [self.array count])) {
         return;
     }
-
+    
     NSTextView* textView = [[notification userInfo] objectForKey:@"NSFieldEditor"];
     if ([textView isKindOfClass:[NSTextView class]] == NO) {
         return;
     }
-
+    
     [self.array replaceObjectAtIndex:row withObject:[[textView string] copy]];
     [self.tableView reloadData];
 }
