@@ -88,6 +88,12 @@
     self.tableview.doubleAction = @selector(doubleAction:);//双击撤销修改
     [self.window makeFirstResponder:self.tableview];
     
+    NSArray *array = @[LocalizedString(@"kkkkkkk"),
+                       LocalizedString(@"whatisyourname"),
+                       LocalizedString(@"whatareyoudoing"),
+                       LocalizedString(@"meeee"),
+                       LocalizedString(@"goodidea")];
+    
     [self.showOnlyBtn setTitle:LocalizedString(@"OnlyShowModified")];
     [self.untranslatedBtn setTitle:LocalizedString(@"Untranslated")];
     [self.unusedBtn setTitle:LocalizedString(@"Unused")];
@@ -319,6 +325,11 @@
 }
 
 - (IBAction)searchAnswer:(id)sender {
+    
+    NSSet *keys = [NSSet setWithArray:[self.infoDict allKeys]];
+    NSMutableSet *set1 = [[NSMutableSet alloc] initWithArray:_keyArray];
+    [set1 unionSet:keys];
+    
     NSString *searchString = _searchField.stringValue;
     NSMutableArray *tmp2 = [NSMutableArray array];
     if(self.showOnlyBtn.state){
@@ -328,7 +339,7 @@
             }
         }
     }else{
-        [tmp2 addObjectsFromArray:_keyArray];
+        [tmp2 addObjectsFromArray:[set1 allObjects]];
     }
     
     for (NSString *string in [tmp2 copy]) {
@@ -347,7 +358,7 @@
             exist = exist && (str2.length || (action && action.value.length));
             found = found || ([str2 contain:searchString] || (action && [action.value contain:searchString]));
         }
-        if (!found || (found && (self.untranslatedBtn.state && exist))) {
+        if (!found || (found && self.untranslatedBtn.state && exist)) {
             [tmp2 removeObject:string];
         }
     }
@@ -366,21 +377,21 @@
     [self.infoDict removeAllObjects];
     [self searchAnswer:nil];
     
+    __weak __typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        [StringModel findItemsWithProjectSetting:[StringModel projectSettingByProjectPath:self.projectPath projectName:self.projectName]
-                                     projectPath:self.projectPath
-                                     findStrings:self.showArray
-                                           block:^(NSString *key, NSArray *items, float progress) {
-            if(![key isBlank] && ![items isBlank]){
-                [self.infoDict setObject:items forKey:key];
-            }
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self searchAnswer:nil];
-                self.checkIndicator.doubleValue = progress;
-            });
-        }];
+        StringSetting *settings = [StringModel projectSettingByProjectPath:weakSelf.projectPath projectName:weakSelf.projectName];
+        NSDictionary *dict = [StringModel findItemsWithProjectSetting:settings
+                                                          projectPath:weakSelf.projectPath
+                                                          findStrings:weakSelf.showArray
+                                                                block:^(float progress) {
+                                                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                                                        weakSelf.checkIndicator.doubleValue = progress;
+                                                                    });
+                                                                }];
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.isChecking=NO;
+            weakSelf.isChecking=NO;
+            [weakSelf.infoDict addEntriesFromDictionary:dict];
+            [weakSelf searchAnswer:nil];
         });
     });
 }
@@ -527,8 +538,8 @@
                 value = [NSString stringWithFormat:@"\"%@\"",value];
             else
                 value = [NSString stringWithFormat:@"@\"%@\"",value];
-
-                NSString *wrapper = [NSString stringWithString:setting.doubleClickWrapper];
+            
+            NSString *wrapper = [NSString stringWithString:setting.doubleClickWrapper];
             NSRange start = [wrapper rangeOfString:@"("];
             NSRange end = [wrapper rangeOfString:@")"];
             if (start.location != NSNotFound && end.location != NSNotFound && end.location > start.location) {

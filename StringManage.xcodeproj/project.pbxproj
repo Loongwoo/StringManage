@@ -26,6 +26,7 @@
 		11C3646F1C467D550090E172 /* StringModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 11C3646E1C467D550090E172 /* StringModel.m */; };
 		11CE6C7D1C4660AC00A05A3D /* StringWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 11CE6C7C1C4660AC00A05A3D /* StringWindowController.xib */; };
 		11CE6C801C46620F00A05A3D /* StringWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 11CE6C7F1C46620F00A05A3D /* StringWindowController.m */; };
+		11D678991D48941900289F65 /* libicucore.A.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 11D678981D48941900289F65 /* libicucore.A.tbd */; };
 		11E4C7E11C4BBE9E00D4BEA9 /* StringSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 11E4C7E01C4BBE9E00D4BEA9 /* StringSetting.m */; };
 		11F3B9CF1CA8DD8400350851 /* NSArray+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = 11F3B9CE1CA8DD8400350851 /* NSArray+Extension.m */; };
 /* End PBXBuildFile section */
@@ -65,6 +66,7 @@
 		11CE6C7C1C4660AC00A05A3D /* StringWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = StringWindowController.xib; sourceTree = "<group>"; };
 		11CE6C7E1C46620F00A05A3D /* StringWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringWindowController.h; sourceTree = "<group>"; };
 		11CE6C7F1C46620F00A05A3D /* StringWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringWindowController.m; sourceTree = "<group>"; };
+		11D678981D48941900289F65 /* libicucore.A.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.A.tbd; path = usr/lib/libicucore.A.tbd; sourceTree = SDKROOT; };
 		11E4C7DF1C4BBE9E00D4BEA9 /* StringSetting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringSetting.h; sourceTree = "<group>"; };
 		11E4C7E01C4BBE9E00D4BEA9 /* StringSetting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringSetting.m; sourceTree = "<group>"; };
 		11F3B9CD1CA8DD8400350851 /* NSArray+Extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+Extension.h"; sourceTree = "<group>"; };
@@ -76,6 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				11D678991D48941900289F65 /* libicucore.A.tbd in Frameworks */,
 				111BA68D1C46554C00AA9E80 /* AppKit.framework in Frameworks */,
 				111BA68F1C46554C00AA9E80 /* Foundation.framework in Frameworks */,
 			);
@@ -104,6 +107,7 @@
 		111BA68B1C46554C00AA9E80 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				11D678981D48941900289F65 /* libicucore.A.tbd */,
 				111BA68C1C46554C00AA9E80 /* AppKit.framework */,
 				111BA68E1C46554C00AA9E80 /* Foundation.framework */,
 			);

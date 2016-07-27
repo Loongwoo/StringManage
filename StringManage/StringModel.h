@@ -139,7 +139,7 @@
 @property (nonatomic, copy) NSString* content;
 @end
 
-typedef void (^onFoundBlock)(NSString* key, NSArray *items, float progress);
+typedef void (^onFoundBlock)(float progress);
 
 @class ActionModel;
 @interface StringModel : NSObject
@@ -159,7 +159,7 @@ typedef void (^onFoundBlock)(NSString* key, NSArray *items, float progress);
 + (NSString*)explandRootPathMacro:(NSString*)path projectPath:(NSString*)projectPath;
 + (NSArray*)explandRootPathMacros:(NSArray*)paths projectPath:(NSString*)projectPath;
 +(NSArray*)lprojDirectoriesWithProjectSetting:(StringSetting*)setting project:(NSString*)project;
-+ (void)findItemsWithProjectSetting:(StringSetting*)projectSetting projectPath:(NSString*)projectPath findStrings:(NSArray*)findStrings block:(onFoundBlock)block;
++ (NSDictionary *)findItemsWithProjectSetting:(StringSetting*)projectSetting projectPath:(NSString*)projectPath findStrings:(NSArray*)findStrings block:(onFoundBlock)block;
 + (BOOL)openItem:(StringItem*)item;
 + (StringSetting*)projectSettingByProjectPath:(NSString*)projectPath projectName:(NSString*)projectName;
 + (void)saveProjectSetting:(StringSetting*)projectSetting ByProjectName:(NSString*)projectName;

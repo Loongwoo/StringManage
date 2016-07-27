@@ -297,22 +297,22 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
     return set;
 }
 
-+ (void)findItemsWithProjectSetting:(StringSetting*)projectSetting
++ (NSDictionary *)findItemsWithProjectSetting:(StringSetting*)projectSetting
                         projectPath:(NSString*)projectPath
                         findStrings:(NSArray*)findStrings
                               block:(onFoundBlock)block
 {
     if(findStrings.count==0)
-        return;
+        return nil;
     NSArray* includeDirs = [projectSetting includeDirs];
     if ([includeDirs count] == 0) {
-        return;
+        return nil;
     }
     
     NSString* tempFilePath = [[StringModel _tempFileDirectory] stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
     NSSet *set = [NSSet setWithArray:projectSetting.searchTypes];
     @try {
-        [StringModel findItemsWithProjectSetting:projectSetting
+        return [StringModel findItemsWithProjectSetting:projectSetting
                                      projectPath:projectPath
                                      includeDirs:[projectSetting includeDirs]
                                      excludeDirs:[projectSetting excludeDirs]
@@ -328,7 +328,7 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
     }
 }
 
-+ (void)findItemsWithProjectSetting:(StringSetting*)projectSetting
++ (NSDictionary *)findItemsWithProjectSetting:(StringSetting*)projectSetting
                         projectPath:(NSString*)projectPath
                         includeDirs:(NSArray*)includeDirs
                         excludeDirs:(NSArray*)excludeDirs
@@ -338,9 +338,61 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
                               block:(onFoundBlock)block
 {
     NSArray* filePaths = [StringModel findFileNameWithProjectPath:projectPath
-                                                     includeDirs:includeDirs
-                                                     excludeDirs:excludeDirs
-                                                       fileTypes:fileTypes];
+                                                      includeDirs:includeDirs
+                                                      excludeDirs:excludeDirs
+                                                        fileTypes:fileTypes];
+    
+    NSString *warpper = projectSetting.doubleClickWrapper;
+    NSArray *warpperArr = [warpper componentsSeparatedByString:@"("];
+    if (warpperArr.count<=0) {
+        return nil;
+    }
+    
+    NSString *regPattern = [NSString stringWithFormat:@"%@\\(@?\"(\\w+)\"",warpperArr[0]];
+    NSRegularExpression *regularExpression = [NSRegularExpression regularExpressionWithPattern:regPattern options:0 error:nil];
+    
+    __block NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    for (int i=0; i<filePaths.count; i++) {
+        NSString *filePath = filePaths[i];
+        NSString *string = [NSString stringWithContentsOfFile:filePath usedEncoding:nil error:nil];
+        
+        __block int lineNum = 1;
+        [string enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
+            NSArray *array = [regularExpression matchesInString:line options:0 range:NSMakeRange(0, line.length)];
+            if (array.count > 0 ) {
+                for (NSTextCheckingResult *result in array) {
+                    if (result.range.location != NSNotFound && result.numberOfRanges == 2) {
+                        NSRange valueRange = [result rangeAtIndex:1];
+                        if(valueRange.location != NSNotFound){
+                            NSString *value = [line substringWithRange:valueRange];
+                            
+                            StringItem *item = [[StringItem alloc]init];
+                            item.lineNumber = lineNum;
+                            item.filePath = filePath;
+                            item.content = line;
+                            
+                            if ([dict objectForKey:value]) {
+                                NSArray *originItems = dict[value];
+                                NSMutableArray *temp = [[NSMutableArray alloc] initWithArray:originItems];
+                                [temp addObject:item];
+                                [dict setObject:temp forKey:value];
+                            }else{
+                                [dict setObject:@[item] forKey:value];
+                            }
+                        }
+                    }
+                }
+                if (block) {
+                    block(100.0 * (float)i / (float)filePaths.count);
+                }
+            }
+            lineNum++;
+        }];
+    }
+    return dict;
+    
+    
+    /*
     // xargs -0 need "\0" as separtor
     NSData* dataAllFilePaths = [[filePaths componentsJoinedByString:@"\0"] dataUsingEncoding:NSUTF8StringEncoding];
 
@@ -405,6 +457,8 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
         }
         [queue waitUntilAllOperationsAreFinished];
     }
+    */
+    
     
     /*
     NSInteger sum = findStrings.count;
