@@ -10,12 +10,27 @@
 #import "StringModel.h"
 #import "StringManage.h"
 
+#define kNOWidth 50.0f
+
 @implementation StringCellView
 
 - (id)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        NSTextField *titleField = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 20, frame.size.width, 15)];
+        
+        NSTextField *noField = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 7.5f, kNOWidth, 20)];
+        noField.font = [NSFont systemFontOfSize:20];
+        noField.textColor = [NSColor darkGrayColor];
+        [noField setAutoresizingMask:NSViewWidthSizable];
+        [[noField cell] setLineBreakMode:NSLineBreakByTruncatingTail];
+        [noField setBezeled:NO];
+        [noField setDrawsBackground:NO];
+        [noField setEditable:NO];
+        [noField setSelectable:NO];
+        [self addSubview:noField];
+        self.noField = noField;
+        
+        NSTextField *titleField = [[NSTextField alloc] initWithFrame:NSMakeRect(kNOWidth, 20, frame.size.width-kNOWidth, 15)];
         titleField.font = [NSFont systemFontOfSize:10];
         titleField.textColor = [NSColor darkGrayColor];
         [titleField setAutoresizingMask:NSViewWidthSizable];
@@ -27,7 +42,7 @@
         [self addSubview:titleField];
         self.titleField = titleField;
         
-        NSTextField *fileField = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, frame.size.width, 20)];
+        NSTextField *fileField = [[NSTextField alloc] initWithFrame:NSMakeRect(kNOWidth, 0, frame.size.width-kNOWidth, 20)];
         fileField.font = [NSFont systemFontOfSize:12];
         fileField.textColor = [NSColor colorWithWhite:0.2 alpha:0.9];
         [fileField setAutoresizingMask:NSViewWidthSizable];
@@ -63,7 +78,7 @@
 
 -(void)loadView {
     float height = MIN(10+_array.count*37, 360);
-    self.view = [[NSView alloc]initWithFrame:NSMakeRect(0,0,600, height)];
+    self.view = [[NSView alloc]initWithFrame:NSMakeRect(0,0,700, height)];
     NSScrollView * tableContainer = [[NSScrollView alloc] initWithFrame:NSInsetRect(self.view.bounds, 5, 5)];
     NSTableView * tableView = [[NSTableView alloc] initWithFrame:tableContainer.bounds];
     NSTableColumn * column1 = [[NSTableColumn alloc] initWithIdentifier:@"mycolumn"];
@@ -97,8 +112,9 @@
         cellView.identifier = identifier;
     }
     StringItem *item = [self.array objectAtIndex:row];
-    cellView.titleField.stringValue =[NSString stringWithFormat:@"File : %@", item.filePath];
-    cellView.fileField.stringValue = [NSString stringWithFormat:@"Line %ld:%@",item.lineNumber, item.content];
+    cellView.noField.stringValue = [NSString stringWithFormat:@"%.3ld",row+1];
+    cellView.titleField.stringValue =[NSString stringWithFormat:@"%@", item.filePath];
+    cellView.fileField.stringValue = [NSString stringWithFormat:@"L%ld:%@",item.lineNumber, item.content];
     return cellView;
 }
 

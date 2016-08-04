@@ -9,6 +9,7 @@
 #import <AppKit/AppKit.h>
 
 @interface StringCellView : NSTableCellView
+@property (nonatomic, strong) NSTextField* noField;
 @property (nonatomic, strong) NSTextField* titleField;
 @property (nonatomic, strong) NSTextField* fileField;
 @end

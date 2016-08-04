@@ -119,33 +119,26 @@
 			children = (
 				111BA6941C46554C00AA9E80 /* StringManage.h */,
 				111BA6951C46554C00AA9E80 /* StringManage.m */,
-				111BA6911C46554C00AA9E80 /* Supporting Files */,
+				11C3646D1C467D550090E172 /* StringModel.h */,
+				11C3646E1C467D550090E172 /* StringModel.m */,
+				11E4C7DF1C4BBE9E00D4BEA9 /* StringSetting.h */,
+				11E4C7E01C4BBE9E00D4BEA9 /* StringSetting.m */,
 				11CE6C7E1C46620F00A05A3D /* StringWindowController.h */,
 				11CE6C7F1C46620F00A05A3D /* StringWindowController.m */,
 				11CE6C7C1C4660AC00A05A3D /* StringWindowController.xib */,
-				11C3646D1C467D550090E172 /* StringModel.h */,
-				11C3646E1C467D550090E172 /* StringModel.m */,
 				1166BD7F1C47C86600AC94F7 /* PreferencesWindowController.h */,
 				1166BD801C47C86600AC94F7 /* PreferencesWindowController.m */,
 				1166BD811C47C86600AC94F7 /* PreferencesWindowController.xib */,
 				11C27BA01C4A263800AB8F97 /* StringPathEditViewController.h */,
 				11C27BA11C4A263800AB8F97 /* StringPathEditViewController.m */,
 				11C27BA21C4A263800AB8F97 /* StringPathEditViewController.xib */,
-				11682D231C494445000C507E /* NSData+Split.h */,
-				11682D241C494445000C507E /* NSData+Split.m */,
-				11E4C7DF1C4BBE9E00D4BEA9 /* StringSetting.h */,
-				11E4C7E01C4BBE9E00D4BEA9 /* StringSetting.m */,
 				1147CC3B1C4BF03000C44F66 /* StringInfoViewController.h */,
 				1147CC3C1C4BF03000C44F66 /* StringInfoViewController.m */,
-				1162985D1C4DEB8C007537AD /* NSButton+Extension.h */,
-				1162985E1C4DEB8C007537AD /* NSButton+Extension.m */,
-				1144DF141C4FAB1700B4E3F0 /* NSString+Extension.h */,
-				1144DF151C4FAB1700B4E3F0 /* NSString+Extension.m */,
 				11967F9F1C605E5C005FE185 /* StringEditViewController.h */,
 				11967FA01C605E5C005FE185 /* StringEditViewController.m */,
 				11967FA11C605E5C005FE185 /* StringEditViewController.xib */,
-				11F3B9CD1CA8DD8400350851 /* NSArray+Extension.h */,
-				11F3B9CE1CA8DD8400350851 /* NSArray+Extension.m */,
+				11CC2C9C1D52E09600622572 /* Categorys */,
+				111BA6911C46554C00AA9E80 /* Supporting Files */,
 			);
 			path = StringManage;
 			sourceTree = "<group>";
@@ -159,6 +152,21 @@
 				11012F081C47404200FB4391 /* Localizable.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		11CC2C9C1D52E09600622572 /* Categorys */ = {
+			isa = PBXGroup;
+			children = (
+				11682D231C494445000C507E /* NSData+Split.h */,
+				11682D241C494445000C507E /* NSData+Split.m */,
+				1162985D1C4DEB8C007537AD /* NSButton+Extension.h */,
+				1162985E1C4DEB8C007537AD /* NSButton+Extension.m */,
+				1144DF141C4FAB1700B4E3F0 /* NSString+Extension.h */,
+				1144DF151C4FAB1700B4E3F0 /* NSString+Extension.m */,
+				11F3B9CD1CA8DD8400350851 /* NSArray+Extension.h */,
+				11F3B9CE1CA8DD8400350851 /* NSArray+Extension.m */,
+			);
+			name = Categorys;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
