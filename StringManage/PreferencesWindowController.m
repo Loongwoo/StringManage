@@ -12,7 +12,7 @@
 #import "StringPathEditViewController.h"
 #import "StringModel.h"
 
-NSString* const kNotifyProjectSettingChanged = @"XToDo_NotifyProjectSettingChanged";
+NSString* const kNotifyProjectSettingChanged = @"StringManage_NotifyProjectSettingChanged";
 
 @interface PreferencesWindowController ()
 @property (weak) IBOutlet NSTextField *dirTitleTextField;

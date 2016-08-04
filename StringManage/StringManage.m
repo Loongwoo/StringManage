@@ -10,6 +10,8 @@
 #import "StringWindowController.h"
 #import "StringModel.h"
 
+static dispatch_once_t onceToken;
+
 @interface StringManage()
 @property (nonatomic, strong, readwrite) NSBundle *bundle;
 @property (nonatomic, strong) StringWindowController* windowController;
@@ -18,7 +20,6 @@
 @implementation StringManage
 
 + (void)pluginDidLoad:(NSBundle *)plugin {
-    static dispatch_once_t onceToken;
     NSString *currentApplicationName = [[NSBundle mainBundle] infoDictionary][@"CFBundleName"];
     if ([currentApplicationName isEqual:@"Xcode"]) {
         dispatch_once(&onceToken, ^{
@@ -28,6 +29,10 @@
 }
 
 + (instancetype)sharedPlugin {
+    dispatch_once(&onceToken, ^{
+        NSBundle *bundle = [NSBundle mainBundle];
+        sharedPlugin = [[StringManage alloc] initWithBundle:bundle];
+    });
     return sharedPlugin;
 }
 

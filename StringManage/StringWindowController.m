@@ -66,6 +66,15 @@
 @implementation StringWindowController
 
 #pragma mark - override
+
+-(instancetype)init{
+    if(self = [super initWithWindowNibName:@"StringWindowController"])
+    {
+        //perform any initializations
+    }
+    return self;
+}
+
 -(void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }

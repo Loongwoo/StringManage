@@ -208,7 +208,7 @@ static NSString * const kRegularExpressionPattern = @"^(\"([^/]\\S+.*)\"|([^/]\\
 }
 
 + (NSString*)_settingDirectory {
-    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
     NSString* settingDirectory = [(NSString*)[paths objectAtIndex:0] stringByAppendingPathComponent:@"StringManage"];
     if ([[NSFileManager defaultManager] fileExistsAtPath:settingDirectory] == NO) {
         [[NSFileManager defaultManager] createDirectoryAtPath:settingDirectory  withIntermediateDirectories:YES attributes:nil error:NULL];
@@ -226,8 +226,8 @@ static NSString * const kRegularExpressionPattern = @"^(\"([^/]\\S+.*)\"|([^/]\\
 
 + (void)cleanAllTempFiles {
     [StringModel  scanFolder:[StringModel _tempFileDirectory] findedItemBlock:^(NSString* fullPath, BOOL isDirectory, BOOL* skipThis, BOOL* stopAll) {
-         [[NSFileManager defaultManager] removeItemAtPath:fullPath error:nil];
-     }];
+        [[NSFileManager defaultManager] removeItemAtPath:fullPath error:nil];
+    }];
 }
 
 typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThis, BOOL* stopAll);
@@ -271,20 +271,20 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
     NSMutableArray* allFilePaths = [NSMutableArray arrayWithCapacity:1000];
     for (NSString* includeDir in includeDirs) {
         [StringModel scanFolder:includeDir findedItemBlock:^(NSString* fullPath, BOOL isDirectory, BOOL* skipThis, BOOL* stopAll) {
-             if (isDirectory) {
-                 for (NSString *excludeDir in excludeDirs) {
-                     if ([fullPath hasPrefix:excludeDir]) {
-                         *skipThis = YES;
-                         return;
-                     }
-                 }
-             } else {
-                 if ([fileTypes containsObject:
-                      [[fullPath pathExtension] lowercaseString]]) {
-                     [allFilePaths addObject:fullPath];
-                 }
-             }
-         }];
+            if (isDirectory) {
+                for (NSString *excludeDir in excludeDirs) {
+                    if ([fullPath hasPrefix:excludeDir]) {
+                        *skipThis = YES;
+                        return;
+                    }
+                }
+            } else {
+                if ([fileTypes containsObject:
+                     [[fullPath pathExtension] lowercaseString]]) {
+                    [allFilePaths addObject:fullPath];
+                }
+            }
+        }];
     }
     return allFilePaths;
 }
@@ -298,9 +298,9 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
 }
 
 + (NSDictionary *)findItemsWithProjectSetting:(StringSetting*)projectSetting
-                        projectPath:(NSString*)projectPath
-                        findStrings:(NSArray*)findStrings
-                              block:(onFoundBlock)block
+                                  projectPath:(NSString*)projectPath
+                                  findStrings:(NSArray*)findStrings
+                                        block:(onFoundBlock)block
 {
     if(findStrings.count==0)
         return nil;
@@ -313,13 +313,13 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
     NSSet *set = [NSSet setWithArray:projectSetting.searchTypes];
     @try {
         return [StringModel findItemsWithProjectSetting:projectSetting
-                                     projectPath:projectPath
-                                     includeDirs:[projectSetting includeDirs]
-                                     excludeDirs:[projectSetting excludeDirs]
-                                       fileTypes:set
-                                    tempFilePath:tempFilePath
-                                     findStrings:findStrings
-                                           block:block];
+                                            projectPath:projectPath
+                                            includeDirs:[projectSetting includeDirs]
+                                            excludeDirs:[projectSetting excludeDirs]
+                                              fileTypes:set
+                                           tempFilePath:tempFilePath
+                                            findStrings:findStrings
+                                                  block:block];
     }
     @catch (NSException* exception) {
     }
@@ -329,13 +329,13 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
 }
 
 + (NSDictionary *)findItemsWithProjectSetting:(StringSetting*)projectSetting
-                        projectPath:(NSString*)projectPath
-                        includeDirs:(NSArray*)includeDirs
-                        excludeDirs:(NSArray*)excludeDirs
-                          fileTypes:(NSSet*)fileTypes
-                       tempFilePath:(NSString*)tempFilePath
-                        findStrings:(NSArray*)findStrings
-                              block:(onFoundBlock)block
+                                  projectPath:(NSString*)projectPath
+                                  includeDirs:(NSArray*)includeDirs
+                                  excludeDirs:(NSArray*)excludeDirs
+                                    fileTypes:(NSSet*)fileTypes
+                                 tempFilePath:(NSString*)tempFilePath
+                                  findStrings:(NSArray*)findStrings
+                                        block:(onFoundBlock)block
 {
     NSArray* filePaths = [StringModel findFileNameWithProjectPath:projectPath
                                                       includeDirs:includeDirs
@@ -393,111 +393,111 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
     
     
     /*
-    // xargs -0 need "\0" as separtor
-    NSData* dataAllFilePaths = [[filePaths componentsJoinedByString:@"\0"] dataUsingEncoding:NSUTF8StringEncoding];
-
-    if ([dataAllFilePaths writeToFile:tempFilePath atomically:NO] == NO) {
-        return;
-    }
-    
-    NSString* shellPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"find" ofType:@"sh"];
-    if(shellPath.length==0){
-        return;
-    }
-    
-    NSInteger maxOperationCount = projectSetting.maxOperationCount;
-    
-    NSInteger sum = findStrings.count;
-    NSInteger count = sum/maxOperationCount + ((sum % maxOperationCount)>0 ? 1 : 0);
-
-    for (int i = 0; i<count; i++) {
-        NSOperationQueue *queue = [[NSOperationQueue alloc]init];
-        queue.maxConcurrentOperationCount = maxOperationCount;
-        
-        for (int j=0; j<maxOperationCount; j++) {
-            NSInteger index = j + maxOperationCount * i;
-            if (index >= sum) {
-                break;
-            }
-            NSString *findString = findStrings[index];
-            if (findString.length==0)
-                continue;
-            [queue addOperationWithBlock:^{
-                NSFileHandle* inputFileHandle = [NSFileHandle fileHandleForReadingAtPath:tempFilePath];
-                if (inputFileHandle == nil) {
-                    return;
-                }
-                
-                NSTask* task = [[NSTask alloc] init];
-                [task setLaunchPath:@"/bin/bash"];
-                [task setArguments:@[shellPath, findString]];
-                [task setStandardInput:inputFileHandle];
-                [task setStandardOutput:[NSPipe pipe]];
-                [task launch];
-                
-                NSFileHandle* readHandle = [[task standardOutput] fileHandleForReading];
-                NSData* data = [readHandle readDataToEndOfFile];
-                [inputFileHandle closeFile];
-                
-                NSArray* dataArray = [data componentsSeparatedByByte:'\n'];
-                NSMutableArray* results = [NSMutableArray arrayWithCapacity:[dataArray count]];
-                for (NSData* dataItem in dataArray) {
-                    NSString* string = [[NSString alloc] initWithData:dataItem encoding:NSUTF8StringEncoding];
-                    if (! [string isBlank]) {
-                        StringItem *item = [StringModel itemFromLine:string];
-                        if (item) {
-                            [results addObject:item];
-                        }
-                    }
-                }
-                if(block){
-                    block(findString, results, 100*index/sum);
-                }
-            }];
-        }
-        [queue waitUntilAllOperationsAreFinished];
-    }
-    */
+     // xargs -0 need "\0" as separtor
+     NSData* dataAllFilePaths = [[filePaths componentsJoinedByString:@"\0"] dataUsingEncoding:NSUTF8StringEncoding];
+     
+     if ([dataAllFilePaths writeToFile:tempFilePath atomically:NO] == NO) {
+     return;
+     }
+     
+     NSString* shellPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"find" ofType:@"sh"];
+     if(shellPath.length==0){
+     return;
+     }
+     
+     NSInteger maxOperationCount = projectSetting.maxOperationCount;
+     
+     NSInteger sum = findStrings.count;
+     NSInteger count = sum/maxOperationCount + ((sum % maxOperationCount)>0 ? 1 : 0);
+     
+     for (int i = 0; i<count; i++) {
+     NSOperationQueue *queue = [[NSOperationQueue alloc]init];
+     queue.maxConcurrentOperationCount = maxOperationCount;
+     
+     for (int j=0; j<maxOperationCount; j++) {
+     NSInteger index = j + maxOperationCount * i;
+     if (index >= sum) {
+     break;
+     }
+     NSString *findString = findStrings[index];
+     if (findString.length==0)
+     continue;
+     [queue addOperationWithBlock:^{
+     NSFileHandle* inputFileHandle = [NSFileHandle fileHandleForReadingAtPath:tempFilePath];
+     if (inputFileHandle == nil) {
+     return;
+     }
+     
+     NSTask* task = [[NSTask alloc] init];
+     [task setLaunchPath:@"/bin/bash"];
+     [task setArguments:@[shellPath, findString]];
+     [task setStandardInput:inputFileHandle];
+     [task setStandardOutput:[NSPipe pipe]];
+     [task launch];
+     
+     NSFileHandle* readHandle = [[task standardOutput] fileHandleForReading];
+     NSData* data = [readHandle readDataToEndOfFile];
+     [inputFileHandle closeFile];
+     
+     NSArray* dataArray = [data componentsSeparatedByByte:'\n'];
+     NSMutableArray* results = [NSMutableArray arrayWithCapacity:[dataArray count]];
+     for (NSData* dataItem in dataArray) {
+     NSString* string = [[NSString alloc] initWithData:dataItem encoding:NSUTF8StringEncoding];
+     if (! [string isBlank]) {
+     StringItem *item = [StringModel itemFromLine:string];
+     if (item) {
+     [results addObject:item];
+     }
+     }
+     }
+     if(block){
+     block(findString, results, 100*index/sum);
+     }
+     }];
+     }
+     [queue waitUntilAllOperationsAreFinished];
+     }
+     */
     
     
     /*
-    NSInteger sum = findStrings.count;
-    for (int i=0;i<findStrings.count;i++) {
-        NSString *findString = findStrings[i];
-        if (findString.length==0)
-            continue;
-        NSFileHandle* inputFileHandle = [NSFileHandle fileHandleForReadingAtPath:tempFilePath];
-        if (inputFileHandle == nil) {
-            return;
-        }
-        
-        NSTask* task = [[NSTask alloc] init];
-        [task setLaunchPath:@"/bin/bash"];
-        [task setArguments:@[shellPath, findString]];
-        [task setStandardInput:inputFileHandle];
-        [task setStandardOutput:[NSPipe pipe]];
-        [task launch];
-        
-        NSFileHandle* readHandle = [[task standardOutput] fileHandleForReading];
-        NSData* data = [readHandle readDataToEndOfFile];
-        [inputFileHandle closeFile];
-        
-        NSArray* dataArray = [data componentsSeparatedByByte:'\n'];
-        NSMutableArray* results = [NSMutableArray arrayWithCapacity:[dataArray count]];
-        for (NSData* dataItem in dataArray) {
-            NSString* string = [[NSString alloc] initWithData:dataItem encoding:NSUTF8StringEncoding];
-            if (! [string isBlank]) {
-                StringItem *item = [StringModel itemFromLine:string];
-                if (item) {
-                    [results addObject:item];
-                }
-            }
-        }
-        if(block){
-            block(findString, results, 100*i/sum);
-        }
-    }
-    */
+     NSInteger sum = findStrings.count;
+     for (int i=0;i<findStrings.count;i++) {
+     NSString *findString = findStrings[i];
+     if (findString.length==0)
+     continue;
+     NSFileHandle* inputFileHandle = [NSFileHandle fileHandleForReadingAtPath:tempFilePath];
+     if (inputFileHandle == nil) {
+     return;
+     }
+     
+     NSTask* task = [[NSTask alloc] init];
+     [task setLaunchPath:@"/bin/bash"];
+     [task setArguments:@[shellPath, findString]];
+     [task setStandardInput:inputFileHandle];
+     [task setStandardOutput:[NSPipe pipe]];
+     [task launch];
+     
+     NSFileHandle* readHandle = [[task standardOutput] fileHandleForReading];
+     NSData* data = [readHandle readDataToEndOfFile];
+     [inputFileHandle closeFile];
+     
+     NSArray* dataArray = [data componentsSeparatedByByte:'\n'];
+     NSMutableArray* results = [NSMutableArray arrayWithCapacity:[dataArray count]];
+     for (NSData* dataItem in dataArray) {
+     NSString* string = [[NSString alloc] initWithData:dataItem encoding:NSUTF8StringEncoding];
+     if (! [string isBlank]) {
+     StringItem *item = [StringModel itemFromLine:string];
+     if (item) {
+     [results addObject:item];
+     }
+     }
+     }
+     if(block){
+     block(findString, results, 100*i/sum);
+     }
+     }
+     */
 }
 
 + (StringItem*)itemFromLine:(NSString*)line{
@@ -579,32 +579,32 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
 }
 
 /*
-+(NSArray*)lprojDirectoriesWithProjectSetting:(StringSetting*)setting project:(NSString*)project{
-    NSString *path = [self explandRootPathMacro:[setting searchDirectory] projectPath:project];
-    return [self lprojDirectoriesWithPath:path fileName:setting.searchTableName];
-}
-
-+(NSArray*)lprojDirectoriesWithPath:(NSString*)path fileName:(NSString*)fileName{
-    NSMutableArray *bundles = [NSMutableArray array];
-    NSArray* array = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:nil];
-    for(int i = 0; i<[array count]; i++){
-        NSString *fullPath = [path stringByAppendingPathComponent:array[i]];
-        NSError *error = nil;
-        NSDictionary *attr = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:&error];
-        if ([attr[NSFileType] isEqualTo:NSFileTypeDirectory]) {
-            if ([@"lproj" isEqualToString:fullPath.pathExtension]) {
-                NSString *filePath = [fullPath stringByAppendingPathComponent:fileName];
-                BOOL isDir = NO;
-                if([[NSFileManager defaultManager] fileExistsAtPath:filePath isDirectory:&isDir] && !isDir){
-                    [bundles addObject:fullPath];
-                }
-            } else {
-                [bundles addObjectsFromArray:[self lprojDirectoriesWithPath:fullPath fileName:fileName]];
-            }
-        }
-    }
-    return [NSArray arrayWithArray:bundles];
-}
+ +(NSArray*)lprojDirectoriesWithProjectSetting:(StringSetting*)setting project:(NSString*)project{
+ NSString *path = [self explandRootPathMacro:[setting searchDirectory] projectPath:project];
+ return [self lprojDirectoriesWithPath:path fileName:setting.searchTableName];
+ }
+ 
+ +(NSArray*)lprojDirectoriesWithPath:(NSString*)path fileName:(NSString*)fileName{
+ NSMutableArray *bundles = [NSMutableArray array];
+ NSArray* array = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:nil];
+ for(int i = 0; i<[array count]; i++){
+ NSString *fullPath = [path stringByAppendingPathComponent:array[i]];
+ NSError *error = nil;
+ NSDictionary *attr = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:&error];
+ if ([attr[NSFileType] isEqualTo:NSFileTypeDirectory]) {
+ if ([@"lproj" isEqualToString:fullPath.pathExtension]) {
+ NSString *filePath = [fullPath stringByAppendingPathComponent:fileName];
+ BOOL isDir = NO;
+ if([[NSFileManager defaultManager] fileExistsAtPath:filePath isDirectory:&isDir] && !isDir){
+ [bundles addObject:fullPath];
+ }
+ } else {
+ [bundles addObjectsFromArray:[self lprojDirectoriesWithPath:fullPath fileName:fileName]];
+ }
+ }
+ }
+ return [NSArray arrayWithArray:bundles];
+ }
  */
 
 + (NSString*)settingFilePathByProjectName:(NSString*)projectName{
@@ -660,7 +660,7 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
         filePath = nil;
     }
     @catch (NSException* exception) {
-         NSLog(@"saveProjectSetting:exception:%@", exception);
+        NSLog(@"saveProjectSetting:exception:%@", exception);
     }
 }
 
