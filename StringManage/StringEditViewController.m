@@ -35,7 +35,8 @@
     [self.finishBtn setTitle:LocalizedString(@"Finish")];
     self.textView.textColor = [NSColor whiteColor];
     NSString *str = [self.value stringByReplacingOccurrencesOfString:@"\\n" withString:@"\n"];
-    [self.textView setString:str];
+    NSString *str1 = [str stringByReplacingOccurrencesOfString:@"\\\"" withString:@"\""];
+    [self.textView setString:str1];
 }
 
 - (IBAction)finishAction:(id)sender {

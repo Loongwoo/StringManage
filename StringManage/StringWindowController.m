@@ -16,8 +16,8 @@
 #import "NSString+Extension.h"
 #import "StringEditViewController.h"
 
-#define KEY @"key"
-#define REMOVE @"remove"
+#define kStrKey @"key"
+#define kRemove @"remove"
 #define kInfo @"info"
 
 #define kFont [NSFont systemFontOfSize:11]
@@ -47,11 +47,15 @@
 @property (nonatomic, copy) NSString* projectPath;
 @property (nonatomic, copy) NSString* projectName;
 @property (nonatomic, strong) NSMutableDictionary* infoDict;
-@property (nonatomic, assign) BOOL isRefreshing;
+@property (nonatomic) BOOL isRefreshing;
 @property (nonatomic, strong) NSMutableDictionary* keyDict;
-@property (nonatomic, assign) BOOL isChecking;
-@property (nonatomic, retain) NSPopover* editPopOver;
-@property (nonatomic, retain) NSPopover* infoPopOver;
+@property (nonatomic) BOOL isChecking;
+@property (nonatomic, strong) NSPopover* editPopOver;
+@property (nonatomic, strong) NSPopover* infoPopOver;
+@property (nonatomic) NSInteger selectedRow;
+@property (nonatomic, strong) NSString *sortingCol;
+@property (nonatomic) BOOL ascending;
+@property (nonatomic, strong) NSMutableDictionary *columnTitleDict;
 
 - (IBAction)addAction:(id)sender;
 - (IBAction)saveAction:(id)sender;
@@ -72,6 +76,10 @@
 
 - (void)windowDidLoad {
     [super windowDidLoad];
+    self.sortingCol = kStrKey;
+    self.ascending = YES;
+    
+    self.columnTitleDict = [[NSMutableDictionary alloc] init];
     self.actionArray=[[NSMutableArray alloc]init];
     self.stringArray = [[NSMutableArray alloc]init];
     self.keyArray = [[NSMutableArray alloc]init];
@@ -145,38 +153,51 @@
     
     float columnWidth = (self.tableview.bounds.size.width - 160.0)/(_stringArray.count+1);
     
-    NSTableColumn * column = [[NSTableColumn alloc] initWithIdentifier:KEY];
-    [column setTitle:KEY];
+    NSTableColumn * column = [[NSTableColumn alloc] initWithIdentifier:kStrKey];
+    self.columnTitleDict[kStrKey] = kStrKey;
     [column setWidth:columnWidth];
     [self.tableview addTableColumn:column];
     
     for (StringModel *model in _stringArray) {
         NSTableColumn * column = [[NSTableColumn alloc] initWithIdentifier:model.identifier];
-        [column setTitle:model.identifier];
+        self.columnTitleDict[model.identifier] = model.identifier;
         [column setWidth:columnWidth];
         [self.tableview addTableColumn:column];
     }
     
-    NSTableColumn * lastcolumn = [[NSTableColumn alloc] initWithIdentifier:REMOVE];
-    [lastcolumn setTitle:LocalizedString(@"Remove")];
+    NSTableColumn * lastcolumn = [[NSTableColumn alloc] initWithIdentifier:kRemove];
+    self.columnTitleDict[kRemove] = LocalizedString(@"Remove");
     [lastcolumn setWidth:80];
     [lastcolumn setMinWidth:60];
     [lastcolumn setMaxWidth:100];
     [self.tableview addTableColumn:lastcolumn];
     NSTableColumn * infocolumn = [[NSTableColumn alloc] initWithIdentifier:kInfo];
-    [infocolumn setTitle:LocalizedString(@"FoundNum")];
+    self.columnTitleDict[kInfo] = LocalizedString(@"FoundNum");
     [infocolumn setWidth:80];
     [infocolumn setMinWidth:60];
     [infocolumn setMaxWidth:100];
     [self.tableview addTableColumn:infocolumn];
     
+    [self refreshTableColumn];
     [self searchAnswer:nil];
+}
+
+-(void)refreshTableColumn{
+    NSArray *columns = [NSArray arrayWithArray:self.tableview.tableColumns];
+    for (NSTableColumn *column in columns) {
+        NSString *cid = column.identifier;
+        if ([cid isEqualToString:_sortingCol]) {
+            column.title = [NSString stringWithFormat:@"%@ %@", self.columnTitleDict[cid], _ascending?@"▲":@"▼"];
+        } else{
+            column.title = self.columnTitleDict[cid];
+        }
+    }
 }
 
 -(NSString*)titleWithKey:(NSString*)key identifier:(NSString*)identifier {
     if(key.length==0 || identifier.length == 0)
         return @"";
-    if([identifier isEqualToString:KEY]) {
+    if([identifier isEqualToString:kStrKey]) {
         return key;
     }
     ActionModel *action = [self findActionWith:key identify:identifier];
@@ -187,7 +208,7 @@
 }
 
 -(NSString*)valueInRaw:(NSString*)key  identifier:(NSString*)identifier {
-    if([identifier isEqualToString:KEY]) {
+    if([identifier isEqualToString:kStrKey]) {
         return key;
     }
     StringModel *model = [self findStringModelWithIdentifier:identifier];
@@ -363,7 +384,35 @@
         }
     }
     
-    self.showArray = [tmp2 sortedArrayUsingSelector:@selector(compare:)];
+    if ([kStrKey isEqualToString:_sortingCol] || [kRemove isEqualToString:_sortingCol]){
+        self.showArray = [tmp2 sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+            NSString *key1 = _ascending?obj1:obj2;
+            NSString *key2 = _ascending?obj2:obj1;
+            
+            return [key1 compare:key2];
+        }];
+    } else if ([kInfo isEqualToString:_sortingCol]){
+        self.showArray = [tmp2 sortedArrayUsingComparator:^NSComparisonResult(NSString * _Nonnull key1, NSString * _Nonnull key2) {
+            NSArray *items1 = self.infoDict[_ascending?key1:key2];
+            NSInteger count1 = items1.count;
+            NSArray *items2 = self.infoDict[_ascending?key2:key1];
+            NSInteger count2 = items2.count;
+            if (count1 > count2) {
+                return NSOrderedDescending;
+            } else if (count2 > count1) {
+                return NSOrderedAscending;
+            } else {
+                return NSOrderedSame;
+            }
+        }];
+    } else {
+        self.showArray = [tmp2 sortedArrayUsingComparator:^NSComparisonResult(NSString * _Nonnull key1, NSString * _Nonnull key2) {
+            NSString *rawValue1 = [self valueInRaw:_ascending?key1:key2 identifier:_sortingCol];
+            NSString *rawValue2 = [self valueInRaw:_ascending?key2:key1 identifier:_sortingCol];
+            return [rawValue1 compare:rawValue2];
+        }];
+    }
+    
     self.recordLabel.stringValue = [NSString stringWithFormat:LocalizedString(@"RecordNumMsg"),self.showArray.count];
     [self.saveBtn setEnabled:(_actionArray.count>0 && !self.isChecking)];
     [self.tableview reloadData];
@@ -449,31 +498,34 @@
     
     NSInteger column = _tableview.clickedColumn;
     NSInteger row = _tableview.clickedRow;
-    if(column<=0 || column >= self.tableview.numberOfColumns-2)
-        return;
-    if(row < 0 || row >= self.tableview.numberOfRows)
-        return;
-    NSString *key = _showArray[row];
-    NSInteger status = [_keyDict[key] integerValue];
-    if(status != KeyTypeRemove) {
-        StringModel *model = _stringArray[column-1];
-        if(model){
-            NSString *identifier = model.identifier;
-            if (self.infoPopOver && self.infoPopOver.isShown) {
-                [self.infoPopOver close],self.infoPopOver = nil;
-            }
-            if (self.editPopOver && self.editPopOver.isShown) {
-                StringEditViewController *editVC = (StringEditViewController*)[self.editPopOver contentViewController];
-                [self.editPopOver close],self.editPopOver = nil;
-                if ([key isEqualToString:editVC.key] && [identifier isEqualToString:editVC.identifier]) {
-                    return;
+    if (_selectedRow != row) {
+        self.selectedRow = row;
+    } else {
+        if(column<=0 || column >= self.tableview.numberOfColumns-2)
+            return;
+        if(row < 0 || row >= self.tableview.numberOfRows)
+            return;
+        NSString *key = _showArray[row];
+        NSInteger status = [_keyDict[key] integerValue];
+        if(status != KeyTypeRemove) {
+            StringModel *model = _stringArray[column-1];
+            if(model){
+                NSString *identifier = model.identifier;
+                if (self.infoPopOver && self.infoPopOver.isShown) {
+                    [self.infoPopOver close],self.infoPopOver = nil;
                 }
+                if (self.editPopOver && self.editPopOver.isShown) {
+                    StringEditViewController *editVC = (StringEditViewController*)[self.editPopOver contentViewController];
+                    [self.editPopOver close],self.editPopOver = nil;
+                    if ([key isEqualToString:editVC.key] && [identifier isEqualToString:editVC.identifier]) {
+                        return;
+                    }
+                }
+                NSDictionary *dict = @{@"Key":key, @"Identifier":identifier};
+                [self performSelector:@selector(startEditWithDict:) withObject:dict afterDelay:0.3];
             }
-            NSDictionary *dict = @{@"Key":key, @"Identifier":identifier};
-            [self performSelector:@selector(startEditWithDict:) withObject:dict afterDelay:0.3];
         }
     }
-    
 }
 
 -(void)startEditWithDict:(NSDictionary*)dict{
@@ -481,26 +533,30 @@
     NSString *identifier = dict[@"Identifier"];
     NSInteger column = [_tableview columnWithIdentifier:identifier];
     NSInteger row = [_showArray indexOfObject:key];
-    NSString *title = nil;
-    ActionModel *action = [self findActionWith:key identify:identifier];
-    if(action){
-        title = action.actionType==ActionTypeRemove ? @"" : action.value;
-    }
-    if(title==nil){
-        title = [self valueInRaw:key identifier:identifier];
-    }
-    CGRect rect = [_tableview frameOfCellAtColumn:column row:row];
-    StringEditViewController* viewController = [[StringEditViewController alloc] initWithKey:key identifier:identifier value:title];
-    [viewController setFinishBlock:^{
-        if (self.editPopOver && self.editPopOver.isShown) {
-            [self.editPopOver close],self.editPopOver = nil;
+    if (_selectedRow != row) {
+        self.selectedRow = row;
+    } else {
+        NSString *title = nil;
+        ActionModel *action = [self findActionWith:key identify:identifier];
+        if(action){
+            title = action.actionType==ActionTypeRemove ? @"" : action.value;
         }
-    }];
-    self.editPopOver = [[NSPopover alloc] init];
-    self.editPopOver.delegate = self;
-    self.editPopOver.behavior = NSPopoverBehaviorSemitransient;
-    [self.editPopOver setContentViewController:viewController];
-    [self.editPopOver showRelativeToRect:rect ofView:_tableview preferredEdge:NSRectEdgeMinY];
+        if(title==nil){
+            title = [self valueInRaw:key identifier:identifier];
+        }
+        CGRect rect = [_tableview frameOfCellAtColumn:column row:row];
+        StringEditViewController* viewController = [[StringEditViewController alloc] initWithKey:key identifier:identifier value:title];
+        [viewController setFinishBlock:^{
+            if (self.editPopOver && self.editPopOver.isShown) {
+                [self.editPopOver close],self.editPopOver = nil;
+            }
+        }];
+        self.editPopOver = [[NSPopover alloc] init];
+        self.editPopOver.delegate = self;
+        self.editPopOver.behavior = NSPopoverBehaviorSemitransient;
+        [self.editPopOver setContentViewController:viewController];
+        [self.editPopOver showRelativeToRect:rect ofView:_tableview preferredEdge:NSRectEdgeMinY];
+    }
 }
 
 -(void)doubleAction:(id)sender {
@@ -696,7 +752,7 @@
         return nil;
     NSString *identifier=[tableColumn identifier];
     NSString *key = self.showArray[row];
-    if([identifier isEqualToString:REMOVE]){
+    if([identifier isEqualToString:kRemove]){
         NSButton *aView = [tableView makeViewWithIdentifier:identifier owner:self];
         if(!aView) {
             aView = [[NSButton alloc]initWithFrame:NSZeroRect];
@@ -734,7 +790,7 @@
             [aView setEditable:NO];
             [aView setLineBreakMode:NSLineBreakByWordWrapping];
         }
-        if([identifier isEqualToString:KEY]){
+        if([identifier isEqualToString:kStrKey]){
             NSInteger status = [_keyDict[key] integerValue];
             if(status == KeyTypeRemove){
                 [aView setBackgroundColor:[NSColor redColor]];
@@ -767,5 +823,22 @@
         [aView setIdentifier:identifier];
         return aView;
     }
+}
+
+-(void)tableView:(NSTableView *)tableView didClickTableColumn:(NSTableColumn *)tableColumn{
+    NSString *identifier=[tableColumn identifier];
+    if ([identifier isEqualToString:kRemove]) {
+        return;
+    }
+    if ([identifier isEqualToString:_sortingCol]) {
+        self.ascending = !self.ascending;
+    } else {
+        self.ascending = YES;
+    }
+    self.sortingCol = identifier;
+    
+    [self refreshTableColumn];
+    
+    [self searchAnswer:nil];
 }
 @end

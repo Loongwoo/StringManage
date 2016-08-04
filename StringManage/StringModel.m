@@ -12,7 +12,7 @@
 #import "StringSetting.h"
 #import <objc/runtime.h>
 
-static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\\S+))\\s*=\\s*\"(.*)\";$";
+static NSString * const kRegularExpressionPattern = @"^(\"([^/]\\S+.*)\"|([^/]\\S+.*\\S+))\\s*=\\s*\"(.*)\";$";
 
 @implementation StringModel
 
@@ -102,9 +102,9 @@ static NSString * const kRegularExpressionPattern = @"(\"(\\S+.*\\S+)\"|(\\S+.*\
             if(![mutableString hasSuffix:@"\n"])
                 [mutableString appendFormat:@"\n"];
             if(projectSetting.language == StringLanguageSwift)
-                [mutableString appendFormat:@"%@=\"%@\";",action.key, action.value];
+                [mutableString appendFormat:@"%@ = \"%@\";",action.key, action.value];
             else
-                [mutableString appendFormat:@"\"%@\"=\"%@\";",action.key, action.value];
+                [mutableString appendFormat:@"\"%@\" = \"%@\";",action.key, action.value];
         }
     }
     //write to filepath
@@ -577,6 +577,35 @@ typedef void (^OnFindedItem)(NSString* fullPath, BOOL isDirectory, BOOL* skipThi
     }
     return [NSArray arrayWithArray:bundles];
 }
+
+/*
++(NSArray*)lprojDirectoriesWithProjectSetting:(StringSetting*)setting project:(NSString*)project{
+    NSString *path = [self explandRootPathMacro:[setting searchDirectory] projectPath:project];
+    return [self lprojDirectoriesWithPath:path fileName:setting.searchTableName];
+}
+
++(NSArray*)lprojDirectoriesWithPath:(NSString*)path fileName:(NSString*)fileName{
+    NSMutableArray *bundles = [NSMutableArray array];
+    NSArray* array = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:nil];
+    for(int i = 0; i<[array count]; i++){
+        NSString *fullPath = [path stringByAppendingPathComponent:array[i]];
+        NSError *error = nil;
+        NSDictionary *attr = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:&error];
+        if ([attr[NSFileType] isEqualTo:NSFileTypeDirectory]) {
+            if ([@"lproj" isEqualToString:fullPath.pathExtension]) {
+                NSString *filePath = [fullPath stringByAppendingPathComponent:fileName];
+                BOOL isDir = NO;
+                if([[NSFileManager defaultManager] fileExistsAtPath:filePath isDirectory:&isDir] && !isDir){
+                    [bundles addObject:fullPath];
+                }
+            } else {
+                [bundles addObjectsFromArray:[self lprojDirectoriesWithPath:fullPath fileName:fileName]];
+            }
+        }
+    }
+    return [NSArray arrayWithArray:bundles];
+}
+ */
 
 + (NSString*)settingFilePathByProjectName:(NSString*)projectName{
     NSString* settingDirectory = [StringModel _settingDirectory];
