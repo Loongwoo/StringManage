@@ -67,7 +67,7 @@ static dispatch_once_t onceToken;
             [self.windowController.window close];
         } else {
             if (self.windowController == nil) {
-                self.windowController = [[StringWindowController alloc] initWithWindowNibName:@"StringWindowController"];
+                self.windowController = [[StringWindowController alloc] init];
             }
             NSString* projectDir = [filePath stringByDeletingLastPathComponent];
             NSString *projectName = [filePath lastPathComponent];
